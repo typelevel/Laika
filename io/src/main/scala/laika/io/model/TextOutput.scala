@@ -31,10 +31,10 @@ import scala.io.Codec
   * @param path       The full virtual path of this output (does not represent the filesystem path in case of file I/O)
   * @param targetFile The target file in the file system, empty if this does not represent a file system resource
   */
-case class TextOutput[F[_]](
-    writer: TextOutput.Writer[F],
-    path: Path,
-    targetFile: Option[FilePath] = None
+class TextOutput[F[_]] private (
+    val writer: TextOutput.Writer[F],
+    val path: Path,
+    val targetFile: Option[FilePath] = None
 )
 
 object TextOutput {
@@ -54,18 +54,18 @@ object TextOutput {
         .drain
 
   def noOp[F[_]: Applicative](path: Path = Root / "doc"): TextOutput[F] =
-    TextOutput[F](_ => Applicative[F].unit, path)
+    new TextOutput[F](_ => Applicative[F].unit, path)
 
   def forFile[F[_]: Async](file: FilePath, path: Path = Root / "doc")(implicit
       codec: Codec
   ): TextOutput[F] =
-    TextOutput[F](writeAll(Files[F].writeAll(file.toFS2Path), codec), path, Some(file))
+    new TextOutput[F](writeAll(Files.forAsync[F].writeAll(file.toFS2Path), codec), path, Some(file))
 
   def forStream[F[_]: Async](
       stream: F[OutputStream],
       path: Path = Root / "doc",
       autoClose: Boolean = true
   )(implicit codec: Codec): TextOutput[F] =
-    TextOutput[F](writeAll(fs2.io.writeOutputStream(stream, autoClose), codec), path)
+    new TextOutput[F](writeAll(fs2.io.writeOutputStream(stream, autoClose), codec), path)
 
 }

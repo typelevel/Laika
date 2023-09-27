@@ -16,23 +16,26 @@
 
 package laika.format
 
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.{ Locale, UUID }
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, ConfigDecoder, ConfigEncoder, DefaultKey, Key }
+import laika.api.format.{
+  BinaryPostProcessor,
+  Formatter,
+  RenderFormat,
+  TagFormatter,
+  TwoPhaseRenderFormat
+}
 import laika.ast.Path.Root
-import laika.ast._
-import laika.config.Config.ConfigResult
-import laika.config._
-import laika.factory._
+import laika.ast.*
+import laika.config.*
+import laika.api.config.ConfigError.ValidationFailed
+import laika.epub.internal.{ ContainerWriter, XHTMLRenderer }
+import laika.internal.render.HTMLFormatter
+import laika.io.internal.errors.ConfigException
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
-import laika.render.epub.{ ContainerWriter, XHTMLRenderer }
-import laika.render.{ HTMLFormatter, XHTMLFormatter }
-import laika.theme.config.{ FontDefinition, BookConfig => CommonBookConfig }
+import laika.theme.config.BookConfig
 import laika.theme.Theme
-
-import java.time.OffsetDateTime
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
   *  May be directly passed to the `Renderer` or `Transformer` APIs:
@@ -56,7 +59,7 @@ import java.time.OffsetDateTime
   *
   *  @author Jens Halm
   */
-case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessorBuilder] {
+case object EPUB extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builder] {
 
   override val description: String = "EPUB"
 
@@ -67,79 +70,23 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     *
     *  @author Jens Halm
     */
-  object XHTML extends RenderFormat[HTMLFormatter] {
+  object XHTML extends RenderFormat[TagFormatter] {
 
-    override val description: String = "EPUB.XHTML"
+    override val description: String = "XHTML"
 
-    val fileSuffix: String = "epub.xhtml"
+    val fileSuffix: String = "xhtml"
 
-    val defaultRenderer: (HTMLFormatter, Element) => String = XHTMLRenderer
+    val defaultRenderer: (TagFormatter, Element) => String = XHTMLRenderer
 
-    val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = XHTMLFormatter
-
-  }
-
-  val interimFormat: RenderFormat[HTMLFormatter] = XHTML
-
-  /** Configuration options for the generated EPUB output.
-    *
-    * The duplication of the existing `BookConfig` instance from laika-core happens to have a different
-    * implicit key association with the EPUB-specific instance.
-    *
-    * @param metadata the metadata associated with the document
-    * @param navigationDepth the number of levels to generate a table of contents for
-    * @param fonts the fonts that should be embedded in the EPUB container
-    * @param coverImage the path to the cover image within the virtual document tree
-    */
-  case class BookConfig(
-      metadata: DocumentMetadata = DocumentMetadata(),
-      navigationDepth: Option[Int] = None,
-      fonts: Seq[FontDefinition] = Nil,
-      coverImage: Option[Path] = None
-  ) {
-
-    lazy val identifier: String =
-      metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
-
-    lazy val date: OffsetDateTime =
-      metadata.dateModified.orElse(metadata.datePublished).getOrElse(OffsetDateTime.now())
-
-    lazy val formattedDate: String =
-      DateTimeFormatter.ISO_INSTANT.format(date.toInstant.truncatedTo(ChronoUnit.SECONDS))
-
-    lazy val language: String = metadata.language.getOrElse(Locale.getDefault.toLanguageTag)
-  }
-
-  object BookConfig {
-
-    implicit val decoder: ConfigDecoder[BookConfig] = CommonBookConfig.decoder.map(c =>
-      BookConfig(
-        c.metadata,
-        c.navigationDepth,
-        c.fonts,
-        c.coverImage
-      )
-    )
-
-    implicit val encoder: ConfigEncoder[BookConfig] = CommonBookConfig.encoder.contramap(c =>
-      CommonBookConfig(c.metadata, c.navigationDepth, c.fonts, c.coverImage)
-    )
-
-    implicit val defaultKey: DefaultKey[BookConfig] = DefaultKey(Key("laika", "epub"))
-
-    def decodeWithDefaults(config: Config): ConfigResult[BookConfig] = for {
-      epubConfig   <- config.getOpt[BookConfig].map(_.getOrElse(BookConfig()))
-      commonConfig <- config.getOpt[CommonBookConfig].map(_.getOrElse(CommonBookConfig()))
-    } yield {
-      BookConfig(
-        epubConfig.metadata.withDefaults(commonConfig.metadata),
-        epubConfig.navigationDepth.orElse(commonConfig.navigationDepth),
-        epubConfig.fonts ++ commonConfig.fonts,
-        epubConfig.coverImage.orElse(commonConfig.coverImage)
-      )
-    }
+    val formatterFactory: Formatter.Context[TagFormatter] => TagFormatter =
+      context => new HTMLFormatter(closeEmptyTags = true, context)
 
   }
+
+  val interimFormat: RenderFormat[TagFormatter] = XHTML
+
+  /** The key to read `BookConfig` instance from for this EPUB renderer. */
+  val configKey: Key = Key("laika", "epub")
 
   /** Configuration Enumeration that indicates whether an EPUB template contains scripting. */
   sealed trait ScriptedTemplate extends Product
@@ -161,7 +108,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
       case "always" => Right(Always)
       case "never"  => Right(Never)
       case "auto"   => Right(Auto)
-      case other    => Left(ValidationError(s"Invalid value: $other"))
+      case other    => Left(ValidationFailed(s"Invalid value: $other"))
     }
 
     implicit val encoder: ConfigEncoder[ScriptedTemplate] =
@@ -179,17 +126,15 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     * before the tree gets passed to the XHTML renderer.
     */
   def prepareTree(root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = {
-    BookConfig.decodeWithDefaults(root.config).map { treeConfig =>
+    BookConfig.decodeWithDefaults(root.config, configKey).map { treeConfig =>
       treeConfig.coverImage.fold(root) { image =>
         root.modifyTree(
-          _.copy(
-            content = Document(
-              path = Root / "cover",
-              content =
-                RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover")))),
-              config =
-                ConfigBuilder.withFallback(root.config).withValue(LaikaKeys.title, "Cover").build
-            ) +: root.tree.content
+          _.prependContent(
+            Document(
+              Root / "cover",
+              RootElement(SpanSequence(Image(InternalTarget(image), alt = Some("cover"))))
+            )
+              .modifyConfig(_.withValue(LaikaKeys.title, "Cover"))
           )
         )
       }
@@ -205,7 +150,7 @@ case object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor
     *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
     *    and the configuration of this instance.
     */
-  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+  def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
       Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {

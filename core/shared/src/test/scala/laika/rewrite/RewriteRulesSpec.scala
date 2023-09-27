@@ -17,35 +17,30 @@
 package laika.rewrite
 
 import laika.api.builder.OperationConfig
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.{ CurrentDocument, Parent }
-import laika.ast._
-import laika.ast.sample.SampleConfig.{ noLinkValidation, siteBaseURL, targetFormats }
+import laika.ast.*
+import laika.ast.sample.SampleConfig.{ globalLinkValidation, siteBaseURL, targetFormats }
 import laika.ast.sample.{
   ParagraphCompanionShortcuts,
   SampleSixDocuments,
   SampleTrees,
   TestSourceBuilders
 }
-import laika.config.Config.ConfigResult
-import laika.config.{ Config, ConfigParser, LaikaKeys }
-import laika.parse.GeneratedSource
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
-import laika.rewrite.nav.TargetFormats
-import laika.rst.ast.Underline
+import laika.api.config.Config.ConfigResult
+import laika.config.{ LaikaKeys, LinkConfig, TargetDefinition, TargetFormats }
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
-  val disableInternalLinkValidation: Config =
-    ConfigParser.parse("""{ laika.links.excludeFromValidation = ["/"]}""").resolve().toOption.get
-
   def rewritten(root: RootElement, withTitles: Boolean = true): ConfigResult[RootElement] = {
     val config =
       if (withTitles)
-        disableInternalLinkValidation.withValue(LaikaKeys.firstHeaderAsTitle, true).build
-      else disableInternalLinkValidation
-    val doc    = Document(Path.Root / "doc", root, config = config)
+        ConfigBuilder.empty.withValue(LaikaKeys.firstHeaderAsTitle, true).build
+      else Config.empty
+    val doc    = Document(Path.Root / "doc", root).withConfig(config)
     OperationConfig.default
       .rewriteRulesFor(doc, RewritePhase.Resolve)
       .flatMap(doc.rewrite(_).map(_.content))
@@ -57,10 +52,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InvalidSpan(message, source(fallback, fallback))
 
   def invalidBlock(message: String, fallback: Block): InvalidBlock =
-    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
+    InvalidBlock(RuntimeMessage(MessageLevel.Error, message), SourceCursor.Generated, fallback)
 
   def invalidSpan(message: String, fallback: Span): InvalidSpan =
-    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), GeneratedSource, fallback)
+    InvalidSpan(RuntimeMessage(MessageLevel.Error, message), SourceCursor.Generated, fallback)
 
   def fnRefs(labels: FootnoteLabel*): Paragraph = Paragraph(labels.map { label =>
     FootnoteReference(label, generatedSource(toSource(label)))
@@ -71,7 +66,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }: _*)
 
   def fn(label: FootnoteLabel, num: Any) =
-    FootnoteDefinition(label, List(p(s"footnote$num")), GeneratedSource)
+    FootnoteDefinition(label, List(p(s"footnote$num")), SourceCursor.Generated)
 
   def fn(id: String, label: String) = Footnote(label, List(p(s"footnote$label")), Id(id))
 
@@ -155,10 +150,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "footnote rules - retain a group of footnotes with a mix of explicit numeric and autonumber labels"
   ) {
     val rootElem = RootElement(
-      fnRefs(Autonumber, NumericLabel(1), Autonumber),
-      fn(Autonumber, 1),
-      fn(NumericLabel(1), 1),
-      fn(Autonumber, 2)
+      fnRefs(FootnoteLabel.Autonumber, FootnoteLabel.NumericLabel(1), FootnoteLabel.Autonumber),
+      fn(FootnoteLabel.Autonumber, 1),
+      fn(FootnoteLabel.NumericLabel(1), 1),
+      fn(FootnoteLabel.Autonumber, 2)
     )
     val resolved = RootElement(
       fnLinks(("__fn-1", "1"), ("__fnl-1", "1"), ("__fn-2", "2")),
@@ -173,10 +168,14 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "footnote rules - retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes"
   ) {
     val rootElem = RootElement(
-      fnRefs(NumericLabel(2), Autonumber, AutonumberLabel("label")),
-      fn(NumericLabel(2), 2),
-      fn(AutonumberLabel("label"), 1),
-      fn(Autonumber, 2)
+      fnRefs(
+        FootnoteLabel.NumericLabel(2),
+        FootnoteLabel.Autonumber,
+        FootnoteLabel.AutonumberLabel("label")
+      ),
+      fn(FootnoteLabel.NumericLabel(2), 2),
+      fn(FootnoteLabel.AutonumberLabel("label"), 1),
+      fn(FootnoteLabel.Autonumber, 2)
     )
     val resolved = RootElement(
       fnLinks(("__fnl-2", "2"), ("__fn-2", "2"), ("label", "1")),
@@ -189,10 +188,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("footnote rules - retain a group of footnotes with autosymbol labels") {
     val rootElem = RootElement(
-      fnRefs(Autosymbol, Autosymbol, Autosymbol),
-      fn(Autosymbol, "*"),
-      fn(Autosymbol, "\u2020"),
-      fn(Autosymbol, "\u2021")
+      fnRefs(FootnoteLabel.Autosymbol, FootnoteLabel.Autosymbol, FootnoteLabel.Autosymbol),
+      fn(FootnoteLabel.Autosymbol, "*"),
+      fn(FootnoteLabel.Autosymbol, "\u2020"),
+      fn(FootnoteLabel.Autosymbol, "\u2021")
     )
     val resolved = RootElement(
       fnLinks(("__fns-1", "*"), ("__fns-2", "\u2020"), ("__fns-3", "\u2021")),
@@ -207,9 +206,9 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     "footnote rules - replace references with unresolvable autonumber or numeric labels with invalid spans"
   ) {
     val rootElem = RootElement(
-      fnRefs(NumericLabel(2), AutonumberLabel("labelA")),
-      fn(NumericLabel(3), 3),
-      fn(AutonumberLabel("labelB"), 1)
+      fnRefs(FootnoteLabel.NumericLabel(2), FootnoteLabel.AutonumberLabel("labelA")),
+      fn(FootnoteLabel.NumericLabel(3), 3),
+      fn(FootnoteLabel.AutonumberLabel("labelB"), 1)
     )
     val resolved = RootElement(
       p(
@@ -223,7 +222,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("footnote rules - replace surplus autonumber references with invalid spans") {
-    val rootElem = RootElement(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
+    val rootElem = RootElement(
+      fnRefs(FootnoteLabel.Autonumber, FootnoteLabel.Autonumber),
+      fn(FootnoteLabel.Autonumber, 1)
+    )
     val resolved = RootElement(
       p(FootnoteLink("__fn-1", "1"), invalidSpan("too many autonumber references", "[#]_")),
       fn("__fn-1", "1")
@@ -232,7 +234,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("footnote rules - replace surplus autosymbol references with invalid spans") {
-    val rootElem = RootElement(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
+    val rootElem = RootElement(
+      fnRefs(FootnoteLabel.Autosymbol, FootnoteLabel.Autosymbol),
+      fn(FootnoteLabel.Autosymbol, "*")
+    )
     val resolved = RootElement(
       p(FootnoteLink("__fns-1", "*"), invalidSpan("too many autosymbol references", "[*]_")),
       fn("__fns-1", "*")
@@ -317,32 +322,23 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     runRoot(rootElem, resolved)
   }
 
-  test("link id refs - resolve references when some parent element also gets rewritten") {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("text "), linkIdRef()), GeneratedSource),
-      LinkDefinition("name", ExternalTarget("http://foo/"))
-    )
-    val resolved =
-      RootElement(Title(List(Text("text "), extLink("http://foo/")), Id("text-text") + Style.title))
-    runRoot(rootElem, resolved)
-  }
-
   object IdRefs {
 
     private val linkTarget = RootElement(InternalLinkTarget(Id("ref")))
 
-    private val linkConfig = LinkConfig(targets =
-      Seq(
-        TargetDefinition("int", InternalTarget(RelativePath.parse("../doc-1.md#ref"))),
-        TargetDefinition("ext", ExternalTarget("https://www.foo.com/")),
-        TargetDefinition("inv", InternalTarget(RelativePath.parse("../doc-99.md#ref")))
+    private val linkConfig = LinkConfig.empty
+      .addTargets(
+        TargetDefinition.internal("int", RelativePath.parse("../doc-1.md#ref")),
+        TargetDefinition.internal("CasE", RelativePath.parse("../doc-2.md#ref")),
+        TargetDefinition.external("ext", "https://www.foo.com/"),
+        TargetDefinition.internal("inv", RelativePath.parse("../doc-99.md#ref"))
       )
-    )
 
     def run(ref: LinkIdReference, expected: Block): Unit = {
       val root =
         SampleTrees.sixDocuments
           .root.config(_.withValue(linkConfig))
+          .root.config(globalLinkValidation)
           .docContent(linkTarget)
           .doc3.content(p(ref))
           .suffix("md")
@@ -359,6 +355,12 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("global link defs - resolve internal link references to a target in the parent tree") {
     val target = InternalTarget(RelativePath.parse("../doc-1.md#ref")).relativeTo(Root / "tree1")
     IdRefs.run(linkIdRef("int"), p(SpanLink(target)("text")))
+  }
+
+  test("global link defs - resolve internal link references with case-insensitive comparison") {
+    val target = InternalTarget(RelativePath.parse("../doc-2.md#ref")).relativeTo(Root / "tree1")
+    val ref    = LinkIdReference(List(Text("Case")), "case", generatedSource(s"<<Case>>"))
+    IdRefs.run(ref, p(SpanLink(target)("Case")))
   }
 
   test("global link defs - resolve external link references") {
@@ -398,6 +400,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
           .doc4.content(InternalLinkTarget(Id("target-4")))
           .suffix("md")
           .root.config(siteBaseURL("http://external/"))
+          .root.config(globalLinkValidation)
           .apply(builder)
           .build
 
@@ -469,7 +472,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("internal links - resolve internal link references to an image") {
     val relPath    = Parent(1) / "images" / "frog.jpg"
     val absPath    = Root / "images" / "frog.jpg"
-    val imgPathRef = ImagePathReference(relPath, GeneratedSource, alt = Some("text"))
+    val imgPathRef = ImagePathReference(relPath, SourceCursor.Generated, alt = Some("text"))
     val target     = InternalTarget(relPath).relativeTo(refPath)
 
     InternalLinks.run(
@@ -513,18 +516,6 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
       relPath,
       invalidSpan(msg, s"[<$relPath>]"),
       _.staticDoc(absPath, "pdf")
-    )
-  }
-
-  test(
-    "internal links - allow links to missing target documents when one of the parent trees has the validateLinks flag set to false"
-  ) {
-    InternalLinks.run(
-      "doc99.md#ref",
-      InternalLinks.build(RelativePath.parse("doc99.md#ref")),
-      _
-        .doc4.config(targetFormats("pdf"))
-        .tree1.config(noLinkValidation)
     )
   }
 
@@ -630,54 +621,6 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     runRoot(rootElem, expected)
   }
 
-  test("decorated headers - set the level of the header in a flat list of headers") {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
-    )
-    val expected = RootElement(
-      Title(List(Text("Title")), Id("title") + Style.title),
-      Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
-      Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
-    )
-    runRoot(rootElem, expected)
-  }
-
-  test("decorated headers - set the level of the header in a nested list of headers") {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('-'), List(Text("Header 2")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 3")), GeneratedSource)
-    )
-    val expected = RootElement(
-      Title(List(Text("Title")), Id("title") + Style.title),
-      Section(
-        Header(1, List(Text("Header 1")), Id("header-1") + Style.section),
-        List(Section(Header(2, List(Text("Header 2")), Id("header-2") + Style.section), Nil))
-      ),
-      Section(Header(1, List(Text("Header 3")), Id("header-3") + Style.section), Nil)
-    )
-    runRoot(rootElem, expected)
-  }
-
-  test(
-    "decorated headers - do not create title nodes in the default configuration for orphan documents"
-  ) {
-    val rootElem = RootElement(
-      DecoratedHeader(Underline('#'), List(Text("Title")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 1")), GeneratedSource),
-      DecoratedHeader(Underline('#'), List(Text("Header 2")), GeneratedSource)
-    )
-    val expected = RootElement(
-      Section(Header(1, List(Text("Title")), Id("title") + Style.section), Nil),
-      Section(Header(1, List(Text("Header 1")), Id("header-1") + Style.section), Nil),
-      Section(Header(1, List(Text("Header 2")), Id("header-2") + Style.section), Nil)
-    )
-    runRootWithoutTitles(rootElem, expected)
-  }
-
   test("duplicate ids - append auto-increment numbers") {
     val header   = Header(1, "Header")
     val rootElem = RootElement(header, header)
@@ -708,11 +651,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test(
     "duplicate ids - replace ambiguous references for a link alias pointing to duplicate ids with invalid spans"
   ) {
-    val target        = InternalLinkTarget(Id("ref"))
-    val targetMsg     = "Ambiguous reference: more than one link target with id 'ref' in path /doc"
-    val invalidTarget = invalidBlock(targetMsg, InternalLinkTarget())
-    val rootElem      = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
-    val expected      = RootElement(
+    val target    = InternalLinkTarget(Id("ref"))
+    val targetMsg = "Ambiguous reference: more than one link target with id 'ref' in path /doc"
+    val rootElem  = RootElement(p(pathRef()), LinkAlias("name", "ref"), target, target)
+    val expected  = RootElement(
       p(invalidSpan(targetMsg, "[<name>]")),
       InternalLinkTarget(Id("ref-1")),
       InternalLinkTarget(Id("ref-2"))

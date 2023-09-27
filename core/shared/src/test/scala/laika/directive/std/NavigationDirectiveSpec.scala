@@ -25,10 +25,9 @@ import laika.ast.sample.{
   TestSourceBuilders
 }
 import laika.ast._
-import laika.rewrite.nav.TargetFormats
 import munit.FunSuite
 import RewriteSetup._
-import laika.config.{ ConfigBuilder, LaikaKeys }
+import laika.config.{ LaikaKeys, TargetFormats }
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     with TestSourceBuilders {
@@ -211,7 +210,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
       hasTitleDocs: Boolean = false,
       maxLevels: Int = Int.MaxValue,
       excludeSections: Boolean = false,
-      itemStyles: Options = NoOpt,
+      itemStyles: Options = Options.empty,
       includeTargetFormatConfig: Boolean = false,
       additionalDocuments: Seq[Document] = Nil
   )
@@ -329,11 +328,8 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
     implicit val options: NavOptions = NavOptions(additionalDocuments =
       Seq(
-        Document(
-          Root / "doc-3",
-          RootElement.empty,
-          config = ConfigBuilder.empty.withValue(LaikaKeys.excludeFromNavigation, true).build
-        )
+        Document(Root / "doc-3", RootElement.empty)
+          .modifyConfig(_.withValue(LaikaKeys.excludeFromNavigation, true))
       )
     )
 

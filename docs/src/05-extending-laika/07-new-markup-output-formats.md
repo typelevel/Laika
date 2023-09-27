@@ -53,15 +53,16 @@ while the parsers for a new format need to be registered in a `MarkupFormat`.
 The contract a markup implementation has to adhere to is captured in the following trait:
 
 ```scala mdoc
-import laika.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+import laika.api.bundle.{ BlockParserBuilder, ExtensionBundle, SpanParserBuilder }
+import laika.api.format.MarkupFormat.MarkupParsers
 
 trait MarkupFormat {
 
   def fileSuffixes: Set[String]
 
-  def blockParsers: Seq[BlockParserBuilder]
+  def blockParsers: MarkupParsers[BlockParserBuilder]
   
-  def spanParsers: Seq[SpanParserBuilder]
+  def spanParsers: MarkupParsers[SpanParserBuilder]
 
   def extensions: Seq[ExtensionBundle]
   
@@ -77,8 +78,12 @@ These are the four abstract method each parser has to implement.
   Laika supports a setup where input directories may contain source files written in different markup languages.
   In this case the format detection is solely based on the file suffix.
 
-* The `blockParsers` and `spanParsers` collections provide the definitions for the actual markup parsers. 
+* The `blockParsers` and `spanParsers` properties provide the definitions for the actual markup parsers. 
   These are the same types you've already seen when registering parsers as extensions.
+
+  Builtin parsers implement these two properties in a way that they also expose the individual
+  top-level parsers via its API so that users can alternatively cherry-pick them and compose
+  them with other parsers for their own extensions or custom formats.
 
   It may sound too good to be true, but the task of assembling the building blocks of a markup language
   in Laika is indeed merely declarative. 
@@ -169,7 +174,7 @@ A renderer has to implement the following trait:
 
 ```scala mdoc
 import laika.ast.Element
-import laika.factory.RenderContext
+import laika.api.format.Formatter
 
 trait RenderFormat[FMT] {
   
@@ -177,7 +182,7 @@ trait RenderFormat[FMT] {
   
   def defaultRenderer: (FMT, Element) => String
   
-  def formatterFactory: RenderContext[FMT] => FMT
+  def formatterFactory: Formatter.Context[FMT] => FMT
 
 }
 ```
@@ -191,14 +196,14 @@ trait RenderFormat[FMT] {
 * `formatterFactory` is the formatter instance for the target format. 
   A new instance of this formatter gets created for each render operation. 
   
-* The `RenderContext` passed to the factory function contains the root element of the AST
+* The `Formatter.Context` passed to the factory function contains the root element of the AST
   and the delegate render function which your formatter is supposed to use for rendering children.
   You need to use this indirection as the provided delegate contains the render overrides the user might
   have installed which your default render implementation cannot be aware of.
   
 * `FMT` is a type parameter representing the Formatter API specific to the output format.
-  For the built-in renderers, this is `FOFormatter` for `PDF`,
-  `HTMLFormatter` for `HTML` and `EPUB` and finally `TextFormatter` for the `AST` renderer.
+  For the built-in renderers, this is `TagFormatter` for `PDF`, `HTML` and `EPUB` 
+  and `Formatter` for the `AST` renderer.
 
 
 ### The Render Function
@@ -228,14 +233,14 @@ Let's look at a minimal excerpt of a hypothetical HTML render function:
 
 ```scala mdoc
 import laika.ast._
-import laika.render.HTMLFormatter
+import laika.api.format.TagFormatter
 
-def renderElement (fmt: HTMLFormatter, elem: Element): String = {
+def renderElement (fmt: TagFormatter, elem: Element): String = {
 
   elem match {
-    case Paragraph(content,opt) => fmt.element("p", opt, content)
+    case p: Paragraph => fmt.element("p", p)
     
-    case Emphasized(content,opt) => fmt.element("em", opt, content)
+    case e: Emphasized => fmt.element("em", e)
     
     /* [other cases ...] */
     
@@ -254,14 +259,14 @@ in the example above those are `<p>` and `<em>` tags respectively.
 
 ### Choosing a Formatter API
 
-Depending on the target format your renderer may use the `TextFormatter` or `HTMLFormatter` APIs, 
+Depending on the target format your renderer may use the `Formatter` or `TagFormatter` APIs, 
 which are explained in [The Formatter APIs]. 
 
 Alternatively it may create its own API, but you should keep in mind then, 
 that this API will also get used by users overriding renderers for specific nodes.
-Therefore it should be convenient and straightforward to use and well documented (e.g. full scaladoc).
+Therefore, it should be convenient and straightforward to use and well documented (e.g. full scaladoc).
 
-Even when creating your own formatter it's probably most convenient to at least extend `TextFormatter`,
+Even when creating your own formatter it's probably most convenient to at least extend `Formatter`,
 which contains base logic for indentation and delegating to child renderers.
 
 

@@ -17,15 +17,18 @@
 package laika.config
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.api.format.MarkupFormat
+import laika.ast.*
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
+import laika.ast.RewriteAction.Replace
 import laika.bundle.BundleProvider.TestExtensionBundle
-import laika.bundle.ExtensionBundle.LaikaDefaults
-import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
-import laika.factory.MarkupFormat
-import laika.markdown.bundle.VerbatimHTML
-import laika.markdown.github.GitHubFlavor
+import laika.api.bundle.ExtensionBundle.LaikaDefaults
+import laika.bundle.BundleProvider
+import MarkupFormat.MarkupParsers
+import laika.api.bundle.{ BlockParserBuilder, BundleOrigin, ExtensionBundle, SpanParserBuilder }
+import laika.format.Markdown.GitHubFlavor
+import laika.internal.markdown.bundle.VerbatimHTML
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -39,8 +42,12 @@ class OperationConfigSpec extends FunSuite {
 
     object Parser extends MarkupFormat {
       val fileSuffixes    = Set("foo")
-      val blockParsers    = Nil
-      val spanParsers     = Nil
+      val blockParsers    = new MarkupParsers[BlockParserBuilder] {
+        val all: Seq[BlockParserBuilder] = Nil
+      }
+      val spanParsers     = new MarkupParsers[SpanParserBuilder] {
+        val all: Seq[SpanParserBuilder] = Nil
+      }
       lazy val extensions = parserBundles
     }
 
@@ -57,14 +64,14 @@ class OperationConfigSpec extends FunSuite {
     }
 
     val bundles1 = Seq(UserBundle1, LaikaDefaults, ThemeBundle, GitHubFlavor, UserBundle2)
-    val bundles2 = Seq(VerbatimHTML, UserBundle1, ExtensionBundle.Empty)
-    val config1  = OperationConfig(bundles1)
-    val config2  = OperationConfig(bundles2)
+    val bundles2 = Seq(VerbatimHTML, UserBundle1, ExtensionBundle.empty)
+    val config1  = new OperationConfig(bundles1)
+    val config2  = new OperationConfig(bundles2)
     assertEquals(
       config1.merge(config2).bundles,
       Seq(
         LaikaDefaults,
-        ExtensionBundle.Empty,
+        ExtensionBundle.empty,
         GitHubFlavor,
         VerbatimHTML,
         ThemeBundle,
@@ -166,8 +173,8 @@ class OperationConfigSpec extends FunSuite {
     val expected = Document(Root, RootElement(Literal("foo"), Literal("bar")))
 
     assertEquals(
-      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
-      Right(expected)
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -187,8 +194,8 @@ class OperationConfigSpec extends FunSuite {
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
     assertEquals(
-      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
-      Right(expected)
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -207,8 +214,8 @@ class OperationConfigSpec extends FunSuite {
     val expected = Document(Root, RootElement(Literal("foo!?")))
 
     assertEquals(
-      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite),
-      Right(expected)
+      config.rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(doc.rewrite).map(_.content),
+      Right(expected.content)
     )
   }
 

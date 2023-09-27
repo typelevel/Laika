@@ -16,52 +16,58 @@
 
 package laika.directive
 
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{
+  BlockDirectives,
+  DirectiveRegistry,
+  LinkDirectives,
+  ParserBundle,
+  SpanDirectives,
+  TemplateDirectives
+}
+import laika.api.errors.TransformationError
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
-import laika.bundle.ParserBundle
-import laika.config.ConfigBuilder
+import laika.config.MessageFilter
 import laika.format.{ HTML, Markdown }
-import laika.parse.markup.DocumentParser.{ ParserError, TransformationError }
+import laika.internal.directive.DirectiveSupport
 import laika.parse.markup.RootParserProvider
 import laika.parse.{ Parser, SourceFragment }
-import laika.rewrite.TemplateRewriter
 import munit.FunSuite
 
-import scala.concurrent.duration.span
 import scala.util.Try
 
 class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderPhaseRewrite {
 
   object DirectiveSetup {
-    import Spans.dsl._
+    import laika.api.bundle.SpanDirectives.dsl._
 
     trait Empty {
-      val directive = Spans.create("dir")(Spans.dsl.empty(Text("foo")))
+      val directive = SpanDirectives.create("dir")(SpanDirectives.dsl.empty(Text("foo")))
     }
 
     trait RequiredPositionalAttribute {
-      val directive = Spans.create("dir") { attribute(0).as[String] map (Text(_)) }
+      val directive = SpanDirectives.create("dir") { attribute(0).as[String] map (Text(_)) }
     }
 
     trait OptionalPositionalAttribute {
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         attribute(0).as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>")))
       }
 
     }
 
     trait RequiredNamedAttribute {
-      val directive = Spans.create("dir") { attribute("name").as[String] map (Text(_)) }
+      val directive = SpanDirectives.create("dir") { attribute("name").as[String] map (Text(_)) }
     }
 
     trait OptionalNamedAttribute {
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         attribute("name").as[Int].optional map (num => Text(num.map(_.toString).getOrElse("<>")))
       }
 
@@ -69,7 +75,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
     trait AllAttributes {
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         allAttributes.map { attrs =>
           val foo = attrs.get[String]("foo").toOption.get
           val bar = attrs.get[Int]("bar").toOption.get
@@ -80,7 +86,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     }
 
     trait RequiredBody {
-      val directive = Spans.create("dir") { parsedBody map (SpanSequence(_)) }
+      val directive = SpanDirectives.create("dir") { parsedBody map (SpanSequence(_)) }
     }
 
     trait SeparatedBody {
@@ -89,15 +95,15 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
       case class Foo(content: Seq[Span])               extends Child
       case class Bar(content: Seq[Span], attr: String) extends Child
 
-      val sep1 = Spans.separator("foo", min = 1) {
+      val sep1 = SpanDirectives.separator("foo", min = 1) {
         parsedBody.map(Foo.apply)
       }
 
-      val sep2 = Spans.separator("bar", max = 1) {
+      val sep2 = SpanDirectives.separator("bar", max = 1) {
         (parsedBody, attribute(0).as[String]).mapN(Bar.apply)
       }
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         separatedBody[Child](Seq(sep1, sep2)) map { multipart =>
           val seps = multipart.children.flatMap {
             case Foo(content)       => Text("foo") +: content
@@ -111,7 +117,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
     trait FullDirectiveSpec {
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         (
           attribute(0).as[String],
           attribute(1).as[Int],
@@ -130,9 +136,9 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     trait DirectiveWithCustomBodyParser {
 
       import laika.parse.builders._
-      import laika.parse.implicits._
+      import laika.parse.syntax._
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))
           .map(SpanSequence(_))
       }
@@ -141,7 +147,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
     trait DirectiveWithContextAccess {
 
-      val directive = Spans.create("dir") {
+      val directive = SpanDirectives.create("dir") {
         (rawBody, cursor).mapN { (body, cursor) =>
           Text(body + cursor.target.path)
         }
@@ -151,7 +157,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
     trait DirectiveProducingResolver {
 
-      case class DummyResolver(options: Options = NoOpt) extends SpanResolver {
+      case class DummyResolver(options: Options = Options.empty) extends SpanResolver {
         type Self = DummyResolver
         def resolve(cursor: DocumentCursor): Span = Text("foo")
         val source: SourceFragment                = generatedSource("@:dir")
@@ -160,15 +166,15 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
         def runsIn(phase: RewritePhase): Boolean  = phase.isInstanceOf[RewritePhase.Render]
       }
 
-      val directive = Spans.create("dir") {
-        Spans.dsl.empty(DummyResolver())
+      val directive = SpanDirectives.create("dir") {
+        SpanDirectives.dsl.empty(DummyResolver())
       }
 
     }
 
     trait LinkDirectiveSetup {
 
-      val directive = Links.eval("rfc") { (linkId, _) =>
+      val directive = LinkDirectives.eval("rfc") { (linkId, _) =>
         Try(Integer.parseInt(linkId))
           .toEither
           .fold(
@@ -178,10 +184,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
       }
 
       object bundle extends DirectiveRegistry {
-        override def spanDirectives: Seq[Spans.Directive]         = Nil
-        override def blockDirectives: Seq[Blocks.Directive]       = Nil
-        override def templateDirectives: Seq[Templates.Directive] = Nil
-        override def linkDirectives: Seq[Links.Directive]         = Seq(directive)
+        override def spanDirectives: Seq[SpanDirectives.Directive]         = Nil
+        override def blockDirectives: Seq[BlockDirectives.Directive]       = Nil
+        override def templateDirectives: Seq[TemplateDirectives.Directive] = Nil
+        override def linkDirectives: Seq[LinkDirectives.Directive]         = Seq(directive)
       }
 
       def parseAsMarkdown(input: String): Either[TransformationError, Block] = MarkupParser
@@ -207,11 +213,12 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
       markupExtensions = directiveSupport.markupExtensions
     ).standaloneSpanParser.evalMap { spans =>
       val seq = SpanSequence(spans)
+
       val doc = Document(
         Root,
-        RootElement(seq),
-        config = ConfigBuilder.empty.withValue("ref", "value").build
-      )
+        RootElement(seq)
+      ).modifyConfig(_.withValue("ref", "value"))
+
       OperationConfig.default.rewriteRulesFor(doc, RewritePhase.Render(HTML))
         .map(_.rewriteSpan(seq))
         .leftMap(_.message)
@@ -231,7 +238,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   }
 
   trait SpanParser extends BaseParser {
-    def directive: Spans.Directive
+    def directive: SpanDirectives.Directive
 
     lazy val directiveSupport: ParserBundle =
       DirectiveSupport.withDirectives(Seq(), Seq(directive), Nil, Nil).parsers
@@ -239,7 +246,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   }
 
   trait LinkParser extends BaseParser {
-    def directive: Links.Directive
+    def directive: LinkDirectives.Directive
 
     lazy val directiveSupport: ParserBundle =
       DirectiveSupport.withDirectives(Seq(), Nil, Nil, Seq(directive)).parsers
@@ -328,7 +335,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name="foo bar } bb"""
       val msg   =
-        s"""One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.30] failure: Expected closing '"'
+        s"""One or more errors processing directive 'dir': Multiple invalid fields in HOCON source: 'name': [1.30] failure: Expected closing '"'
            |
            |$input
            |                             ^""".stripMargin
@@ -342,7 +349,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name = foo ? bar } bb"""
       val msg   =
-        s"""One or more errors processing directive 'dir': Multiple errors parsing HOCON: [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\\n', '}'
+        s"""One or more errors processing directive 'dir': Multiple invalid fields in HOCON source: 'name': [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\\n', '}'
            |
            |$input
            |                      ^""".stripMargin
@@ -369,8 +376,6 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("directive with a missing optional named int attribute") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:dir bb"
-      val msg   =
-        "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
       run(Text("aa <> bb"))
     }
   }
@@ -528,7 +533,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("link directive inside a native link expression") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfc(222)] bb"
+      val input = "aa [RFC-222](@:rfc(222)) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
@@ -544,13 +549,13 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("unknown link directive") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfx(222)] bb"
+      val input = "aa [RFC-222](@:rfx(222)) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
           Paragraph(
             Text("aa "),
-            invalid("[RFC-222][@:rfx(222)]", "Unknown link directive: rfx", defaultPath),
+            invalid("[RFC-222](@:rfx(222))", "Unknown link directive: rfx", defaultPath),
             Text(" bb")
           )
         )
@@ -560,14 +565,14 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("invalid link directive") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfc(foo)] bb"
+      val input = "aa [RFC-222](@:rfc(foo)) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
           Paragraph(
             Text("aa "),
             invalid(
-              "[RFC-222][@:rfc(foo)]",
+              "[RFC-222](@:rfc(foo))",
               "Invalid link directive: Not a valid RFC id: foo",
               defaultPath
             ),
@@ -580,15 +585,15 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   test("invalid link directive syntax") {
     new LinkParser with LinkDirectiveSetup {
-      val input = "aa [RFC-222][@:rfc foo] bb"
+      val input = "aa [RFC-222](@:rfc!foo) bb"
       assertEquals(
         parseAsMarkdown(input),
         Right(
           Paragraph(
             Text("aa "),
             invalid(
-              "[RFC-222][@:rfc foo]",
-              "Invalid link directive: `(' expected but `f` found",
+              "[RFC-222](@:rfc!foo)",
+              "Invalid link directive: `(' expected but `!` found",
               defaultPath
             ),
             Text(" bb")

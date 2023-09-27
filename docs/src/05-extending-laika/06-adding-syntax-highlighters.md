@@ -171,10 +171,10 @@ import laika.parse.code.common._
 val spanParsers: Seq[CodeSpanParser] = Seq(
   NumberLiteral.hex
     .withUnderscores
-    .withSuffix(NumericSuffix.long),
+    .withSuffix(NumberLiteral.suffix.long),
   NumberLiteral.decimalInt
     .withUnderscores
-    .withSuffix(NumericSuffix.long | NumericSuffix.float)
+    .withSuffix(NumberLiteral.suffix.long | NumberLiteral.suffix.float)
 )
 ```
 
@@ -257,7 +257,6 @@ which is quite straightforward, but not included in the reusable builders since 
 
 ```scala mdoc:compile-only
 import laika.parse.builders._
-import laika.parse.implicits._
 import laika.parse.code.CodeCategory
 
 val backtickId: CodeSpanParser = CodeSpanParser(CodeCategory.Identifier) {
@@ -357,7 +356,7 @@ First you have to assemble all the parsers in a `SyntaxHighlighter` implementati
 
 ```scala mdoc:silent
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeSpanParser
 
 object FooHighlighter extends SyntaxHighlighter {
@@ -374,13 +373,13 @@ object FooHighlighter extends SyntaxHighlighter {
 Finally, like all other types of extensions, the highlighter needs to be registered with an `ExtensionBundle`:
 
 ```scala mdoc:silent
-import laika.bundle.{ ExtensionBundle, ParserBundle }
+import laika.api.bundle.{ ExtensionBundle, ParserBundle }
 
 case object MyExtensions extends ExtensionBundle {
   
   val description: String = "Foo Syntax Highlighter"
   
-  override def parsers: ParserBundle = ParserBundle(
+  override def parsers: ParserBundle = new ParserBundle(
     syntaxHighlighters = Seq(
       FooHighlighter
     )
@@ -397,15 +396,13 @@ Finally, you can register your extension together with any built-in extensions y
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   MyExtensions
 )
 ```
@@ -414,12 +411,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(MyExtensions)
   .build
 ```

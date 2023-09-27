@@ -17,14 +17,11 @@
 package laika.directive.std
 
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
-import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast.{ RootCursor, TreePosition, _ }
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.ConfigBuilder
+import laika.config.{ ChoiceConfig, MessageFilter, SelectionConfig, Selections }
 import laika.format.{ HTML, Markdown }
-import laika.rewrite.TemplateRewriter
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 import munit.FunSuite
 
 class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
@@ -160,14 +157,12 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
       SelectionConfig(
         "config",
         ChoiceConfig("a", "label-a"),
-        ChoiceConfig("b", "label-b", selected = true)
+        ChoiceConfig("b", "label-b").select
       )
     )
-    val doc    = Document(
-      Root / "doc",
-      RootElement(group),
-      config = ConfigBuilder.empty.withValue(config).build
-    )
+    val doc    = Document(Root / "doc", RootElement(group))
+      .modifyConfig(_.withValue(config))
+
     assertEquals(
       rewrite(HTML)(doc).map(_.content),
       Right(RootElement(BlockSequence(List(p("common"), p("33\n44")))))

@@ -18,9 +18,8 @@ package laika.io.descriptor
 
 import cats.data.NonEmptyList
 import cats.effect.Async
-import cats.implicits._
-import laika.ast.Path.Root
-import laika.ast.{ DocumentTree, DocumentTreeRoot }
+import cats.syntax.all.*
+import laika.ast.DocumentTree
 import laika.io.api.{
   BinaryTreeRenderer,
   BinaryTreeTransformer,
@@ -28,7 +27,7 @@ import laika.io.api.{
   TreeRenderer,
   TreeTransformer
 }
-import laika.io.runtime.Batch
+import laika.io.internal.runtime.Batch
 
 /** Provides a description of a transform operation, including the parsers, renderers and extension bundles used,
   * as well as the sources and output target.
@@ -36,16 +35,16 @@ import laika.io.runtime.Batch
   *
   * @author Jens Halm
   */
-case class TransformerDescriptor(
-    parsers: NonEmptyList[String],
-    renderer: String,
-    bundles: Seq[ExtensionBundleDescriptor],
-    inputs: TreeInputDescriptor,
-    theme: ThemeDescriptor,
-    output: String,
-    strict: Boolean,
-    acceptRawContent: Boolean,
-    renderFormatted: Boolean
+class TransformerDescriptor private (
+    val parsers: NonEmptyList[String],
+    val renderer: String,
+    val bundles: Seq[ExtensionBundleDescriptor],
+    val inputs: TreeInputDescriptor,
+    val theme: ThemeDescriptor,
+    val output: String,
+    val strict: Boolean,
+    val acceptRawContent: Boolean,
+    val compactRendering: Boolean
 ) {
 
   def formatted: String = {
@@ -60,19 +59,32 @@ case class TransformerDescriptor(
        |Settings:
        |  Strict Mode: $strict
        |  Accept Raw Content: $acceptRawContent
-       |  Render Formatted: $renderFormatted
+       |  Compact Rendering: $compactRendering
        |Sources:
        |  ${inputs.formatted}
        |Target:
        |  $output""".stripMargin
   }
 
+  private[laika] def withRendererDescription(desc: String): TransformerDescriptor =
+    new TransformerDescriptor(
+      parsers,
+      desc,
+      bundles,
+      inputs,
+      theme,
+      output,
+      strict,
+      acceptRawContent,
+      compactRendering
+    )
+
 }
 
 object TransformerDescriptor {
 
   def apply(parser: ParserDescriptor, renderer: RendererDescriptor): TransformerDescriptor =
-    apply(
+    new TransformerDescriptor(
       parser.parsers,
       renderer.renderer,
       parser.bundles,
@@ -81,29 +93,32 @@ object TransformerDescriptor {
       renderer.output,
       parser.strict,
       parser.acceptRawContent,
-      renderer.renderFormatted
+      renderer.compactRendering
     )
 
-  def create[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
-    renderDesc <- RendererDescriptor.create(
-      TreeRenderer.Op(
-        op.renderer,
-        op.theme,
-        DocumentTreeRoot(DocumentTree(Root, Nil)),
-        op.output,
-        Nil
+  private[io] def create[F[_]: Async: Batch](op: TreeTransformer.Op[F]): F[TransformerDescriptor] =
+    for {
+      parserDesc <- ParserDescriptor.create(new TreeParser.Op(op.parsers, op.theme, op.input))
+      renderDesc <- RendererDescriptor.create(
+        new TreeRenderer.Op(
+          op.renderer,
+          op.theme,
+          DocumentTree.builder.buildRoot,
+          op.output,
+          Nil
+        )
       )
-    )
-  } yield apply(parserDesc, renderDesc)
+    } yield apply(parserDesc, renderDesc)
 
-  def create[F[_]: Async: Batch](op: BinaryTreeTransformer.Op[F]): F[TransformerDescriptor] = for {
-    parserDesc <- ParserDescriptor.create(TreeParser.Op(op.parsers, op.theme, op.input))
+  private[io] def create[F[_]: Async: Batch](
+      op: BinaryTreeTransformer.Op[F]
+  ): F[TransformerDescriptor] = for {
+    parserDesc <- ParserDescriptor.create(new TreeParser.Op(op.parsers, op.theme, op.input))
     renderDesc <- RendererDescriptor.create(
-      BinaryTreeRenderer.Op(
+      new BinaryTreeRenderer.Op(
         op.renderer,
         op.theme,
-        DocumentTreeRoot(DocumentTree(Root, Nil)),
+        DocumentTree.builder.buildRoot,
         op.output,
         Nil
       )

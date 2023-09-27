@@ -16,14 +16,16 @@
 
 package laika.ast
 
-import cats.syntax.all._
-import laika.ast.RewriteRules.{ ChainedRewriteRules, RewriteRulesBuilder }
-import laika.config.Config.ConfigResult
-import laika.config.ConfigErrors
-import laika.factory.{ RenderFormat, TwoPhaseRenderFormat }
-import laika.rewrite.{ OutputContext, TemplateFormatter, UnresolvedNodeDetector }
-import laika.rewrite.link.LinkResolver
-import laika.rewrite.nav.{ SectionBuilder, Selections }
+import cats.syntax.all.*
+import laika.api.format.{ RenderFormat, TwoPhaseRenderFormat }
+import laika.ast.RewriteRules.{ ChainedRewriteRules, RewritePhaseBuilder, RewriteRulesBuilder }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigError.MultipleErrors
+import laika.ast.RewriteAction.*
+import laika.config.Selections
+import laika.internal.link.LinkResolver
+import laika.internal.nav.SectionBuilder
+import laika.internal.rewrite.{ TemplateFormatter, UnresolvedNodeDetector }
 
 import scala.annotation.tailrec
 
@@ -35,20 +37,22 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-case class RewriteRules(
-    spanRules: Seq[RewriteRule[Span]] = Nil,
-    blockRules: Seq[RewriteRule[Block]] = Nil,
-    templateRules: Seq[RewriteRule[TemplateSpan]] = Nil
+class RewriteRules private (
+    val spanRules: Seq[RewriteRule[Span]] = Nil,
+    val blockRules: Seq[RewriteRule[Block]] = Nil,
+    val templateRules: Seq[RewriteRule[TemplateSpan]] = Nil
 ) {
 
-  private lazy val chainedSpanRules: Span => RewriteAction[Span] = ChainedRewriteRules(spanRules)
+  private lazy val chainedSpanRules: Span => RewriteAction[Span] = new ChainedRewriteRules(
+    spanRules
+  )
 
-  private lazy val chainedBlockRules: Block => RewriteAction[Block] = ChainedRewriteRules(
+  private lazy val chainedBlockRules: Block => RewriteAction[Block] = new ChainedRewriteRules(
     blockRules
   )
 
   private lazy val chainedTemplateRules: TemplateSpan => RewriteAction[TemplateSpan] =
-    ChainedRewriteRules(templateRules)
+    new ChainedRewriteRules(templateRules)
 
   /** Combines the rules defined in this instance with the rules defined
     * in the specified other instance. If a rule in this instance matches the same
@@ -56,7 +60,7 @@ case class RewriteRules(
     * will be applied first, before its result gets passed to the other function.
     */
   def ++ (other: RewriteRules): RewriteRules =
-    RewriteRules(
+    new RewriteRules(
       spanRules ++ other.spanRules,
       blockRules ++ other.blockRules,
       templateRules ++ other.templateRules
@@ -202,6 +206,16 @@ case class RewriteRules(
 
   def asBuilder: RewriteRulesBuilder = _ => Right(this)
 
+  /** Assigns default phases to the rules, executing block and span rules
+    * in the `Build` phase and template rules in the `Render` phase.
+    */
+  def asDefaultPhaseBuilder: RewritePhaseBuilder = {
+    case RewritePhase.Build     =>
+      Seq(new RewriteRules(spanRules = spanRules, blockRules = blockRules).asBuilder)
+    case RewritePhase.Render(_) =>
+      Seq(new RewriteRules(templateRules = templateRules).asBuilder)
+  }
+
 }
 
 /** Factory methods and utilities for dealing with rewrite rules.
@@ -217,25 +231,25 @@ object RewriteRules {
   /** Creates a new instance without any rules. Applying an empty instance to an AST will always
     * return the AST unchanged.
     */
-  def empty: RewriteRules = RewriteRules()
+  def empty: RewriteRules = new RewriteRules()
 
   /** Creates a new instance containing only this single rule for spans.
     */
-  def forSpans(rule: RewriteRule[Span]): RewriteRules = RewriteRules(spanRules = Seq(rule))
+  def forSpans(rule: RewriteRule[Span]): RewriteRules = new RewriteRules(spanRules = Seq(rule))
 
   /** Creates a new instance containing only this single rule for blocks.
     */
-  def forBlocks(rule: RewriteRule[Block]): RewriteRules = RewriteRules(blockRules = Seq(rule))
+  def forBlocks(rule: RewriteRule[Block]): RewriteRules = new RewriteRules(blockRules = Seq(rule))
 
   /** Creates a new instance containing only this single rule for template spans.
     */
   def forTemplates(rule: RewriteRule[TemplateSpan]): RewriteRules =
-    RewriteRules(templateRules = Seq(rule))
+    new RewriteRules(templateRules = Seq(rule))
 
   /** Chains the specified rewrite rules so that they get applied to matching elements
     * in the order specified in the given sequence.
     */
-  case class ChainedRewriteRules[T](rules: Seq[RewriteRule[T]]) extends (T => RewriteAction[T]) {
+  private class ChainedRewriteRules[T](rules: Seq[RewriteRule[T]]) extends (T => RewriteAction[T]) {
 
     def apply(element: T): RewriteAction[T] = {
 
@@ -271,7 +285,7 @@ object RewriteRules {
         .map(_(cursor).toEitherNec)
         .parSequence
         .map(_.reduceOption(_ ++ _).getOrElse(RewriteRules.empty))
-        .leftMap(ConfigErrors.apply)
+        .leftMap(MultipleErrors.apply)
 
   /** The default built-in rewrite rules, dealing with section building and link resolution.
     * These are not installed as part of any default extension bundle as they have specific
@@ -299,17 +313,21 @@ object RewriteRules {
   */
 sealed trait RewriteAction[+T]
 
-/** Indicates that the element a rewrite rule had been applied to should be replaced with this new value.
-  */
-case class Replace[T](newValue: T) extends RewriteAction[T]
+object RewriteAction {
 
-/** Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged.
-  */
-case object Retain extends RewriteAction[Nothing]
+  /** Indicates that the element a rewrite rule had been applied to should be replaced with this new value.
+    */
+  case class Replace[T](newValue: T) extends RewriteAction[T]
 
-/** Indicates that the element a rewrite rule had been applied to should be removed from the document AST.
-  */
-case object Remove extends RewriteAction[Nothing]
+  /** Indicates that the element a rewrite rule had been applied to should be kept in the document AST unchanged.
+    */
+  case object Retain extends RewriteAction[Nothing]
+
+  /** Indicates that the element a rewrite rule had been applied to should be removed from the document AST.
+    */
+  case object Remove extends RewriteAction[Nothing]
+
+}
 
 /** Represents one of the rewrite phases for document AST transformations.
   *

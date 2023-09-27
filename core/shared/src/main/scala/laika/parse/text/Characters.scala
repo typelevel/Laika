@@ -24,7 +24,7 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class Characters[T](
+class Characters[T] private (
     predicate: Char => Boolean,
     resultBuilder: Characters.ResultBuilder[T],
     minChar: Int = 0,
@@ -93,20 +93,22 @@ class Characters[T](
   */
 object Characters {
 
-  type ResultBuilder[T] = (SourceCursor, Int) => T
+  private[Characters] type ResultBuilder[T] = (SourceCursor, Int) => T
 
-  val StringResultBuilder: ResultBuilder[String] = (ctx, consumed) => ctx.capture(consumed)
-  val CountResultBuilder: ResultBuilder[Int]     = (_, consumed) => consumed
-  val UnitResultBuilder: ResultBuilder[Unit]     = (_, _) => ()
+  private[Characters] val StringResultBuilder: ResultBuilder[String] =
+    (ctx, consumed) => ctx.capture(consumed)
+
+  private[Characters] val CountResultBuilder: ResultBuilder[Int] = (_, consumed) => consumed
+  private[Characters] val UnitResultBuilder: ResultBuilder[Unit] = (_, _) => ()
 
   /**  Returns an optimized, Array-based lookup function
     *  for the specified characters.
     */
-  def optimizedLookup(chars: Iterable[Char]): Array[Byte] = {
-    val max: Int = if (chars.nonEmpty) chars.max else -1
+  private[text] def optimizedLookup(chars: Iterable[Char]): Array[Byte] = {
+    val max: Int = if (chars.nonEmpty) chars.max.toInt else -1
     val lookup   = new Array[Byte](max + 1)
 
-    for (c <- chars) lookup(c) = 1
+    for (c <- chars) lookup(c.toInt) = 1
 
     lookup
   }
@@ -117,7 +119,7 @@ object Characters {
   def include(chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
-        c => false
+        _ => false
       case 1 =>
         val c = chars(0)
         _ == c
@@ -128,7 +130,7 @@ object Characters {
       case _ =>
         val lookup = optimizedLookup(chars)
         val max    = lookup.length - 1
-        c => c <= max && lookup(c) == 1
+        c => c <= max && lookup(c.toInt) == 1
     }
     new Characters(p, StringResultBuilder)
   }
@@ -150,7 +152,7 @@ object Characters {
       case _ =>
         val lookup = optimizedLookup(chars)
         val max    = lookup.length - 1
-        c => c > max || lookup(c) == 0
+        c => c > max || lookup(c.toInt) == 0
     }
     new Characters(p, StringResultBuilder)
   }

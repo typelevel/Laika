@@ -63,7 +63,7 @@ Content Organization
 
 * Use integrated parsers for [Syntax Highlighting] that work for all output formats. 
   Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), Haskell,
-  HTML, CSS, XML, YAML, JSON, HOCON, SQL, EBNF, Alloy, Dhall, Dart
+  HTML, CSS, XML, YAML, JSON, HOCON, SQL, Shell/Bash, EBNF, Alloy, Dhall, Dart
   
 * Freely organize and merge content from multiple input directories or generated in-memory 
   with the library's [Virtual Tree Abstraction].
@@ -71,7 +71,8 @@ Content Organization
 * Produce [Versioned Documentation] based on simple configuration steps and an integrated version switcher
   dropdown in the default Helium theme.
   
-* Use the integrated [Preview Server](../02-running-laika/01-sbt-plugin.md#using-the-preview-server) with live updates to preview your site while editing.
+* Use the integrated [Preview Server](../02-running-laika/01-sbt-plugin.md#using-the-preview-server) 
+  with live updates to preview your site while editing.
 
 
 Library API

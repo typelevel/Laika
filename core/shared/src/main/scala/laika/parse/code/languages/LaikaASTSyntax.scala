@@ -17,7 +17,7 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.builders._
 import laika.parse.code.common.{ Identifier, Keywords, NumberLiteral, StringLiteral }
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
@@ -28,11 +28,12 @@ object LaikaASTSyntax extends SyntaxHighlighter {
 
   val language: NonEmptyList[String] = NonEmptyList.of("laika-ast")
 
-  val indentation: CodeSpanParser = CodeSpanParser.onLineStart(CodeCategory.Tag.Punctuation) {
-    literal(". ").rep.min(1).source
-  }
+  private val indentation: CodeSpanParser =
+    CodeSpanParser.onLineStart(CodeCategory.Tag.Punctuation) {
+      literal(". ").rep.min(1).source
+    }
 
-  val upperCaseTypeName: String => CodeCategory = s =>
+  private val upperCaseTypeName: String => CodeCategory = s =>
     if (s.nonEmpty && s.head.isUpper) CodeCategory.TypeName else CodeCategory.StringLiteral
 
   val spanParsers: Seq[CodeSpanParser] = Seq(

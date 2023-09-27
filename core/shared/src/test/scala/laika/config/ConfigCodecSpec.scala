@@ -16,17 +16,22 @@
 
 package laika.config
 
-import cats.data.{ Chain, NonEmptyChain }
-import laika.ast.{ DocumentMetadata, ExternalTarget, IconGlyph, IconStyle, InternalTarget }
+import cats.data.NonEmptyChain
+import laika.api.config.{
+  ConfigBuilder,
+  ConfigDecoder,
+  ConfigEncoder,
+  ConfigParser,
+  ConfigValue,
+  DefaultKey,
+  Key
+}
+import laika.ast.{ IconGlyph, IconStyle }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.rewrite.{ Version, VersionScannerConfig, Versions }
-import laika.rewrite.link.{ ApiLinks, IconRegistry, LinkConfig, SourceLinks, TargetDefinition }
-import laika.rewrite.nav.{ AutonumberConfig, ChoiceConfig, SelectionConfig, Selections }
-import laika.time.PlatformDateTime
+import laika.api.config.ConfigError.{ MultipleErrors, DecodingFailed, ValidationFailed }
+import laika.api.config.ConfigValue.ASTValue
 import munit.FunSuite
-
-import java.net.URI
 
 /** @author Jens Halm
   */
@@ -37,8 +42,8 @@ class ConfigCodecSpec extends FunSuite {
   def failDecode[T: ConfigDecoder: DefaultKey](input: String, messageStart: String): Unit = {
     val res = ConfigParser.parse(input).resolve().flatMap(_.get[T])
     res match {
-      case Left(err: DecodingError) if err.message.startsWith(messageStart) => ()
-      case Left(err: DecodingError)                                         =>
+      case Left(err: DecodingFailed) if err.message.startsWith(messageStart) => ()
+      case Left(err: DecodingFailed)                                         =>
         fail(s"message '${err.message}' did not start with '$messageStart''")
       case Left(err) => fail(s"Expected DecodingError, but got $err")
       case _         => fail("decoding did not fail as expected")
@@ -67,126 +72,27 @@ class ConfigCodecSpec extends FunSuite {
     assertEquals(result, Right(value))
   }
 
-  test("DocumentMetadata - decode an instance with all fields populated") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  title = "Monkey Gone To Heaven"
-        |  description = "It's indescribable"
-        |  identifier = XX-33-FF-01
-        |  authors = [ "Helen North", "Maria South" ]
-        |  language = en
-        |  datePublished = "2002-10-10T12:00:00"
-        |  dateModified = "2002-12-12T12:00:00"
-        |  version = 125
-        |  canonicalLink = "http://foo.bar/baz"
-        |}}
-      """.stripMargin
-    decode[DocumentMetadata](
-      input,
-      DocumentMetadata(
-        Some("Monkey Gone To Heaven"),
-        Some("It's indescribable"),
-        Some("XX-33-FF-01"),
-        Seq("Helen North", "Maria South"),
-        Some("en"),
-        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-        Some(PlatformDateTime.parse("2002-12-12T12:00:00").toOption.get),
-        Some("125"),
-        Some(new URI("http://foo.bar/baz"))
-      )
-    )
-  }
-
-  test("DocumentMetadata - decode an instance with a single author") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  identifier = XX-33-FF-01
-        |  author = "Dorothea West"
-        |  language = en
-        |  datePublished = "2002-10-10T12:00:00"
-        |}}
-      """.stripMargin
-    decode[DocumentMetadata](
-      input,
-      DocumentMetadata(
-        None,
-        None,
-        Some("XX-33-FF-01"),
-        Seq("Dorothea West"),
-        Some("en"),
-        Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
-      )
-    )
-  }
-
-  test("DocumentMetadata - round-trip encode and decode") {
-    val input = DocumentMetadata(
-      Some("Monkey Gone To Heaven"),
-      Some("Rhubarb, Rhubarb, Rhubarb"),
-      Some("XX-33-FF-01"),
-      Seq("Helen North", "Maria South"),
-      Some("en"),
-      Some(PlatformDateTime.parse("2012-10-10T12:00:00").toOption.get),
-      Some(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get),
-      Some("125"),
-      Some(new URI("http://foo.bar/baz"))
-    )
-    roundTrip(input)
-  }
-
-  test("DocumentMetadata - fail with an invalid date") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  identifier = XX-33-FF-01
-        |  author = "Dorothea West"
-        |  language = en
-        |  dateModified = "2000-XX-01T00:00:00Z"
-        |}}
-      """.stripMargin
-    failDecode[DocumentMetadata](
-      input,
-      "Error decoding 'laika.metadata.dateModified': Invalid date format"
-    )
-  }
-
-  test("DocumentMetadata - fail with an invalid URI") {
-    val input =
-      """{ 
-        |laika.metadata {
-        |  identifier = XX-33-FF-01
-        |  author = "Dorothea West"
-        |  language = en
-        |  canonicalLink = "?#?@!#"
-        |}}
-      """.stripMargin
-    val msg   =
-      "Error decoding 'laika.metadata.canonicalLink': Invalid URI format: java.net.URISyntaxException: "
-    failDecode[DocumentMetadata](input, msg)
-  }
-
   object links {
 
-    def sort(config: LinkConfig): LinkConfig = config.copy(targets = config.targets.sortBy(_.id))
+    def sort(config: LinkConfig): LinkConfig = LinkConfig.empty
+      .addTargets(config.targets.sortBy(_.id) *)
+      .addApiLinks(config.apiLinks *)
+      .addSourceLinks(config.sourceLinks *)
 
-    val fullyPopulatedInstance = LinkConfig(
-      Seq(
-        TargetDefinition("bar", InternalTarget(CurrentTree / "bar")),
-        TargetDefinition("ext", ExternalTarget("http://ext.com")),
-        TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))
-      ),
-      Seq(Root / "foo", Root / "bar" / "baz"),
-      Seq(
-        ApiLinks("https://foo.api/", "foo", "package.html"),
-        ApiLinks("https://bar.api/", "foo.bar")
-      ),
-      Seq(
-        SourceLinks("https://foo.source/", "scala", "foo"),
-        SourceLinks("https://bar.source/", "java", "foo.bar")
+    val fullyPopulatedInstance = LinkConfig.empty
+      .addTargets(
+        TargetDefinition.internal("bar", CurrentTree / "bar"),
+        TargetDefinition.external("ext", "http://ext.com"),
+        TargetDefinition.internal("foo", CurrentTree / "foo")
       )
-    )
+      .addApiLinks(
+        ApiLinks("https://foo.api/").withPackagePrefix("foo").withPackageSummary("package.html"),
+        ApiLinks("https://bar.api/").withPackagePrefix("foo.bar")
+      )
+      .addSourceLinks(
+        SourceLinks("https://foo.source/", "scala").withPackagePrefix("foo"),
+        SourceLinks("https://bar.source/", "java").withPackagePrefix("foo.bar")
+      )
 
   }
 
@@ -199,10 +105,6 @@ class ConfigCodecSpec extends FunSuite {
         |      bar = bar
         |      ext = "http://ext.com"
         |    }
-        |    excludeFromValidation = [
-        |      /foo
-        |      /bar/baz
-        |    ]
         |    api = [
         |      { baseUri = "https://foo.api/", packagePrefix = foo, packageSummary = package.html },
         |      { baseUri = "https://bar.api/", packagePrefix = foo.bar }
@@ -232,10 +134,9 @@ class ConfigCodecSpec extends FunSuite {
       """.stripMargin
     decode[LinkConfig](
       input,
-      LinkConfig(
-        targets = Seq(TargetDefinition("foo", InternalTarget(CurrentTree / "foo"))),
-        apiLinks = Seq(ApiLinks("https://bar.api/"))
-      ),
+      LinkConfig.empty
+        .addTargets(TargetDefinition.internal("foo", CurrentTree / "foo"))
+        .addApiLinks(ApiLinks("https://bar.api/")),
       links.sort
     )
   }
@@ -244,12 +145,42 @@ class ConfigCodecSpec extends FunSuite {
     roundTrip(links.fullyPopulatedInstance, links.sort)
   }
 
+  test("LinkValidation - decode an instance with exclusions") {
+    val input =
+      """{
+        |  laika.links.validation {
+        |    scope = global
+        |    excluded = [/foo, /bar/baz]
+        |  }
+        |}
+      """.stripMargin
+    decode[LinkValidation](
+      input,
+      LinkValidation.Global(Seq(Root / "foo", Root / "bar" / "baz"))
+    )
+  }
+
+  test("LinkValidation - decode an instance without exclusions") {
+    val input =
+      """{
+        |  laika.links.validation {
+        |    scope = local
+        |  }
+        |}
+      """.stripMargin
+    decode[LinkValidation](input, LinkValidation.Local)
+  }
+
+  test("LinkValidation - round-trip encode and decode") {
+    roundTrip[LinkValidation](LinkValidation.Global(Seq(Root / "foo", Root / "bar" / "baz")))
+  }
+
   object selections {
 
     val sample = Selections(
       SelectionConfig(
         "foo",
-        ChoiceConfig("foo-a", "foo-label-a", selected = true),
+        ChoiceConfig("foo-a", "foo-label-a").select,
         ChoiceConfig("foo-b", "foo-label-b")
       ).withSeparateEbooks,
       SelectionConfig(
@@ -292,11 +223,7 @@ class ConfigCodecSpec extends FunSuite {
 
   object autonumbering {
 
-    val fullyPopulatedInstance = AutonumberConfig(
-      documents = true,
-      sections = true,
-      maxDepth = 5
-    )
+    val fullyPopulatedInstance = AutonumberConfig.allEnabled.withMaxDepth(5)
 
   }
 
@@ -318,18 +245,17 @@ class ConfigCodecSpec extends FunSuite {
 
   object versions {
 
-    val testInstance = Versions(
-      Version("0.42.x", "0.42", canonical = true),
-      Seq(
+    val testInstance = Versions
+      .forCurrentVersion(Version("0.42.x", "0.42").setCanonical)
+      .withOlderVersions(
         Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", fallbackLink = "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43", label = Some("dev"))
-      ),
-      renderUnversioned = false,
-      scannerConfig = Some(VersionScannerConfig("/path/to/versions", Seq(Root / "api")))
-    )
+        Version("0.40.x", "0.40").withFallbackLink("toc.html")
+      )
+      .withNewerVersions(
+        Version("0.43.x", "0.43").withLabel("dev")
+      )
+      .withRenderUnversioned(false)
+      .withVersionScanner("/path/to/versions", Seq(Root / "api"))
 
   }
 
@@ -366,10 +292,10 @@ class ConfigCodecSpec extends FunSuite {
         |}
        """.stripMargin
     val res      = ConfigParser.parse(input).resolve().flatMap(_.get[Versions])
-    val expected = ConfigErrors(
+    val expected = MultipleErrors(
       NonEmptyChain(
-        ValidationError("Path segments used for more than one version: 0.41"),
-        ValidationError("More than one version marked as canonical: 0.41.x, 0.42.x")
+        ValidationFailed("Path segments used for more than one version: 0.41"),
+        ValidationFailed("More than one version marked as canonical: 0.41.x, 0.42.x")
       )
     )
     assertEquals(res, Left(expected))

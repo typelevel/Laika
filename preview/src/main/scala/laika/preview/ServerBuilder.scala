@@ -16,25 +16,33 @@
 
 package laika.preview
 
-import java.io.{ File, PrintWriter, StringWriter }
+import java.io.{ PrintWriter, StringWriter }
 import cats.data.{ Kleisli, OptionT }
-import cats.effect._
-import cats.syntax.all._
-import com.comcast.ip4s._
+import cats.effect.*
+import cats.syntax.all.*
+import com.comcast.ip4s.*
 import fs2.concurrent.Topic
+import fs2.io.net.Network
 import laika.ast
 import laika.ast.DocumentType
 import laika.format.{ EPUB, PDF }
 import laika.io.api.TreeParser
 import laika.io.model.{ FilePath, InputTreeBuilder }
 import laika.preview.ServerBuilder.Logger
+import laika.preview.internal.{
+  Cache,
+  RouteBuilder,
+  SiteResults,
+  SiteTransformer,
+  SourceChangeWatcher
+}
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{ HttpApp, HttpRoutes, Request }
-import org.http4s.implicits._
+import org.http4s.{ HttpApp, HttpRoutes, Request, Response }
+import org.http4s.implicits.*
 import org.http4s.server.{ Router, Server }
 import org.http4s.ember.server.EmberServerBuilder
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /** Configures and instantiates a resource for a preview server.
   *
@@ -45,12 +53,12 @@ import scala.concurrent.duration._
   *
   * @author Jens Halm
   */
-class ServerBuilder[F[_]: Async](
+class ServerBuilder[F[_]: Async] private (
     parser: Resource[F, TreeParser[F]],
     inputs: InputTreeBuilder[F],
     logger: Option[Logger[F]],
     config: ServerConfig
-) extends Http4sDsl[F] {
+) {
 
   private val RefreshEvent = "refresh"
 
@@ -75,6 +83,10 @@ class ServerBuilder[F[_]: Async](
     )
   }
 
+  private object ResponseBuilder extends Http4sDsl[F] {
+    def ok(output: String): F[Response[F]] = Ok(output)
+  }
+
   private def createApp(cache: Cache[F, SiteResults[F]], topic: Topic[F, String]): HttpApp[F] = {
     def renderStacktrace(service: HttpRoutes[F]): HttpRoutes[F] = Kleisli { (req: Request[F]) =>
       service(req).recoverWith { case err =>
@@ -82,17 +94,17 @@ class ServerBuilder[F[_]: Async](
           val sw = new StringWriter()
           err.printStackTrace(new PrintWriter(sw))
           sw.toString
-        }.flatMap(Ok(_)))
+        }.flatMap(ResponseBuilder.ok(_)))
       }
     }
     val routeLogger                                             =
       if (config.isVerbose) logger.getOrElse((s: String) => Async[F].delay(println(s)))
-      else (s: String) => Async[F].unit
+      else (_: String) => Async[F].unit
     Router("/" -> renderStacktrace(new RouteBuilder[F](cache, topic, routeLogger).build)).orNotFound
   }
 
   private def createServer(httpApp: HttpApp[F]): Resource[F, Server] =
-    EmberServerBuilder.default[F]
+    EmberServerBuilder.default(Async[F], Network.forAsync(Async[F]))
       .withShutdownTimeout(2.seconds)
       .withPort(config.port)
       .withHost(config.host)
@@ -145,89 +157,122 @@ object ServerBuilder {
 }
 
 /** Additional configuration options for a preview server.
-  *
-  * @param port the port the server should run on (default 4242)
-  * @param pollInterval the interval at which input file resources are polled for changes (default 1 second)
-  * @param artifactBasename the base name for PDF and EPUB artifacts linked by the generated site (default "docs")
-  * @param includeEPUB indicates whether EPUB downloads should be included on a download page (default false)
-  * @param includePDF indicates whether PDF downloads should be included on a download page (default false)
-  * @param isVerbose whether each served page and each detected file change should be logged (default false)
-  * @param apiDir an optional API directory from which API documentation should be served (default None)
   */
-class ServerConfig private (
-    val port: Port,
-    val host: Host,
-    val pollInterval: FiniteDuration,
-    val artifactBasename: String,
-    val includeEPUB: Boolean,
-    val includePDF: Boolean,
-    val isVerbose: Boolean,
-    val apiDir: Option[FilePath]
-) {
+sealed abstract class ServerConfig private {
 
-  private def copy(
-      newPort: Port = port,
-      newHost: Host = host,
-      newPollInterval: FiniteDuration = pollInterval,
-      newArtifactBasename: String = artifactBasename,
-      newIncludeEPUB: Boolean = includeEPUB,
-      newIncludePDF: Boolean = includePDF,
-      newVerbose: Boolean = isVerbose,
-      newAPIDir: Option[FilePath] = apiDir
-  ): ServerConfig =
-    new ServerConfig(
-      newPort,
-      newHost,
-      newPollInterval,
-      newArtifactBasename,
-      newIncludeEPUB,
-      newIncludePDF,
-      newVerbose,
-      newAPIDir
-    )
+  /** The port the server should run on (default 4242). */
+  def port: Port
+
+  /** The host the server should run on (default localhost). */
+  def host: Host
+
+  /** The interval at which input file resources are polled for changes (default 1 second). */
+  def pollInterval: FiniteDuration
+
+  /** The base name for PDF and EPUB artifacts linked by the generated site (default "docs"). */
+  def artifactBasename: String
+
+  /** Indicates whether EPUB downloads should be included on a download page (default false). */
+  def includeEPUB: Boolean
+
+  /** Indicates whether PDF downloads should be included on a download page (default false). */
+  def includePDF: Boolean
+
+  /** Indicates whether each served page and each detected file change should be logged (default false). */
+  def isVerbose: Boolean
+
+  /** An optional API directory from which API documentation should be served (default None). */
+  def apiDir: Option[FilePath]
 
   /** Specifies the port the server should run on (default 4242).
     */
-  def withPort(port: Port): ServerConfig = copy(newPort = port)
+  def withPort(port: Port): ServerConfig
 
   /** Specifies the host the server should run on (default localhost).
     */
-  def withHost(host: Host): ServerConfig = copy(newHost = host)
+  def withHost(host: Host): ServerConfig
 
   /** Specifies the interval at which input file resources are polled for changes (default 1 second).
     */
-  def withPollInterval(interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
+  def withPollInterval(interval: FiniteDuration): ServerConfig
 
   /** Indicates that EPUB downloads should be included on the download page.
     */
-  def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
+  def withEPUBDownloads: ServerConfig
 
   /** Indicates that PDF downloads should be included on the download page.
     */
-  def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+  def withPDFDownloads: ServerConfig
 
   /** Specifies the base name for PDF and EPUB artifacts linked by the generated site (default "docs").
     * Additional classifiers might be added to the base name (apart from the file suffix), depending on configuration.
     */
-  def withArtifactBasename(name: String): ServerConfig = copy(newArtifactBasename = name)
+  def withArtifactBasename(name: String): ServerConfig
 
   /** Specifies a directory from which API documentation of the site can be served.
     * This step is only necessary if you want to test links to API documentation with the preview server.
     */
-  def withAPIDirectory(dir: FilePath): ServerConfig = copy(newAPIDir = Some(dir))
-
-  @deprecated("use withAPIDirectory(FilePath)", "0.19.0")
-  def withAPIDirectory(dir: File): ServerConfig = copy(newAPIDir = Some(FilePath.fromJavaFile(dir)))
+  def withAPIDirectory(dir: FilePath): ServerConfig
 
   /** Indicates that each served page and each detected file change should be logged to the console.
     */
-  def verbose: ServerConfig = copy(newVerbose = true)
+  def verbose: ServerConfig
 
 }
 
 /** Companion for preview server configuration instances.
   */
 object ServerConfig {
+
+  private final case class Impl(
+      port: Port,
+      host: Host,
+      pollInterval: FiniteDuration,
+      artifactBasename: String,
+      includeEPUB: Boolean,
+      includePDF: Boolean,
+      isVerbose: Boolean,
+      apiDir: Option[FilePath]
+  ) extends ServerConfig {
+    override def productPrefix = "ServerConfig"
+
+    private def copy(
+        newPort: Port = port,
+        newHost: Host = host,
+        newPollInterval: FiniteDuration = pollInterval,
+        newArtifactBasename: String = artifactBasename,
+        newIncludeEPUB: Boolean = includeEPUB,
+        newIncludePDF: Boolean = includePDF,
+        newVerbose: Boolean = isVerbose,
+        newAPIDir: Option[FilePath] = apiDir
+    ): ServerConfig =
+      Impl(
+        newPort,
+        newHost,
+        newPollInterval,
+        newArtifactBasename,
+        newIncludeEPUB,
+        newIncludePDF,
+        newVerbose,
+        newAPIDir
+      )
+
+    def withPort(port: Port): ServerConfig = copy(newPort = port)
+
+    def withHost(host: Host): ServerConfig = copy(newHost = host)
+
+    def withPollInterval(interval: FiniteDuration): ServerConfig = copy(newPollInterval = interval)
+
+    def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
+
+    def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+
+    def withArtifactBasename(name: String): ServerConfig = copy(newArtifactBasename = name)
+
+    def withAPIDirectory(dir: FilePath): ServerConfig = copy(newAPIDir = Some(dir))
+
+    def verbose: ServerConfig = copy(newVerbose = true)
+  }
 
   val defaultPort: Port = port"4242"
 
@@ -238,15 +283,15 @@ object ServerConfig {
   val defaultArtifactBasename: String = "docs"
 
   /** A ServerConfig instance populated with default values. */
-  val defaults = new ServerConfig(
+  val defaults: ServerConfig = Impl(
     defaultPort,
     defaultHost,
     defaultPollInterval,
     defaultArtifactBasename,
-    false,
-    false,
-    false,
-    None
+    includeEPUB = false,
+    includePDF = false,
+    isVerbose = false,
+    apiDir = None
   )
 
 }

@@ -20,15 +20,14 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.ast.DocumentType.{ Markup, Static, Template }
 import laika.ast.Path.Root
-import laika.ast._
-import laika.io.implicits._
-import laika.bundle.{ BundleOrigin, BundleProvider, ExtensionBundle }
+import laika.ast.*
+import laika.io.syntax.*
+import laika.bundle.BundleProvider
 import laika.format.{ HTML, Markdown }
 import laika.io.helper.TestThemeBuilder
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.BasicPathTranslator
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -118,19 +117,19 @@ class ThemeBundleSpec extends FunSuite {
       p.parent / p.withBasename(p.basename + "-app").relative
     })
     val testTree           =
-      DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "doc.md", RootElement.empty))))
+      DocumentTree.builder.addDocument(Document(Root / "doc.md", RootElement.empty)).buildRoot
     val compoundTranslator = config(themeBundles, appBundles)
-      .pathTranslatorFor(testTree, OutputContext("html"))
-      .getOrElse(BasicPathTranslator("html"))
+      .pathTranslatorFor(testTree, OutputContext(HTML))
+      .getOrElse(PathTranslator.noOp)
     assertEquals(compoundTranslator.translate(Root / "doc.md"), Root / "doc-theme-app.html")
   }
 
   test("rewrite rules - merged from a markup extension and an app extension") {
     val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) { case s: Strong =>
-      Replace(Literal(s.extractText))
+      RewriteAction.Replace(Literal(s.extractText))
     })
     val appBundles   = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) {
-      case s: Emphasized => Replace(Literal(s.extractText))
+      case s: Emphasized => RewriteAction.Replace(Literal(s.extractText))
     })
 
     val doc = Document(Root, RootElement(Strong("foo"), Emphasized("bar")))
@@ -140,8 +139,8 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(
       config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
         doc.rewrite
-      ),
-      Right(expected)
+      ).map(_.content),
+      Right(expected.content)
     )
   }
 
@@ -149,10 +148,10 @@ class ThemeBundleSpec extends FunSuite {
     "rewrite rules - apply a rule from an app config and a rule from a markup extension successively"
   ) {
     val themeBundles = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.Theme) {
-      case Literal(text, _) => Replace(Literal(text + "!"))
+      case Literal(text, _) => RewriteAction.Replace(Literal(text + "!"))
     })
     val appBundles   = Seq(BundleProvider.forSpanRewriteRule(BundleOrigin.User) {
-      case Literal(text, _) => Replace(Literal(text + "?"))
+      case Literal(text, _) => RewriteAction.Replace(Literal(text + "?"))
     })
 
     val doc      = Document(Root, RootElement(Literal("foo")))
@@ -161,8 +160,8 @@ class ThemeBundleSpec extends FunSuite {
     assertEquals(
       config(themeBundles, appBundles).rewriteRulesFor(doc, RewritePhase.Resolve).flatMap(
         doc.rewrite
-      ),
-      Right(expected)
+      ).map(_.content),
+      Right(expected.content)
     )
   }
 

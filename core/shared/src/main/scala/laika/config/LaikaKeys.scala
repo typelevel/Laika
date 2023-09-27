@@ -16,6 +16,8 @@
 
 package laika.config
 
+import laika.api.config.Key
+
 /** Constants for configuration keys for the library's core configuration entries.
   *
   * @author Jens Halm
@@ -46,8 +48,6 @@ object LaikaKeys {
 
   val targetFormats: Key = root.child("targetFormats")
 
-  val validateLinks: Key = root.child("validateLinks")
-
   val firstHeaderAsTitle: Key = root.child("firstHeaderAsTitle")
 
   val artifactBaseName: Key = root.child("artifactBaseName")
@@ -62,6 +62,8 @@ object LaikaKeys {
 
   val versions: Key = root.child("versions")
 
+  val orphan: Key = root.child("orphan")
+
   object titleDocuments {
     val inputName: Key  = root.child(Key("titleDocuments", "inputName"))
     val outputName: Key = root.child(Key("titleDocuments", "outputName"))
@@ -71,13 +73,6 @@ object LaikaKeys {
     val apiPath: Key      = root.child(Key("site", "downloadPath"))
     val downloadPath: Key = root.child(Key("site", "apiPath"))
     val metadata: Key     = root.child(Key("site", "metadata"))
-    val css: Key          = root.child(Key("site", "css"))
-    val js: Key           = root.child(Key("site", "js"))
-  }
-
-  object epub {
-    val css: Key = root.child(Key("epub", "css"))
-    val js: Key  = root.child(Key("epub", "js"))
   }
 
   object preview {

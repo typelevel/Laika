@@ -18,16 +18,16 @@ package laika.helium.config
 
 import cats.data.NonEmptyList
 import laika.ast.RelativePath.CurrentDocument
-import laika.ast._
-import laika.config.LaikaKeys
-import laika.parse.{ GeneratedSource, SourceFragment }
-import laika.rewrite.Versions
+import laika.ast.*
+import laika.config.{ LaikaKeys, Versions }
+import laika.helium.internal.config.HeliumStyles
+import laika.parse.{ SourceCursor, SourceFragment }
 
 /** A Helium link type available for navigation bars and the landing page.
   */
 sealed trait ThemeLink extends Unresolved {
 
-  val source: SourceFragment = GeneratedSource
+  val source: SourceFragment = SourceCursor.Generated
 
   type Self <: ThemeLink
 
@@ -71,7 +71,7 @@ sealed abstract case class IconLink(
     target: Target,
     icon: Icon,
     text: Option[String] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends SingleTargetLink {
   type Self = IconLink
 
@@ -96,7 +96,7 @@ object IconLink {
       url: String,
       icon: Icon,
       text: Option[String] = None,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ): IconLink =
     new IconLink(ExternalTarget(url), icon, text, options) {}
 
@@ -105,7 +105,7 @@ object IconLink {
       path: Path,
       icon: Icon,
       text: Option[String] = None,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ): IconLink =
     new IconLink(InternalTarget(path), icon, text, options) {}
 
@@ -117,7 +117,7 @@ sealed abstract case class ButtonLink(
     target: Target,
     text: String,
     icon: Option[Icon] = None,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends SingleTargetLink {
   type Self = ButtonLink
 
@@ -136,7 +136,7 @@ object ButtonLink {
       url: String,
       text: String,
       icon: Option[Icon] = None,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ): ButtonLink =
     new ButtonLink(ExternalTarget(url), text, icon, options) {}
 
@@ -145,7 +145,7 @@ object ButtonLink {
       path: Path,
       text: String,
       icon: Option[Icon] = None,
-      options: Options = NoOpt
+      options: Options = Options.empty
   ): ButtonLink =
     new ButtonLink(InternalTarget(path), text, icon, options) {}
 
@@ -153,7 +153,7 @@ object ButtonLink {
 
 /** A simple text link.
   */
-sealed abstract case class TextLink(target: Target, text: String, options: Options = NoOpt)
+sealed abstract case class TextLink(target: Target, text: String, options: Options = Options.empty)
     extends SingleTargetLink {
   type Self = TextLink
 
@@ -166,18 +166,18 @@ sealed abstract case class TextLink(target: Target, text: String, options: Optio
 object TextLink {
 
   /** Creates a simple text link to an external target. */
-  def external(url: String, text: String, options: Options = NoOpt): TextLink =
+  def external(url: String, text: String, options: Options = Options.empty): TextLink =
     new TextLink(ExternalTarget(url), text, options) {}
 
   /** Creates a simple text link to an internal target. */
-  def internal(path: Path, text: String, options: Options = NoOpt): TextLink =
+  def internal(path: Path, text: String, options: Options = Options.empty): TextLink =
     new TextLink(InternalTarget(path), text, options) {}
 
 }
 
 /** A simple image link.
   */
-sealed abstract case class ImageLink(target: Target, image: Image, options: Options = NoOpt)
+sealed abstract case class ImageLink(target: Target, image: Image, options: Options = Options.empty)
     extends SingleTargetLink {
   type Self = ImageLink
 
@@ -192,11 +192,11 @@ sealed abstract case class ImageLink(target: Target, image: Image, options: Opti
 object ImageLink {
 
   /** Creates a simple image link to an external target. */
-  def external(url: String, image: Image, options: Options = NoOpt): ImageLink =
+  def external(url: String, image: Image, options: Options = Options.empty): ImageLink =
     new ImageLink(ExternalTarget(url), image, options) {}
 
   /** Creates a simple image link to an internal target. */
-  def internal(path: Path, image: Image, options: Options = NoOpt): ImageLink =
+  def internal(path: Path, image: Image, options: Options = Options.empty): ImageLink =
     new ImageLink(InternalTarget(path), image, options) {}
 
 }
@@ -204,7 +204,7 @@ object ImageLink {
 /** A home link that inserts a link to the title page of the root document tree (if available)
   * or otherwise an invalid element.
   */
-final case class DynamicHomeLink(options: Options = NoOpt) extends ThemeLinkSpan {
+final case class DynamicHomeLink(options: Options = Options.empty) extends ThemeLinkSpan {
   type Self = DynamicHomeLink
 
   def resolve(cursor: DocumentCursor): Span = {
@@ -214,7 +214,7 @@ final case class DynamicHomeLink(options: Options = NoOpt) extends ThemeLinkSpan
       case None           =>
         val message =
           "No target for home link found - for options see 'Theme Settings / Top Navigation Bar' in the manual"
-        InvalidSpan(message, GeneratedSource)
+        InvalidSpan(message, SourceCursor.Generated)
     }
   }
 
@@ -229,7 +229,7 @@ object DynamicHomeLink {
   *
   * Can be used to create structures like a row of icon links in a vertical column of text links.
   */
-sealed abstract case class LinkGroup(links: Seq[SingleTargetLink], options: Options = NoOpt)
+sealed abstract case class LinkGroup(links: Seq[SingleTargetLink], options: Options = Options.empty)
     extends ThemeLinkSpan with MultiTargetLink {
   type Self = LinkGroup
 
@@ -252,7 +252,7 @@ object LinkGroup {
 sealed abstract case class Menu(
     label: Seq[Span],
     links: Seq[SingleTargetLink],
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ThemeLinkBlock with MultiTargetLink {
   type Self = Menu
 
@@ -288,7 +288,7 @@ sealed abstract case class VersionMenu(
     versionedLabelPrefix: String,
     unversionedLabel: String,
     links: Seq[SingleTargetLink],
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends ThemeLinkBlock with MultiTargetLink {
   type Self = VersionMenu
 
@@ -321,11 +321,19 @@ object VersionMenu {
 
 }
 
-final case class ThemeNavigationSection(title: String, links: NonEmptyList[TextLink])
+sealed abstract class ThemeNavigationSection {
+  def title: String
+  def links: NonEmptyList[TextLink]
+}
 
 object ThemeNavigationSection {
 
+  private final case class Impl(title: String, links: NonEmptyList[TextLink])
+      extends ThemeNavigationSection {
+    override def productPrefix = "ThemeNavigationSection"
+  }
+
   def apply(title: String, link: TextLink, links: TextLink*): ThemeNavigationSection =
-    ThemeNavigationSection(title, NonEmptyList.of(link, links: _*))
+    Impl(title, NonEmptyList.of(link, links *))
 
 }

@@ -18,8 +18,8 @@ package laika.io.model
 
 import cats.data.Kleisli
 import cats.effect.Async
-import laika.ast.{ DocumentType, Path, StaticDocument }
-import laika.io.runtime.TreeResultBuilder.ParserResult
+import laika.ast.{ DocumentTree, DocumentTreeBuilder, DocumentType, Path, StaticDocument }
+import laika.io.internal.model.DirectoryInput
 
 /** A (virtual) tree of input documents, either obtained from scanning a directory recursively or
   * constructed programmatically (or a mix of both).
@@ -27,18 +27,18 @@ import laika.io.runtime.TreeResultBuilder.ParserResult
   * Even though the documents are specified as a flat sequence, they logically form a tree based
   * on their virtual path.
   */
-case class InputTree[F[_]](
-    textInputs: Seq[TextInput[F]] = Nil,
-    binaryInputs: Seq[BinaryInput[F]] = Nil,
-    parsedResults: Seq[ParserResult] = Nil,
-    providedPaths: Seq[StaticDocument] = Nil,
-    sourcePaths: Seq[FilePath] = Nil
+class InputTree[F[_]](
+    val textInputs: Seq[TextInput[F]] = Nil,
+    val binaryInputs: Seq[BinaryInput[F]] = Nil,
+    val treeBuilder: DocumentTreeBuilder = DocumentTree.builder,
+    val providedPaths: Seq[StaticDocument] = Nil,
+    val sourcePaths: Seq[FilePath] = Nil
 ) {
 
   /** A collection of all paths in this input tree, which may contain duplicates.
     */
   lazy val allPaths: Seq[Path] =
-    textInputs.map(_.path) ++ binaryInputs.map(_.path) ++ parsedResults.map(_.path)
+    textInputs.map(_.path) ++ binaryInputs.map(_.path) ++ treeBuilder.distinctParts.map(_.path)
 
   /** Merges the inputs of two trees recursively.
     *
@@ -46,10 +46,10 @@ case class InputTree[F[_]](
     * which would lead to errors when such a tree is used as input for a transformation.
     * If one tree should take precedence over the other in case of duplicates, use `overrideWith` instead.
     */
-  def ++ (other: InputTree[F]): InputTree[F] = InputTree(
+  def ++ (other: InputTree[F]): InputTree[F] = new InputTree(
     textInputs ++ other.textInputs,
     binaryInputs ++ other.binaryInputs,
-    parsedResults ++ other.parsedResults,
+    treeBuilder.addParts(other.treeBuilder.distinctParts),
     providedPaths ++ other.providedPaths,
     sourcePaths ++ other.sourcePaths
   )
@@ -63,24 +63,56 @@ case class InputTree[F[_]](
   def overrideWith(overrides: InputTree[F]): InputTree[F] =
     remove(overrides.allPaths.toSet) ++ overrides
 
-  def + (textInput: TextInput[F]): InputTree[F] = copy(textInputs = textInputs :+ textInput)
+  private[laika] def + (part: DocumentTreeBuilder.BuilderPart): InputTree[F] =
+    new InputTree[F](
+      textInputs,
+      binaryInputs,
+      treeBuilder.addPart(part),
+      providedPaths,
+      sourcePaths
+    )
 
-  def + (binaryInput: BinaryInput[F]): InputTree[F] =
-    copy(binaryInputs = binaryInputs :+ binaryInput)
+  private[laika] def withSourcePaths(paths: Seq[FilePath]): InputTree[F] = new InputTree[F](
+    textInputs,
+    binaryInputs,
+    treeBuilder,
+    providedPaths,
+    sourcePaths ++ paths
+  )
 
-  def + (parsedResult: ParserResult): InputTree[F] =
-    copy(parsedResults = parsedResults :+ parsedResult)
+  private[laika] def addTextInput(textInput: TextInput[F]): InputTree[F] = new InputTree[F](
+    textInputs :+ textInput,
+    binaryInputs,
+    treeBuilder,
+    providedPaths,
+    sourcePaths
+  )
 
-  def + (providedPath: StaticDocument): InputTree[F] =
-    copy(providedPaths = providedPaths :+ providedPath)
+  private[laika] def addBinaryInput(binaryInput: BinaryInput[F]): InputTree[F] = new InputTree[F](
+    textInputs,
+    binaryInputs :+ binaryInput,
+    treeBuilder,
+    providedPaths,
+    sourcePaths
+  )
+
+  private[laika] def addProvidedPath(providedPath: StaticDocument): InputTree[F] = new InputTree[F](
+    textInputs,
+    binaryInputs,
+    treeBuilder,
+    providedPaths :+ providedPath,
+    sourcePaths
+  )
 
   /** Returns a new input tree with all inputs matching the provided exclusions removed from this tree.
     */
   def remove(paths: Set[Path]): InputTree[F] = {
-    InputTree(
+    new InputTree(
       textInputs = textInputs.filterNot(in => paths.contains(in.path)),
       binaryInputs = binaryInputs.filterNot(in => paths.contains(in.path)),
-      parsedResults = parsedResults.filterNot(in => paths.contains(in.path)),
+      treeBuilder =
+        new DocumentTreeBuilder(treeBuilder.distinctParts.filterNot(in => paths.contains(in.path))),
+      providedPaths = providedPaths.filterNot(in => paths.contains(in.path)),
       sourcePaths = sourcePaths
     )
   }
@@ -121,5 +153,5 @@ object InputTree {
 
   /** An empty input tree.
     */
-  def empty[F[_]]: InputTree[F] = InputTree(Nil, Nil, Nil)
+  def empty[F[_]]: InputTree[F] = new InputTree()
 }

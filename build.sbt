@@ -1,71 +1,55 @@
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
-import sbt.Keys.{ artifactPath, crossScalaVersions }
+import laika.format.Markdown.GitHubFlavor
+import laika.config.SyntaxHighlighting
+import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 
-lazy val basicSettings = Seq(
-  version              := "0.19.1",
-  homepage             := Some(new URL("https://planet42.github.io/Laika/")),
-  organization         := "org.planet42",
-  organizationHomepage := Some(new URL("http://planet42.org")),
-  description          := "Text Markup Transformer for sbt and Scala applications",
-  startYear            := Some(2012),
-  licenses     := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion := versions.scala2_12,
-  scalacOptions ++= (Opts.compile.encoding("UTF-8") :+
-    Opts.compile.deprecation :+
-    Opts.compile.unchecked :+
-    "-feature" :+
-    "-language:implicitConversions" :+
-    "-language:postfixOps" :+
-    "-language:higherKinds") ++
-    (if (priorTo2_13(scalaVersion.value)) Seq("-Ypartial-unification") else Nil)
+inThisBuild(
+  Seq(
+    tlBaseVersion        := "1.0",
+    homepage             := Some(new URL("https://typelevel.org/Laika/")),
+    organization         := "org.typelevel",
+    organizationHomepage := Some(new URL("http://typelevel.org")),
+    description          := "Text Markup Transformer for sbt and Scala applications",
+    startYear            := Some(2012),
+    licenses := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
+    scalaVersion       := versions.scala2_12,
+    developers      := List(Developer("jenshalm", "Jens Halm", "", new URL("http://planet42.org"))),
+    tlCiHeaderCheck := false,
+    tlCiDependencyGraphJob := false,
+    githubWorkflowJavaVersions += JavaSpec.temurin("17"),
+    githubWorkflowBuildMatrixAdditions ~= { matrix =>
+      matrix + ("project" -> (matrix("project") :+ "plugin"))
+    },
+    githubWorkflowBuildMatrixExclusions ++= {
+      MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
+        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "plugin", "scala" -> scala)))
+    },
+    githubWorkflowBuild ++= Seq(
+      WorkflowStep.Sbt(
+        List("docs/mdoc", "docs/laikaSite"),
+        name = Some("Build manual"),
+        cond = Some("matrix.scala == '2.12' && matrix.project == 'rootJVM'")
+      ),
+      WorkflowStep.Sbt(
+        List("plugin/scripted"),
+        name = Some("sbt scripted tests"),
+        cond = Some("matrix.project == 'plugin'")
+      )
+    )
+  )
 )
 
-val mimaPreviousVersions = Set("0.19.0")
-
-val previousArtifacts = Seq(
-  mimaPreviousArtifacts := mimaPreviousVersions
-    .map(v => projectID.value.withRevision(v).withExplicitArtifacts(Vector.empty))
-)
-
-def priorTo2_13(version: String): Boolean =
-  CrossVersion.partialVersion(version) match {
-    case Some((2, minor)) if minor < 13 => true
-    case _                              => false
+def disableMissingInterpolatorWarning(options: Seq[String]): Seq[String] =
+  options.map { opt =>
+    if (opt.startsWith("-Xlint")) opt + ",-missing-interpolator" else opt
   }
 
-lazy val moduleSettings = basicSettings ++ previousArtifacts ++ Seq(
-  crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3)
-)
-
-lazy val publishSettings = Seq(
-  publishMavenStyle      := true,
-  Test / publishArtifact := false,
-  pomIncludeRepository   := { _ => false },
-  publishTo              := {
-    if (version.value.trim.endsWith("SNAPSHOT")) None
-    else Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-  },
-  pomExtra               := (<scm>
-      <url>https://github.com/planet42/Laika.git</url>
-      <connection>scm:git:https://github.com/planet42/Laika.git</connection>
-    </scm>
-    <developers>
-      <developer>
-        <id>jenshalm</id>
-        <name>Jens Halm</name>
-        <url>http://planet42.org</url>
-      </developer>
-    </developers>)
-)
-
-lazy val noPublishSettings = Seq(
-  publish      := (()),
-  publishLocal := (()),
-  publishTo    := None
-)
+def disableUnusedWarningsForMdoc(options: Seq[String]): Seq[String] =
+  options.map { opt =>
+    if (opt.startsWith("-Ywarn-unused")) opt + ",-locals,-explicits" else opt
+  }
 
 val munit = "org.scalameta" %% "munit" % versions.munit % "test"
 val jTidy = "net.sf.jtidy"   % "jtidy" % versions.jTidy % "test"
@@ -81,28 +65,22 @@ val http4s = Seq(
   "org.http4s" %% "http4s-ember-server" % versions.http4s
 )
 
-lazy val root = project.in(file("."))
-  .aggregate(core.js, core.jvm, pdf, io, preview, plugin)
-  .settings(basicSettings)
-  .settings(noPublishSettings)
-  .enablePlugins(ScalaUnidocPlugin)
-  .disablePlugins(MimaPlugin)
-  .settings(
-    crossScalaVersions                         := Nil,
-    ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-      plugin,
-      core.js,
-      demo.jvm,
-      demo.js
-    )
-  )
+lazy val root = tlCrossRootProject
+  .aggregate(core, pdf, io, preview, api)
+  .configureRoot { root =>
+    root.aggregate(plugin) // don't include the plugin in rootJVM, only in root
+      .settings(
+        crossScalaVersions := Nil,
+        scalaVersion       := versions.scala2_12
+      )
+  }
 
 lazy val docs = project.in(file("docs"))
   .dependsOn(plugin)
   .enablePlugins(LaikaPlugin)
   .enablePlugins(MdocPlugin)
   .enablePlugins(SbtPlugin)
-  .settings(noPublishSettings)
+  .enablePlugins(NoPublishPlugin)
   .settings(
     name                      := "laika-docs",
     laikaTheme                := ManualSettings.helium,
@@ -112,23 +90,42 @@ lazy val docs = project.in(file("docs"))
     Laika / target            := baseDirectory.value / "target",
     mdocIn                    := baseDirectory.value / "src",
     mdocVariables             := Map(
-      "LAIKA_VERSION" -> "0.19.1"
+      "LAIKA_VERSION" -> "1.0.0-M5"
     ),
-    mdocExtraArguments        := Seq("--no-link-hygiene")
+    mdocExtraArguments        := Seq("--no-link-hygiene"),
+    scalacOptions ~= disableUnusedWarningsForMdoc
+  )
+
+lazy val api = project
+  .in(file("unidoc"))
+  .enablePlugins(TypelevelUnidocPlugin)
+  .settings(
+    name                                       := "laika-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := {
+      if (scalaBinaryVersion.value == "2.12")
+        inProjects(core.jvm, io, pdf, preview, plugin)
+      else
+        inProjects(core.jvm, io, pdf, preview)
+    },
+    Compile / packageDoc / mappings            :=
+      ScaladocCleanup.removeUnwantedEntries(
+        (ScalaUnidoc / packageDoc / mappings).value,
+        (ThisBuild / baseDirectory).value,
+        scalaBinaryVersion.value
+      )
   )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
-  .settings(moduleSettings)
-  .settings(publishSettings)
   .settings(
     name := "laika-core",
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit"     % versions.munit % "test",
       "org.typelevel" %%% "cats-core" % versions.catsCore
-    )
+    ),
+    Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
   .jvmSettings(
     libraryDependencies += jTidy
@@ -141,17 +138,14 @@ lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 
 lazy val io = project.in(file("io"))
   .dependsOn(core.jvm % "compile->compile;test->test")
-  .settings(moduleSettings)
-  .settings(publishSettings)
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3)
+    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3),
+    Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
 
 lazy val pdf = project.in(file("pdf"))
   .dependsOn(core.jvm % "compile->compile;test->test", io % "compile->compile;test->test")
-  .settings(moduleSettings)
-  .settings(publishSettings)
   .settings(
     name := "laika-pdf",
     libraryDependencies ++= Seq(fop, munit)
@@ -159,8 +153,6 @@ lazy val pdf = project.in(file("pdf"))
 
 lazy val preview = project.in(file("preview"))
   .dependsOn(core.jvm, io % "compile->compile;test->test", pdf)
-  .settings(moduleSettings)
-  .settings(publishSettings)
   .settings(
     name := "laika-preview",
     libraryDependencies ++= (http4s :+ munit)
@@ -169,9 +161,6 @@ lazy val preview = project.in(file("preview"))
 lazy val plugin = project.in(file("sbt"))
   .dependsOn(core.jvm, io, pdf, preview)
   .enablePlugins(SbtPlugin)
-  .settings(basicSettings)
-  .settings(previousArtifacts)
-  .settings(publishSettings)
   .settings(
     name               := "laika-sbt",
     sbtPlugin          := true,
@@ -182,55 +171,11 @@ lazy val plugin = project.in(file("sbt"))
       "-Duser.language=en",
       "-Duser.country=GB"
     ),
-    scriptedBufferLog  := false
-  )
-
-lazy val demo = crossProject(JSPlatform, JVMPlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .crossType(CrossType.Full)
-  .in(file("demo"))
-  .dependsOn(core)
-  .enablePlugins(sbtdocker.DockerPlugin, JavaAppPackaging)
-  .settings(basicSettings)
-  .settings(
-    name    := "laika-demo",
-    version := "0.16.0.0"
-  )
-  .jvmSettings(
-    libraryDependencies ++= http4s,
-    Universal / javaOptions ++= Seq(
-      "-J-Xms512M",
-      "-J-Xmx896M"
-    ),
-    docker / buildOptions := BuildOptions(
-      cache = false,
-      removeIntermediateContainers = BuildOptions.Remove.Always,
-      pullBaseImage = BuildOptions.Pull.Always
-    ),
-    docker / dockerfile   := {
-      val appDir: File = stage.value
-      val targetDir    = "/app"
-
-      new Dockerfile {
-        from("openjdk:8")
-        expose(8080)
-        env("VERSION", version.value)
-        entryPoint(s"$targetDir/bin/${executableScriptName.value}")
-        copy(appDir, targetDir)
-      }
-    },
-    docker / imageNames   := Seq(
-      ImageName(
-        namespace = None,
-        repository = name.value,
-        tag = Some(version.value)
-      )
-    )
-  )
-  .jsSettings(
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-    Compile / fastOptJS / artifactPath :=
-      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer.mjs",
-    Compile / fullOptJS / artifactPath :=
-      (ThisBuild / baseDirectory).value / "demo" / "client" / "src" / "transformer" / "transformer-opt.mjs"
+    scriptedBufferLog  := false,
+    scripted           := scripted.dependsOn(
+      core.jvm / publishLocal,
+      io / publishLocal,
+      pdf / publishLocal,
+      preview / publishLocal
+    ).evaluated
   )

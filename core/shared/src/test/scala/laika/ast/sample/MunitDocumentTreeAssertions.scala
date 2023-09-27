@@ -17,7 +17,7 @@
 package laika.ast.sample
 
 import laika.ast.{ Document, DocumentTree, DocumentTreeRoot, TemplateDocument }
-import laika.config.Config.ConfigResult
+import laika.api.config.Config.ConfigResult
 
 trait MunitDocumentTreeAssertions extends munit.Assertions { self =>
 

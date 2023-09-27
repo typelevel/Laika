@@ -16,15 +16,18 @@
 
 package laika.io.model
 
-import laika.ast._
-import laika.config.Config
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.{ PathTranslator, TargetFormats }
+import laika.api.bundle.PathTranslator
+import laika.api.config.Config
+import laika.ast.*
+import laika.ast.styles.StyleDeclarationSet
+import laika.config.TargetFormats
 
 /** A titled, positional element in the tree of rendered documents.
   */
 sealed trait RenderContent extends Navigatable {
 
+  /** The title of this item, either obtained from document content or configuration.
+    */
   def title: Option[SpanSequence]
 
   /** Creates the navigation structure for this instance up to the specified depth.
@@ -34,7 +37,7 @@ sealed trait RenderContent extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem
 
 }
@@ -46,11 +49,11 @@ sealed trait RenderContent extends Navigatable {
   * @param content the rendered documents and subtrees in a recursive structure
   * @param titleDocument the optional title document of this tree
   */
-case class RenderedTree(
-    path: Path,
-    title: Option[SpanSequence],
-    content: Seq[RenderContent],
-    titleDocument: Option[RenderedDocument] = None
+class RenderedTree(
+    val path: Path,
+    val title: Option[SpanSequence],
+    val content: Seq[RenderContent],
+    val titleDocument: Option[RenderedDocument] = None
 ) extends RenderContent {
 
   /** All documents contained in this tree, fetched recursively, depth-first.
@@ -81,7 +84,7 @@ case class RenderedTree(
   }
 
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem = {
     def hasLinks(item: NavigationItem): Boolean =
       item.link.nonEmpty || item.content.exists(hasLinks)
@@ -99,12 +102,12 @@ case class RenderedTree(
   * The title and section info are still represented as an AST, so they be used in any subsequent
   * step that needs to produce navigation structures.
   */
-case class RenderedDocument(
-    path: Path,
-    title: Option[SpanSequence],
-    sections: Seq[SectionInfo],
-    content: String,
-    config: Config
+class RenderedDocument(
+    val path: Path,
+    val title: Option[SpanSequence],
+    val sections: Seq[SectionInfo],
+    val content: String,
+    val config: Config
 ) extends RenderContent with DocumentNavigation {
   val targetFormats: TargetFormats = TargetFormats.All
 }
@@ -113,24 +116,24 @@ case class RenderedDocument(
   * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.
   *
   * @param tree the recursive structure of documents, usually obtained from parsing text markup
-  * @param defaultTemplate the default template configured for the output format, which may be used by a post-processor
-  * @param config the root configuration of the rendered tree
+  * @param input the document AST that had been passed to the renderer
   * @param outputContext the context for the output format used in rendering (file suffix and format selector)
   * @param pathTranslator the path translator specific to the output format produced by the renderer
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)
   * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates,
   *                        and will potentially be embedded or copied as is to the final output, depending on the output format
   */
-case class RenderedTreeRoot[F[_]](
-    tree: RenderedTree,
-    defaultTemplate: TemplateRoot,
-    config: Config,
-    outputContext: OutputContext,
-    pathTranslator: PathTranslator,
-    styles: StyleDeclarationSet = StyleDeclarationSet.empty,
-    coverDocument: Option[RenderedDocument] = None,
-    staticDocuments: Seq[BinaryInput[F]] = Nil
+class RenderedTreeRoot[F[_]](
+    val tree: RenderedTree,
+    val input: DocumentTreeRoot,
+    val outputContext: OutputContext,
+    val pathTranslator: PathTranslator,
+    val coverDocument: Option[RenderedDocument] = None,
+    val staticDocuments: Seq[BinaryInput[F]] = Nil
 ) {
+
+  /** The configuration of the document AST used as input to the renderer. */
+  val config: Config = input.config
 
   /** The title of the tree, either obtained from the title document or configuration
     */
@@ -143,4 +146,39 @@ case class RenderedTreeRoot[F[_]](
   /** All documents contained in this tree, fetched recursively, depth-first.
     */
   lazy val allDocuments: Seq[RenderedDocument] = coverDocument.toSeq ++ tree.allDocuments
+
+  /** The default template configured for the output format, which may be used by a post-processor. */
+  lazy val defaultTemplate: TemplateRoot = input.tree
+    .getDefaultTemplate(outputContext.fileSuffix)
+    .fold(TemplateRoot.fallback)(_.content)
+
+  /** The styles that had been applied to the rendered output
+    * (only applies to formats like FO where styles are not just pass-through).
+    */
+  lazy val styles: StyleDeclarationSet = input.styles(outputContext.fileSuffix)
+
+  private[laika] def withDefaultTemplate(template: TemplateRoot): RenderedTreeRoot[F] = {
+    val newInput = input.modifyTree(
+      _.withDefaultTemplate(template, outputContext.fileSuffix)
+    )
+    new RenderedTreeRoot(
+      tree,
+      newInput,
+      outputContext,
+      pathTranslator,
+      coverDocument,
+      staticDocuments
+    )
+  }
+
+  def withStaticDocuments(docs: Seq[BinaryInput[F]]): RenderedTreeRoot[F] =
+    new RenderedTreeRoot(
+      tree,
+      input,
+      outputContext,
+      pathTranslator,
+      coverDocument,
+      docs
+    )
+
 }

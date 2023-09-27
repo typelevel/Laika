@@ -18,21 +18,21 @@ package laika.sbt
 
 import cats.effect.{ IO, Resource }
 import cats.effect.unsafe.implicits.global
-import cats.implicits._
-import laika.api.Renderer
-import laika.factory.{ BinaryPostProcessorBuilder, RenderFormat, TwoPhaseRenderFormat }
-import laika.format._
-import laika.io.config.SiteConfig
-import laika.io.implicits._
-import laika.io.model._
-import laika.rewrite.Versions
-import laika.rewrite.nav.Selections
-import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
+import cats.syntax.all.*
+import laika.api.{ MarkupParser, Renderer, Transformer }
+import laika.format.*
+import laika.io.syntax.*
+import laika.io.model.*
+import laika.sbt.LaikaPlugin.autoImport.*
+import sbt.Keys.*
+import sbt.*
 import sbt.util.CacheStore
 import Settings.validated
-import laika.config.Config
+import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.config.Config
+import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
+import laika.config.{ Selections, Versions }
+import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
 
@@ -44,7 +44,7 @@ import scala.annotation.tailrec
   */
 object Tasks {
 
-  import Def._
+  import Def.*
 
   /** Generates and copies the API documentation to the target directory of the site task.
     * Does nothing if the `laikaIncludeAPI` setting is set to false (the default).
@@ -101,7 +101,7 @@ object Tasks {
       }
       val tree    = parser.use(_.fromInput(inputs).parse).unsafeRunSync()
 
-      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logMessages)
+      Logs.runtimeMessages(streams.value.log, tree.root, userConfig.logLevel)
 
       tree
     }
@@ -136,7 +136,7 @@ object Tasks {
     }
 
     def renderWithProcessor[FMT](
-        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessorBuilder],
+        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
         formatDesc: String
     ): Set[File] = {
 
@@ -247,7 +247,7 @@ object Tasks {
     val (_, cancel) = buildPreviewServer.value.allocated.unsafeRunSync()
 
     streams.value.log.info(
-      s"Preview server started on port ${laikaPreviewConfig.value.port}. Press return/enter to exit."
+      s"Preview server started at http://${laikaPreviewConfig.value.host}:${laikaPreviewConfig.value.port}. Press return/enter to exit."
     )
 
     try {
@@ -274,6 +274,49 @@ object Tasks {
 
   val mappings: Initialize[Task[Seq[(File, String)]]] = task {
     sbt.Path.allSubpaths((laikaSite / target).value).toSeq
+  }
+
+  val describe: Initialize[Task[String]] = task {
+
+    val userConfig = laikaConfig.value
+
+    def mergedConfig(config: OperationConfig): OperationConfig = {
+      config
+        .withMessageFilters(userConfig.messageFilters)
+        .withBundleFilter(userConfig.bundleFilter)
+    }
+
+    def createParser(format: MarkupFormat): ParserBuilder = {
+      val parser = MarkupParser.of(format)
+      parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value: _*)
+    }
+
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .withConfig(mergedConfig(createParser(Markdown).config))
+      .using(laikaExtensions.value: _*)
+      .parallel[IO]
+      .withTheme(laikaTheme.value)
+      .withAlternativeParser(createParser(ReStructuredText))
+      .build
+
+    val inputs = laikaInputs.value.delegate
+
+    val result = transformer
+      .use(
+        _
+          .fromInput(inputs)
+          .toDirectory(FilePath.fromJavaFile((laikaSite / target).value))
+          .describe
+      )
+      .unsafeRunSync()
+      .withRendererDescription("Depending on task")
+      .formatted
+
+    streams.value.log.success("\n" + result)
+
+    result
   }
 
   /** Packages the generated html site and (optionally) the included
@@ -329,15 +372,15 @@ object Tasks {
   /** Collects all input files from the specified input tree.
     * Ignores any virtual inputs in the input trees.
     */
-  def collectInputFiles(inputs: InputTree[IO]): Set[File] =
+  private def collectInputFiles(inputs: InputTree[IO]): Set[File] =
     inputs.textInputs.flatMap(_.sourceFile.map(_.toJavaFile)).toSet ++
       inputs.binaryInputs.flatMap(_.sourceFile.map(_.toJavaFile))
 
   /** Enumeration of output formats supported by the plugin.
     */
-  sealed trait OutputFormat
+  private sealed trait OutputFormat
 
-  object OutputFormat {
+  private object OutputFormat {
 
     case object HTML extends OutputFormat
 

@@ -27,7 +27,7 @@ case class InvalidSpan(
     message: RuntimeMessage,
     source: SourceFragment,
     fallback: Span,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Span with Invalid {
   type Self            = InvalidSpan
   type FallbackElement = Span
@@ -51,7 +51,7 @@ case class InvalidBlock(
     message: RuntimeMessage,
     source: SourceFragment,
     fallback: Block,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block with Invalid {
   type Self            = InvalidBlock
   type FallbackElement = Block
@@ -79,7 +79,7 @@ object InvalidBlock {
   * the user has configured with the `renderErrors` method to debug in a visual mode
   * in which case the errors will get rendered in-place in the output.
   */
-case class RuntimeMessage(level: MessageLevel, content: String, options: Options = NoOpt)
+case class RuntimeMessage(level: MessageLevel, content: String, options: Options = Options.empty)
     extends Span
     with Block
     with TextContainer {
@@ -125,27 +125,4 @@ object MessageLevel {
     * content that would then unexpectedly fall back to defaults.
     */
   case object Fatal extends MessageLevel(4)
-}
-
-/** A filter for runtime messages that meet a specified minimum message level.
-  */
-sealed trait MessageFilter {
-  def apply(message: RuntimeMessage): Boolean
-}
-
-object MessageFilter {
-
-  case object None extends MessageFilter {
-    def apply(message: RuntimeMessage) = false
-  }
-
-  private def forLevel(level: MessageLevel) = new MessageFilter {
-    def apply(message: RuntimeMessage) = message.level >= level
-  }
-
-  val Debug: MessageFilter   = forLevel(MessageLevel.Debug)
-  val Info: MessageFilter    = forLevel(MessageLevel.Info)
-  val Warning: MessageFilter = forLevel(MessageLevel.Warning)
-  val Error: MessageFilter   = forLevel(MessageLevel.Error)
-  val Fatal: MessageFilter   = forLevel(MessageLevel.Fatal)
 }

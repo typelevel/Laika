@@ -1,12 +1,19 @@
 package laika.time
 
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.ast.{ Replace, RewriteRules, RootElement, TemplateRoot, TemplateSpan, TemplateString }
+import laika.ast.{
+  RewriteAction,
+  RewriteRules,
+  RootElement,
+  TemplateRoot,
+  TemplateSpan,
+  TemplateString
+}
+import laika.config.PlatformDateTime
 import laika.directive.std.{ MarkupParserSetup, TemplateParserSetup }
 import munit.FunSuite
 
 import scala.scalajs.js
-import scala.util.Try
 
 class PlatformDateDirectiveSpec extends FunSuite
     with ParagraphCompanionShortcuts
@@ -34,7 +41,7 @@ class PlatformDateDirectiveSpec extends FunSuite
 
   def normalizeWhitespace(rootElement: RootElement): RootElement =
     rootElement.rewriteChildren(RewriteRules.forTemplates { case ts: TemplateString =>
-      Replace(TemplateString(normalizeWhitespace(ts.content)))
+      RewriteAction.Replace(TemplateString(normalizeWhitespace(ts.content)))
     })
 
   def runTemplate(input: String, config: String, expectedContent: TemplateSpan*)(implicit

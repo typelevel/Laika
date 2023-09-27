@@ -17,12 +17,12 @@
 package laika.ast
 
 import cats.data.NonEmptySet
-import laika.config.{ ConfigEncoder, ConfigValue }
+import laika.api.config.{ ConfigEncoder, ConfigValue }
 import laika.parse.SourceFragment
 
 /** The root element of a document tree.
   */
-case class RootElement(content: Seq[Block], options: Options = NoOpt) extends Block
+case class RootElement(content: Seq[Block], options: Options = Options.empty) extends Block
     with BlockContainer {
   type Self = RootElement
   def withContent(newContent: Seq[Block]): RootElement = copy(content = newContent)
@@ -36,7 +36,7 @@ object RootElement extends BlockContainerCompanion {
 
 /** A paragraph consisting of span elements.
   */
-case class Paragraph(content: Seq[Span], options: Options = NoOpt) extends Block
+case class Paragraph(content: Seq[Span], options: Options = Options.empty) extends Block
     with SpanContainer {
   type Self = Paragraph
   def withContent(newContent: Seq[Span]): Paragraph = copy(content = newContent)
@@ -50,7 +50,7 @@ object Paragraph extends SpanContainerCompanion {
 
 /** A literal block with unparsed text content.
   */
-case class LiteralBlock(content: String, options: Options = NoOpt) extends Block
+case class LiteralBlock(content: String, options: Options = Options.empty) extends Block
     with TextContainer {
   type Self = LiteralBlock
   def withOptions(options: Options): LiteralBlock = copy(options = options)
@@ -58,7 +58,7 @@ case class LiteralBlock(content: String, options: Options = NoOpt) extends Block
 
 /** A literal block with parsed text content.
   */
-case class ParsedLiteralBlock(content: Seq[Span], options: Options = NoOpt) extends Block
+case class ParsedLiteralBlock(content: Seq[Span], options: Options = Options.empty) extends Block
     with SpanContainer {
   type Self = ParsedLiteralBlock
   def withContent(newContent: Seq[Span]): ParsedLiteralBlock = copy(content = newContent)
@@ -82,7 +82,7 @@ case class CodeBlock(
     language: String,
     content: Seq[Span],
     codeOptions: Seq[String] = Nil,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block with SpanContainer {
   type Self = CodeBlock
   def withContent(newContent: Seq[Span]): CodeBlock = copy(content = newContent)
@@ -99,38 +99,49 @@ case class CodeBlock(
   * Can be used as both block and inline element.
   * If supported by a parser it usually has to be explicitly enabled due to security concerns.
   */
-case class RawContent(formats: NonEmptySet[String], content: String, options: Options = NoOpt)
-    extends Block with Span with TextContainer {
+case class RawContent(
+    formats: NonEmptySet[String],
+    content: String,
+    options: Options = Options.empty
+) extends Block with Span with TextContainer {
   type Self = RawContent
   def withOptions(options: Options): RawContent = copy(options = options)
 }
 
 /** A horizontal rule.
   */
-case class Rule(options: Options = NoOpt) extends Block {
+case class Rule(options: Options = Options.empty) extends Block {
   type Self = Rule
   def withOptions(options: Options): Rule = copy(options = options)
 }
 
 /** A named document fragment that usually gets rendered separately from the main root element
   */
-case class DocumentFragment(name: String, root: Element, options: Options = NoOpt) extends Block {
+case class DocumentFragment(name: String, root: Element, options: Options = Options.empty)
+    extends Block {
   type Self = DocumentFragment
   def withOptions(options: Options): DocumentFragment = copy(options = options)
 }
 
 /** An element that only gets rendered for a specific output format.
   */
-case class TargetFormat(formats: NonEmptySet[String], element: Element, options: Options = NoOpt)
-    extends Block {
+case class TargetFormat(
+    formats: NonEmptySet[String],
+    element: Element,
+    options: Options = Options.empty
+) extends Block {
   type Self = TargetFormat
   def withOptions(options: Options): TargetFormat = copy(options = options)
 }
 
 /** Represents a single choice in a `ChoiceGroup`.
   */
-case class Choice(name: String, label: String, content: Seq[Block], options: Options = NoOpt)
-    extends BlockContainer {
+case class Choice(
+    name: String,
+    label: String,
+    content: Seq[Block],
+    options: Options = Options.empty
+) extends BlockContainer {
   type Self = Choice
   def withContent(newContent: Seq[Block]): Choice = copy(content = newContent)
   def withOptions(options: Options): Choice       = copy(options = options)
@@ -140,7 +151,8 @@ case class Choice(name: String, label: String, content: Seq[Block], options: Opt
   * e.g. a code sample in Scala or Java or a build setup in sbt vs. Maven.
   * In the final output these will usually be rendered in a way to allow for a convenient selection.
   */
-case class Selection(name: String, choices: Seq[Choice], options: Options = NoOpt) extends Block
+case class Selection(name: String, choices: Seq[Choice], options: Options = Options.empty)
+    extends Block
     with RewritableContainer {
   type Self = Selection
   def withOptions(options: Options): Selection = copy(options = options)
@@ -155,7 +167,7 @@ case class Selection(name: String, choices: Seq[Choice], options: Options = NoOp
   *  to the configuration of the document.
   *  During rendering these embedded configuration values will be discarded.
   */
-case class EmbeddedConfigValue(key: String, value: ConfigValue, options: Options = NoOpt)
+case class EmbeddedConfigValue(key: String, value: ConfigValue, options: Options = Options.empty)
     extends Block with Span with Hidden {
   type Self = EmbeddedConfigValue
   def withOptions(options: Options): EmbeddedConfigValue = copy(options = options)
@@ -164,7 +176,7 @@ case class EmbeddedConfigValue(key: String, value: ConfigValue, options: Options
 object EmbeddedConfigValue {
 
   def apply[T](name: String, value: T)(implicit encoder: ConfigEncoder[T]): EmbeddedConfigValue =
-    EmbeddedConfigValue(name, encoder(value), NoOpt)
+    EmbeddedConfigValue(name, encoder(value), Options.empty)
 
 }
 
@@ -172,7 +184,8 @@ object EmbeddedConfigValue {
   *  of a list of Block elements. Sections may be nested inside other sections,
   *  they are arranged in a hierarchy based on the level of their header element.
   */
-case class Section(header: Header, content: Seq[Block], options: Options = NoOpt) extends Block
+case class Section(header: Header, content: Seq[Block], options: Options = Options.empty)
+    extends Block
     with BlockContainer {
   type Self = Section
 
@@ -189,7 +202,7 @@ case class Section(header: Header, content: Seq[Block], options: Options = NoOpt
 
 /** A header element with a level, with 1 being the top level of the document.
   */
-case class Header(level: Int, content: Seq[Span], options: Options = NoOpt) extends Block
+case class Header(level: Int, content: Seq[Span], options: Options = Options.empty) extends Block
     with SpanContainer {
   type Self = Header
   def withContent(newContent: Seq[Span]): Header = copy(content = newContent)
@@ -207,7 +220,8 @@ object Header {
 
 /** The (optional) title of the document.
   */
-case class Title(content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer {
+case class Title(content: Seq[Span], options: Options = Options.empty) extends Block
+    with SpanContainer {
   type Self = Title
   def withContent(newContent: Seq[Span]): Title = copy(content = newContent)
   def withOptions(options: Options): Title      = copy(options = options)
@@ -227,7 +241,7 @@ case class DecoratedHeader(
     decoration: HeaderDecoration,
     content: Seq[Span],
     source: SourceFragment,
-    options: Options = NoOpt
+    options: Options = Options.empty
 ) extends Block
     with SpanContainer
     with Unresolved {
@@ -267,7 +281,7 @@ trait HeaderDecoration
   *  Usually renderers do not treat the container as a special element and render its children
   *  as s sub flow of the parent container.
   */
-case class BlockSequence(content: Seq[Block], options: Options = NoOpt) extends Block
+case class BlockSequence(content: Seq[Block], options: Options = Options.empty) extends Block
     with BlockContainer {
   type Self = BlockSequence
   def withContent(newContent: Seq[Block]): BlockSequence = copy(content = newContent)
@@ -282,8 +296,11 @@ object BlockSequence extends BlockContainerCompanion {
 /** A quoted block consisting of a list of blocks that may contain other
   *  nested quoted blocks and an attribution which may be empty.
   */
-case class QuotedBlock(content: Seq[Block], attribution: Seq[Span] = Nil, options: Options = NoOpt)
-    extends Block
+case class QuotedBlock(
+    content: Seq[Block],
+    attribution: Seq[Span] = Nil,
+    options: Options = Options.empty
+) extends Block
     with BlockContainer {
   type Self = QuotedBlock
 
@@ -303,7 +320,7 @@ object QuotedBlock extends BlockContainerCompanion {
   *  Often combined with the the `styles` attribute of the `options` parameter to provide
   *  additional render hints.
   */
-case class TitledBlock(title: Seq[Span], content: Seq[Block], options: Options = NoOpt)
+case class TitledBlock(title: Seq[Span], content: Seq[Block], options: Options = Options.empty)
     extends Block
     with BlockContainer {
   type Self = TitledBlock
@@ -318,8 +335,12 @@ case class TitledBlock(title: Seq[Span], content: Seq[Block], options: Options =
 /** A figure consists of an image, an optional caption, and an optional legend as the `content` property.
   *  The `image` property is of type `Span` as the image might be wrapped inside a link reference.
   */
-case class Figure(image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt)
-    extends Block with BlockContainer {
+case class Figure(
+    image: Span,
+    caption: Seq[Span],
+    content: Seq[Block],
+    options: Options = Options.empty
+) extends Block with BlockContainer {
 
   type Self = Figure
 
@@ -335,14 +356,15 @@ case class Figure(image: Span, caption: Seq[Span], content: Seq[Block], options:
 
 /** An explicit hard page break.
   */
-case class PageBreak(options: Options = NoOpt) extends Block {
+case class PageBreak(options: Options = Options.empty) extends Block {
   type Self = PageBreak
   def withOptions(options: Options): PageBreak = copy(options = options)
 }
 
 /** A comment that may be omitted by renderers.
   */
-case class Comment(content: String, options: Options = NoOpt) extends Block with TextContainer {
+case class Comment(content: String, options: Options = Options.empty) extends Block
+    with TextContainer {
   type Self = Comment
   def withOptions(options: Options): Comment = copy(options = options)
 }
@@ -354,7 +376,7 @@ case class Comment(content: String, options: Options = NoOpt) extends Block with
   *  Using this element as mandated by some edge cases in both the Markdown and reStructuredText
   *  markup definitions prevents this.
   */
-case class ForcedParagraph(content: Seq[Span], options: Options = NoOpt) extends Block
+case class ForcedParagraph(content: Seq[Span], options: Options = Options.empty) extends Block
     with SpanContainer with Fallback {
   type Self = ForcedParagraph
 

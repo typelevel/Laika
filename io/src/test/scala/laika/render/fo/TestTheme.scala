@@ -17,12 +17,13 @@
 package laika.render.fo
 
 import laika.ast.Path.Root
-import laika.ast.{ StyleDeclarationSet, TemplateContextReference, TemplateRoot }
+import laika.ast.styles.StyleDeclarationSet
+import laika.ast.{ TemplateContextReference, TemplateRoot, styles }
 import laika.helium.Helium
-import laika.helium.generate.FOStyles
-import laika.parse.GeneratedSource
-import laika.parse.css.CSSParsers
-import laika.rewrite.ReferenceResolver.CursorKeys
+import laika.helium.internal.generate.FOStyles
+import laika.internal.parse.css.CSSParsers
+import laika.parse.SourceCursor
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
 
 object TestTheme {
@@ -31,52 +32,61 @@ object TestTheme {
 
   lazy val foStyles: StyleDeclarationSet = CSSParsers.styleDeclarationSet
     .parse(new FOStyles(heliumTestProps).input)
-    .map(StyleDeclarationSet(Set(FOStyles.defaultPath), _))
+    .map(styles.StyleDeclarationSet(Set(FOStyles.defaultPath), _))
     .getOrElse(StyleDeclarationSet.empty)
 
   lazy val foTemplate = TemplateRoot(
-    TemplateContextReference(CursorKeys.fragment("bookmarks"), required = false, GeneratedSource),
-    TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+    TemplateContextReference(
+      CursorKeys.fragment("bookmarks"),
+      required = false,
+      SourceCursor.Generated
+    ),
+    TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
   )
 
   lazy val htmlTemplate = TemplateRoot.fallback
+
+  val fontPaths = Seq(
+    Root / "laika" / "fonts" / "Lato-Regular.ttf",
+    Root / "laika" / "fonts" / "Lato-Italic.ttf",
+    Root / "laika" / "fonts" / "Lato-Bold.ttf",
+    Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
+    Root / "laika" / "fonts" / "FiraMono-Medium.otf",
+    Root / "laika" / "fonts" / "icofont.ttf"
+  )
 
   val staticASTPaths = Seq(
     Root / "helium" / "fonts" / "icofont.woff",
     Root / "helium" / "fonts" / "icofont.woff2"
   )
 
-  val staticHTMLPaths = Seq(
-    Root / "laika" / "fonts" / "Lato-Regular.ttf",
-    Root / "laika" / "fonts" / "Lato-Italic.ttf",
-    Root / "laika" / "fonts" / "Lato-Bold.ttf",
-    Root / "laika" / "fonts" / "Lato-BoldItalic.ttf",
-    Root / "laika" / "fonts" / "FiraMono-Medium.otf",
-    Root / "laika" / "fonts" / "icofont.ttf",
-    Root / "helium" / "laika-helium.js",
-    Root / "helium" / "landing.page.css",
-    Root / "helium" / "icofont.min.css",
+  val staticFoPaths = fontPaths ++ staticASTPaths
+
+  val staticHTMLPaths = fontPaths ++ Seq(
+    Root / "helium" / "site" / "laika-helium.js",
+    Root / "helium" / "site" / "landing-page.css",
+    Root / "helium" / "site" / "icofont.min.css",
     Root / "helium" / "fonts" / "icofont.woff",
     Root / "helium" / "fonts" / "icofont.woff2",
-    Root / "helium" / "laika-helium.css",
-    Root / "helium" / "laika-helium.epub.css"
+    Root / "helium" / "site" / "laika-helium.css",
+    Root / "helium" / "epub" / "laika-helium.css"
   )
 
   val fonts = Seq(
     FontDefinition(
-      Font.embedFile("/path/to/font-a.tff"),
+      Font.withEmbeddedFile("/path/to/font-a.tff"),
       "Font-A",
       FontWeight.Normal,
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.embedResource("/path/to/font-b.tff"),
+      Font.withEmbeddedResource("/path/to/font-b.tff"),
       "Font-B",
       FontWeight.Bold,
       FontStyle.Normal
     ),
     FontDefinition(
-      Font.webCSS("http://fonts.com/font-c.css"),
+      Font.withWebCSS("http://fonts.com/font-c.css"),
       "Font-C",
       FontWeight.Normal,
       FontStyle.Italic

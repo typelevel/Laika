@@ -27,7 +27,7 @@ import munit.FunSuite
 class InlineParsersSpec extends FunSuite with TestSourceBuilders {
 
   val rootParser =
-    new RootParserWrapper(Markdown, OperationConfig(Markdown.extensions).markupExtensions)
+    new RootParserWrapper(Markdown, new OperationConfig(Markdown.extensions).markupExtensions)
 
   val defaultParser: Parser[List[Span]] = rootParser.standaloneSpanParser
 
@@ -171,6 +171,13 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
     runEnclosed("some [link](http://foo) here", SpanLink.external("http://foo")("link"))
   }
 
+  test("links - inline link with nested parenthesis") {
+    runEnclosed(
+      "some [link](http://foo?param=foo(bar)baz) here",
+      SpanLink.external("http://foo?param=foo(bar)baz")("link")
+    )
+  }
+
   test("links - recognize email link as external link") {
     runEnclosed(
       "some [link](mailto:nobody@nowhere.com) here",
@@ -304,6 +311,12 @@ class InlineParsersSpec extends FunSuite with TestSourceBuilders {
   test("link reference with an implicit id") {
     val input = "some [link] here"
     val ref   = LinkIdReference("link", source("[link]", input))("link")
+    runEnclosed(input, ref)
+  }
+
+  test("link reference with an implicit id, preserving the case for the link text") {
+    val input = "some [Link] here"
+    val ref   = LinkIdReference("link", source("[Link]", input))("Link")
     runEnclosed(input, ref)
   }
 

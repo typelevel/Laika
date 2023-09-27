@@ -17,33 +17,40 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
-import laika.parse.code.common.{ Keywords, TagBasedFormats, TagParser }
+import laika.api.bundle.SyntaxHighlighter
+import laika.parse.code.common.TagFormats.TagParser
+import laika.parse.code.common.{ Keywords, TagFormats }
+import laika.parse.code.common.TagFormats.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits._
+import laika.parse.syntax.*
 
 /** @author Jens Halm
   */
-object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
+object HTMLSyntax extends SyntaxHighlighter {
 
-  val docType: CodeSpanParser = TagParser(CodeCategory.XML.DTDTagName, "<!", ">", "DOCTYPE").embed(
-    Keywords("SYSTEM", "PUBLIC"),
-    string,
-    comment,
-    name(CodeCategory.Identifier)
-  )
-
-  private def startTag(tagName: String): TagParser =
-    TagParser(CodeCategory.Tag.Name, "<", ">", tagName).embed(
-      stringWithEntities,
-      name(CodeCategory.AttributeName)
+  private[languages] val docType: CodeSpanParser = customTag("<!", ">")
+    .forTagName("DOCTYPE")
+    .withCategory(CodeCategory.XML.DTDTagName)
+    .embed(
+      Keywords("SYSTEM", "PUBLIC"),
+      string,
+      comment,
+      name(CodeCategory.Identifier)
     )
 
-  val scriptTag: CodeSpanParser = CodeSpanParser {
+  private def startTag(tagName: String): TagParser =
+    customTag("<", ">")
+      .forTagName(tagName)
+      .embed(
+        stringWithEntities,
+        name(CodeCategory.AttributeName)
+      )
+
+  private[languages] val scriptTag: CodeSpanParser = CodeSpanParser {
     (startTag("script") ~ elementRest("script", JavaScriptSyntax.spanParsers)).concat
   }
 
-  val styleTag: CodeSpanParser = CodeSpanParser {
+  private[languages] val styleTag: CodeSpanParser = CodeSpanParser {
     (startTag("style") ~ elementRest("style", CSSSyntax.spanParsers)).concat
   }
 
@@ -56,7 +63,7 @@ object HTMLSyntax extends TagBasedFormats with SyntaxHighlighter {
     emptyTag,
     scriptTag,
     styleTag,
-    startTag,
+    TagFormats.startTag,
     endTag
   )
 

@@ -17,31 +17,32 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
-import laika.parse.code.common.NumberLiteral.{ DigitParsers, NumericParser }
+import laika.parse.code.common.NumberLiteral.{ digits, NumericParser }
 import laika.parse.code.common._
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits._
+import laika.parse.syntax._
 
 /** @author Jens Halm
   */
 object JavaScriptSyntax extends SyntaxHighlighter {
 
-  val unicodeCodePointEscape: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-    ("\\u{" ~ DigitParsers.hex.min(1) ~ "}").source
-  }
+  private[languages] val unicodeCodePointEscape: CodeSpanParser =
+    CodeSpanParser(CodeCategory.EscapeSequence) {
+      ("\\u{" ~ digits.hex.min(1) ~ "}").source
+    }
 
-  val charEscapes: CodeSpanParser =
+  private val charEscapes: CodeSpanParser =
     unicodeCodePointEscape ++
       StringLiteral.Escape.unicode ++
       StringLiteral.Escape.hex ++
       StringLiteral.Escape.char
 
-  def number(parser: NumericParser): CodeSpanParser =
-    parser.withUnderscores.withSuffix(NumericSuffix.bigInt)
+  private[languages] def number(parser: NumericParser): CodeSpanParser =
+    parser.withUnderscores.withSuffix(NumberLiteral.suffix.bigInt)
 
-  val keywords = Keywords(
+  private[languages] val keywords = Keywords(
     "async",
     "as",
     "await",
@@ -107,24 +108,28 @@ object JavaScriptSyntax extends SyntaxHighlighter {
     number(NumberLiteral.decimalInt)
   )
 
-  object JSX extends SyntaxHighlighter with TagBasedFormats {
+  object JSX extends SyntaxHighlighter {
+
+    import TagFormats._
 
     val language: NonEmptyList[String] = NonEmptyList.of("jsx")
 
     private def tagCategory(name: String): CodeCategory =
       if (name.head.isUpper) CodeCategory.TypeName else CodeCategory.Tag.Name
 
-    val emptyJsxTag: CodeSpanParser = HTMLSyntax.emptyTag.copy(tagCategory = tagCategory)
+    private[languages] val emptyJsxTag: CodeSpanParser = emptyTag.withCategory(tagCategory(_))
 
-    lazy val element: CodeSpanParser = CodeSpanParser {
+    private[languages] lazy val element: CodeSpanParser = CodeSpanParser {
 
       val substitution = StringLiteral.Substitution.between("{", "}")
 
-      val startTag = TagParser(tagCategory _, "<", ">").embed(
-        stringWithEntities,
-        name(CodeCategory.AttributeName),
-        substitution
-      )
+      val startTag = customTag("<", ">")
+        .withCategory(tagCategory(_))
+        .embed(
+          stringWithEntities,
+          name(CodeCategory.AttributeName),
+          substitution
+        )
 
       val embedded = Seq(
         CodeSpanParser.recursive(element),

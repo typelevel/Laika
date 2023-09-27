@@ -20,14 +20,17 @@ import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
+import laika.internal.parse.markup.RootParser
 import laika.parse.Parser
-import laika.parse.markup.RootParser
 import munit.FunSuite
 
 class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   val rootParser =
-    new RootParser(Markdown, OperationConfig(Markdown.extensions).forStrictMode.markupExtensions)
+    new RootParser(
+      Markdown,
+      new OperationConfig(Markdown.extensions).forStrictMode.markupExtensions
+    )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
@@ -81,7 +84,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     val input = """+ aaa
                   |+ bbb
                   |+ ccc""".stripMargin
-    run(input, BulletList(StringBullet("+"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(BulletFormat.StringBullet("+"))("aaa", "bbb", "ccc"))
   }
 
   test(
@@ -90,7 +93,7 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
     val input = """- aaa
                   |- bbb
                   |- ccc""".stripMargin
-    run(input, BulletList(StringBullet("-"))("aaa", "bbb", "ccc"))
+    run(input, BulletList(BulletFormat.StringBullet("-"))("aaa", "bbb", "ccc"))
   }
 
   test("bullet lists - items prefixed by numbers as items of an enumerated list") {

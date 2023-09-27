@@ -16,27 +16,29 @@
 
 package laika.io
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import cats.data.{ Chain, NonEmptyChain }
-import cats.effect.IO
+import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentType._
+import laika.api.bundle.{ BundleOrigin, ExtensionBundle, SpanParserBuilder }
+import laika.api.config.ConfigBuilder
+import laika.api.errors.{ InvalidDocument, InvalidDocuments }
+import laika.ast.DocumentType.*
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
-import laika.bundle._
-import laika.config.ConfigException
+import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate }
+import laika.bundle.*
+import laika.config.{ LaikaKeys, MessageFilter, TargetFormats, Version, Versions }
 import laika.format.{ HTML, Markdown, ReStructuredText }
+import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
-import laika.io.implicits._
+import laika.io.internal.errors.{ ConfigException, DuplicatePath, ParserErrors }
+import laika.io.syntax.*
 import laika.io.model.{ InputTree, InputTreeBuilder, ParsedTree }
-import laika.io.runtime.ParserRuntime.{ DuplicatePath, ParserErrors }
 import laika.parse.Parser
-import laika.parse.markup.DocumentParser.{ InvalidDocument, InvalidDocuments }
 import laika.parse.text.TextParsers
-import laika.rewrite.nav.TargetFormats
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -91,7 +93,9 @@ class TreeParserSpec
 
   }
 
-  val defaultContent = Seq(p("foo"))
+  private val cssTargetFormats = TargetFormats.Selected("html", "epub", "xhtml")
+
+  val defaultContent: Seq[Paragraph] = Seq(p("foo"))
 
   def docResult(num: Int, content: Seq[Block] = defaultContent, path: Path = Root): Document =
     Document(path / s"doc-$num.md", RootElement(content))
@@ -109,7 +113,13 @@ class TreeParserSpec
   def parsedTree(
       inputs: Seq[(Path, String)],
       f: InputTreeBuilder[IO] => InputTreeBuilder[IO] = identity
-  ): IO[DocumentTreeRoot] = defaultParser
+  ): IO[DocumentTreeRoot] = parsedTree(defaultParser, inputs, f)
+
+  def parsedTree(
+      parser: Resource[IO, TreeParser[IO]],
+      inputs: Seq[(Path, String)],
+      f: InputTreeBuilder[IO] => InputTreeBuilder[IO]
+  ): IO[DocumentTreeRoot] = parser
     .use(_.fromInput(f(build(inputs))).parse)
     .map(applyTemplates)
 
@@ -148,16 +158,36 @@ class TreeParserSpec
   }
 
   test("an empty tree") {
-    parsedTree(Nil).assertEquals(DocumentTreeRoot(DocumentTree(Root, Nil)))
+    parsedTree(Nil).assertEquals(DocumentTreeRoot(DocumentTree.empty))
   }
 
   test("tree with a single document") {
     val inputs     = Seq(
       Root / "name.md" -> Contents.name
     )
-    val docResult  = Document(Root / "name.md", RootElement(p("foo")))
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
+    val treeResult = DocumentTree.builder
+      .addDocument(Document(Root / "name.md", RootElement(p("foo"))))
+      .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
+  }
+
+  test("tree with a document containing an unvalidated link to a versioned directory") {
+    val inputs      = Seq(
+      Root / "doc-1.md" -> "[link](/v0.42/)"
+    )
+    val path        = (Root / "v0.42" / "doc").parent
+    val target      = InternalTarget(path).relativeTo(Root / "doc-1.md")
+    val expectedDoc =
+      docResult(1, Seq(Paragraph(SpanLink.internal(path)("link").withTarget(target))))
+    val treeResult  = DocumentTree.builder
+      .addDocument(expectedDoc)
+      .buildRoot
+
+    val versions = Versions.forCurrentVersion(Version("0.42", "v0.42"))
+
+    parsedTree(configuredParser(_.withConfigValue(versions)), inputs, identity).assertEquals(
+      treeResult
+    )
   }
 
   test("tree with multiple subtrees") {
@@ -275,14 +305,13 @@ class TreeParserSpec
       Root / "README.md" -> Contents.name,
       Root / "cover.md"  -> Contents.name
     )
-    val treeResult = DocumentTreeRoot(
-      DocumentTree(
-        Root,
-        List(docResult(1), docResult(2)),
-        titleDocument = Some(docResult("README.md"))
-      ),
-      coverDocument = Some(docResult("cover.md"))
-    )
+    val treeResult =
+      DocumentTree.builder
+        .addDocument(docResult(1))
+        .addDocument(docResult(2))
+        .addDocument(docResult("README.md"))
+        .addDocument(docResult("cover.md"))
+        .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -294,14 +323,19 @@ class TreeParserSpec
       Root / "alternative-title.md" -> Contents.name,
       Root / "cover.md"             -> Contents.name
     )
-    val treeResult = DocumentTreeRoot(
-      DocumentTree(
-        Root,
-        List(docResult(1), docResult(2)),
-        titleDocument = Some(docResult("alternative-title.md"))
-      ),
-      coverDocument = Some(docResult("cover.md"))
-    )
+    val treeResult =
+      DocumentTree.builder
+        .addDocument(docResult(1))
+        .addDocument(docResult(2))
+        .addDocument(docResult("alternative-title.md"))
+        .addDocument(docResult("cover.md"))
+        .addConfig(
+          ConfigBuilder.empty.withValue(
+            LaikaKeys.titleDocuments.inputName,
+            "alternative-title"
+          ).build
+        )
+        .buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -310,7 +344,7 @@ class TreeParserSpec
       Root / "main.template.html" -> Contents.name
     )
     val template   = TemplateDocument(Root / "main.template.html", TemplateRoot("foo"))
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil, templates = List(template)))
+    val treeResult = DocumentTree.builder.addTemplate(template).buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -333,9 +367,33 @@ class TreeParserSpec
     val inputs     = Seq(
       Root / "omg.js" -> Contents.name
     )
-    val staticDoc  = StaticDocument(Root / "omg.js", TargetFormats.Selected("html"))
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, Nil), staticDocuments = List(staticDoc))
+    val staticDoc  = StaticDocument(Root / "omg.js", cssTargetFormats)
+    val treeResult = DocumentTreeRoot(DocumentTree.empty).addStaticDocuments(List(staticDoc))
     parsedTree(inputs).assertEquals(treeResult)
+  }
+
+  test("tree with static documents for different target formats") {
+    val inputs     = Seq(
+      Root / "forHTML" / "foo-1.jpg"            -> Contents.name,
+      Root / "forHTML" / "nested" / "foo-2.jpg" -> Contents.name, // inherits config from parent dir
+      Root / "forHTML" / "directory.conf"       -> "laika.targetFormats = [html]",
+      Root / "forEPUB" / "foo-1.jpg"            -> Contents.name,
+      Root / "forEPUB" / "nested" / "foo-2.jpg" -> Contents.name,
+      Root / "forEPUB" / "directory.conf"       -> "laika.targetFormats = [epub]",
+      Root / "forAll" / "foo-1.jpg"             -> Contents.name,
+      Root / "forAll" / "nested" / "foo-2.jpg"  -> Contents.name
+    )
+    val htmlOnly   = TargetFormats.Selected("html")
+    val epubOnly   = TargetFormats.Selected("epub", "xhtml")
+    val staticDocs = Seq(
+      StaticDocument(Root / "forHTML" / "foo-1.jpg", htmlOnly),
+      StaticDocument(Root / "forHTML" / "nested" / "foo-2.jpg", htmlOnly),
+      StaticDocument(Root / "forEPUB" / "foo-1.jpg", epubOnly),
+      StaticDocument(Root / "forEPUB" / "nested" / "foo-2.jpg", epubOnly),
+      StaticDocument(Root / "forAll" / "foo-1.jpg", TargetFormats.All),
+      StaticDocument(Root / "forAll" / "nested" / "foo-2.jpg", TargetFormats.All)
+    )
+    parsedTree(inputs).map(_.staticDocuments).assertEquals(staticDocs)
   }
 
   test("tree with a provided path") {
@@ -346,12 +404,12 @@ class TreeParserSpec
       Root / "doc-1.md" -> "[link](provided/ext.html)"
     )
     val target         = InternalTarget(providedPath).relativeTo(Root / "doc-1.md")
-    val expectedDocs   =
-      Seq(docResult(1, Seq(Paragraph(SpanLink.internal(providedPath)("link").withTarget(target)))))
-    val expectedResult = DocumentTreeRoot(
-      DocumentTree(Root, expectedDocs),
-      staticDocuments = List(StaticDocument(providedPath))
-    )
+    val expectedDoc    =
+      docResult(1, Seq(Paragraph(SpanLink.internal(providedPath)("link").withTarget(target))))
+    val expectedResult = DocumentTree.builder
+      .addDocument(expectedDoc)
+      .buildRoot
+      .addStaticDocuments(List(StaticDocument(providedPath)))
     parsedTree(inputs, _.addProvidedPath(providedPath)).assertEquals(expectedResult)
   }
 
@@ -373,7 +431,7 @@ class TreeParserSpec
       Seq(p(Text("[link]("), SpanLink.external("http://foo.com")("http://foo.com"), Text(")")))
 
     val expected = SampleTrees.sixDocuments
-      .staticDoc(Root / "static-1" / "omg.js", "html")
+      .staticDoc(Root / "static-1" / "omg.js", "html", "epub", "xhtml")
       .docContent(defaultContent)
       .suffix("md")
       .doc1.content(linkResult)
@@ -395,8 +453,10 @@ class TreeParserSpec
     def template(num: Int) =
       TemplateDocument(Root / s"main$num.template.html", TemplateRoot("$$foo"))
 
-    val treeResult =
-      DocumentTreeRoot(DocumentTree(Root, Nil, templates = List(template(1), template(2))))
+    val treeResult = DocumentTree.builder
+      .addTemplate(template(1))
+      .addTemplate(template(2))
+      .buildRoot
     parsedWith(inputs, BundleProvider.forTemplateParser(parser)).assertEquals(treeResult)
   }
 
@@ -405,6 +465,7 @@ class TreeParserSpec
       val Stylesheet = """.+\.([a,b]+).css$""".r
       path.name match {
         case Stylesheet(kind) => StyleSheet(kind)
+        case _                => Ignored
       }
     }
 
@@ -419,14 +480,14 @@ class TreeParserSpec
       Root / "main2.bbb.css" -> Contents.name2,
       Root / "main3.aaa.css" -> Contents.name
     )
-    val treeResult                            = DocumentTreeRoot(
-      DocumentTree(Root, Nil),
-      styles = Map(
+
+    val treeResult = DocumentTreeRoot(DocumentTree.empty).addStyles(
+      Map(
         "aaa" -> StyleDeclarationSet(
           Set(Root / "main1.aaa.css", Root / "main3.aaa.css"),
           Set(styleDecl("foo"), styleDecl("foo", 1))
         ),
-        "bbb" -> StyleDeclarationSet(Set(Root / "main2.bbb.css"), Set(styleDecl("bar")))
+        "bbb" -> styles.StyleDeclarationSet(Set(Root / "main2.bbb.css"), Set(styleDecl("bar")))
       )
     )
     parsedWith(
@@ -437,11 +498,10 @@ class TreeParserSpec
   }
 
   test("template directive") {
+    import laika.api.bundle.TemplateDirectives
+    import TemplateDirectives.dsl._
 
-    import laika.directive.Templates
-    import Templates.dsl._
-
-    val directive = Templates.create("foo") {
+    val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
         TemplateString(_)
       }
@@ -473,7 +533,7 @@ class TreeParserSpec
         )
       )
     )
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
+    val treeResult = DocumentTree.builder.addDocument(docResult).buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -497,7 +557,7 @@ class TreeParserSpec
         )
       )
     )
-    val treeResult = DocumentTreeRoot(DocumentTree(Root, List(docResult)))
+    val treeResult = DocumentTree.builder.addDocument(docResult).buildRoot
     parsedTree(inputs).assertEquals(treeResult)
   }
 
@@ -550,10 +610,10 @@ class TreeParserSpec
   object CustomSpanParsers {
 
     import TextParsers._
-    import laika.parse.implicits._
+    import laika.parse.syntax._
 
     case class DecoratedSpan(deco: Char, text: String) extends Span {
-      val options: Options = NoOpt
+      val options: Options = Options.empty
       type Self = DecoratedSpan
       def withOptions(options: Options): DecoratedSpan = this
     }
@@ -561,7 +621,7 @@ class TreeParserSpec
     def spanFor(deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
     def spanFor(deco: Char, overrideDeco: Char): SpanParserBuilder =
-      SpanParser.standalone {
+      SpanParserBuilder.standalone {
         (deco.toString ~> anyNot(' ')).map(DecoratedSpan(overrideDeco, _))
       }
 

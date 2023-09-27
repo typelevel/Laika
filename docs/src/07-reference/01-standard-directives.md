@@ -76,14 +76,6 @@ Example:
 See [Disabling Validation] when you only want the path translation without the validation.
 
 
-### `@:path`
-
-Can only be used in templates.
-
-Deprecated since version 0.19.0 - use the `@:target` directive which is a superset of the functionality
-of the old `@:path` directive which did not support external targets.
-
-
 Inclusions
 ----------
 
@@ -147,7 +139,7 @@ We can modify the example to pass a few tags to the included template instead of
 
 ```laika-html
 <html>
-  @:include(../inc/head.template.html) 
+  @:embed(../inc/head.template.html) 
     <link rel="stylesheet" href="nav.css">
     <link rel="stylesheet" href="main.css">
   @:@
@@ -222,12 +214,10 @@ The available icon set can be registered as part of the transformer setup:
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 ```scala mdoc:compile-only
 import laika.ast._
-import laika.rewrite.link.IconRegistry
+import laika.config.IconRegistry
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
@@ -237,14 +227,13 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.ast._
 import laika.api._
+import laika.config.IconRegistry
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.IconRegistry
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
   .build
 ```
@@ -377,7 +366,7 @@ This is how the settings for Laika's manual look:
 @:choice(sbt)
 
 ```scala mdoc:compile-only
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
 
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(Selections(
@@ -391,16 +380,14 @@ laikaConfig := LaikaConfig.defaults
 @:choice(library)
 
 ```scala mdoc:compile-only
-import laika.ast._
 import laika.api._
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(Selections(
     SelectionConfig("config",
       ChoiceConfig("sbt", "sbt Plugin"),
@@ -430,7 +417,7 @@ laikaConfig := LaikaConfig.defaults.strict
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .strict
   .build
 ```
@@ -482,45 +469,6 @@ If you use the Helium theme and do not design your own templates or themes,
 you do not need to use these directives directly, as the Helium template already contain them.
 In that case you can control which CSS and JS files to link via the theme's configuration
 as described in [Auto-Linking CSS & JS Files].
-
-
-### `@:linkCSS`
-
-Causes the automatic inclusion of `<link>` tags for CSS files found in the input tree.
-
-```laika-html
-@:linkCSS
-```
-
-It will simply link any CSS file found in the input tree, unless the suffix is `.page.css`.
-Those files are excluded from global scanning so that they can be explicitly included for individual pages.
-
-The search paths can be constrained via the Helium config API - see [Auto-Linking CSS & JS Files].
-
-When not using Helium the paths can be controlled via the configuration key `laika.site.css.searchPaths`
-and `laika.epub.css.searchPaths` which are both arrays of path strings.
-Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
-See [Virtual Tree Abstraction] for details.
-
-
-### `@:linkJS`
-
-Causes the automatic inclusion of `<script>` tags for JavaScript files found in the input tree.
-
-```laika-html
-@:linkJS
-```
-
-It will simply link any JavaScript file found in the input tree, unless the suffix is `.page.js`.
-Those files are excluded from global scanning so that they can be explicitly included for individual pages.
-
-The search paths can be constrained via the Helium config API - see [Auto-Linking CSS & JS Files].
-
-When not using Helium the paths can be controlled via the configuration key `laika.site.js.searchPaths`
-and `laika.epub.js.searchPaths` which are both arrays of path strings.
-Note that the paths, like everything in Laika, are within the virtual path of the input tree you configured.
-See [Virtual Tree Abstraction] for details.
-
 
 ### `@:attribute`
 

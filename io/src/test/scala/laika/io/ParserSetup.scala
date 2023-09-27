@@ -18,11 +18,12 @@ package laika.io
 
 import cats.effect.{ IO, Resource }
 import laika.api.MarkupParser
-import laika.bundle.ExtensionBundle
+import laika.api.builder.ParserBuilder
+import laika.api.bundle.ExtensionBundle
 import laika.format.Markdown
 import laika.io.api.TreeParser
 import laika.io.helper.TestThemeBuilder
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.Theme
 
 trait ParserSetup {
@@ -33,6 +34,12 @@ trait ParserSetup {
     .withTheme(Theme.empty)
 
   val defaultParser: Resource[IO, TreeParser[IO]] = defaultBuilder.build
+
+  def configuredParser(configure: ParserBuilder => ParserBuilder): Resource[IO, TreeParser[IO]] =
+    configure(MarkupParser.of(Markdown))
+      .parallel[IO]
+      .withTheme(Theme.empty)
+      .build
 
   def parserWithBundle(bundle: ExtensionBundle): Resource[IO, TreeParser[IO]] =
     MarkupParser

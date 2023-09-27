@@ -20,8 +20,8 @@ import laika.ast.{ CodeSpan, CodeSpans }
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
 import laika.parse.builders._
-import laika.parse.code.implicits._
-import laika.parse.implicits._
+import laika.parse.code.syntax._
+import laika.parse.syntax._
 
 /** Configurable base parsers for character literals.
   *
@@ -31,7 +31,8 @@ object CharLiteral {
 
   /** Configurable base parsers for character literals.
     */
-  case class CharParser(delim: Char, embedded: Seq[CodeSpanParser] = Nil) extends CodeParserBase {
+  class CharParser private[CharLiteral] (delim: Char, embedded: Seq[CodeSpanParser] = Nil)
+      extends CodeParserBase {
 
     private val categories: Set[CodeCategory] = Set(CodeCategory.CharLiteral)
 
@@ -40,22 +41,22 @@ object CharLiteral {
       * This is usually used for allowing escape sequences inside the literal.
       */
     def embed(childSpans: CodeSpanParser*): CharParser = {
-      copy(embedded = embedded ++ childSpans)
+      new CharParser(delim, embedded ++ childSpans)
     }
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
-      def plainChar(char: String) = oneNot('\'', '\n').asCode(categories)
-      val delimParser             = oneOf(delim).asCode(categories)
+      val plainChar   = oneNot('\'', '\n').asCode(categories)
+      val delimParser = oneOf(delim).asCode(categories)
 
       (delim.toString ~> lookAhead(oneChar)).flatMap { char =>
-        (PrefixedParser.mapAndMerge(embedded.flatMap(_.parsers)).getOrElse(
-          char.head,
-          plainChar(char)
-        ) ~ delimParser).mapN { (span, delimSpan) =>
-          val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan
-          CodeSpans.merge(codeSpans)
-        }
+        (PrefixedParser
+          .mapAndMerge(embedded.flatMap(_.parsers))
+          .getOrElse(char.head, plainChar) ~ delimParser)
+          .mapN { (span, delimSpan) =>
+            val codeSpans = delimSpan +: CodeSpans.extract(categories)(span) :+ delimSpan
+            CodeSpans.merge(codeSpans)
+          }
       }
 
     }
@@ -64,6 +65,10 @@ object CharLiteral {
 
   /** Parses a standard character literal enclosed by single quotes.
     */
-  def standard: CharParser = CharParser('\'')
+  def standard: CharParser = new CharParser('\'')
+
+  /** Parses a character literal enclosed by the specified delimiter.
+    */
+  def enclosedBy(delim: Char): CharParser = new CharParser(delim)
 
 }

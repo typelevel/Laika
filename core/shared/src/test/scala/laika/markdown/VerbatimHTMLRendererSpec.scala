@@ -17,10 +17,10 @@
 package laika.markdown
 
 import laika.api.{ MarkupParser, Renderer }
+import laika.ast.html.{ HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag }
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{ Element, QuotedBlock, Text }
 import laika.format.{ HTML, Markdown }
-import laika.markdown.ast.{ HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag }
 import munit.FunSuite
 
 class VerbatimHTMLRendererSpec extends FunSuite

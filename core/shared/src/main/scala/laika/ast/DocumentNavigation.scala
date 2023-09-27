@@ -17,7 +17,7 @@
 package laika.ast
 
 import laika.ast.Path.Root
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 /** Represents a document structure with sections that can be turned into a navigation structure.
   *
@@ -44,7 +44,7 @@ trait DocumentNavigation extends Navigatable {
     * @return a navigation item that can be used as part of a bigger navigation structure comprising of trees, documents and their sections
     */
   def asNavigationItem(
-      context: NavigationBuilderContext = NavigationBuilderContext()
+      context: NavigationBuilderContext = NavigationBuilderContext.defaults
   ): NavigationItem = {
     val children =
       if (context.isComplete || context.excludeSections) Nil
@@ -64,26 +64,48 @@ trait DocumentNavigation extends Navigatable {
 
 /** The context of a navigation builder that can get passed down in recursive calls to the
   * various types that have an asNavigationItem method.
-  *
-  * @param refPath the path of document from which this document will be linked (for creating a corresponding relative path)
-  * @param itemStyles the styles to assign to each navigation item as a render hint
-  * @param maxLevels the number of levels of sub-trees, documents or sections to create navigation info for
-  * @param currentLevel the current level of the navigation tree being built
-  * @param excludeSections indicates whether the recursion should exclude sections of documents even when maxLevels
-  *                        has not been reached yet
   */
-case class NavigationBuilderContext(
-    refPath: Path = Root,
-    itemStyles: Set[String] = Set(),
-    maxLevels: Int = Int.MaxValue,
-    currentLevel: Int = 1,
-    excludeSections: Boolean = false,
-    excludeSelf: Boolean = false
-) {
+sealed abstract class NavigationBuilderContext {
 
-  lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
+  /** The path of the document for which links will be created
+    * (meaning all generated links will be relative to this path).
+    */
+  def refPath: Path
 
+  /** The styles to assign to each navigation item as a render hint. */
+  def itemStyles: Set[String]
+
+  /** The number of levels of sub-trees, documents or sections to create navigation info for. */
+  def maxLevels: Int
+
+  /** The current level of the navigation tree being built. */
+  def currentLevel: Int
+
+  /** Indicates whether the recursion should exclude sections of documents
+    * even when maxLevels has not been reached yet.
+    */
+  def excludeSections: Boolean
+
+  /** Indicates that links pointing to the current document should be omitted.
+    */
+  def excludeSelf: Boolean
+
+  /** Creates a new instance for the next navigation level.
+    */
+  def nextLevel: NavigationBuilderContext
+
+  /** Indicates whether the final navigation level has been reached.
+    *
+    * True if `currentLevel >= maxLevels`.
+    */
   val isComplete: Boolean = currentLevel >= maxLevels
+
+  def withRefPath(path: Path): NavigationBuilderContext
+  def withItemStyles(styles: String*): NavigationBuilderContext
+  def withMaxLevels(max: Int): NavigationBuilderContext
+  def withExcludeSections(value: Boolean): NavigationBuilderContext
+  def withExcludeSelf(value: Boolean): NavigationBuilderContext
+  private[laika] def withCurrentLevel(value: Int): NavigationBuilderContext
 
   def newNavigationItem(
       title: SpanSequence,
@@ -117,6 +139,43 @@ case class NavigationBuilderContext(
       NavigationLink(InternalTarget(path).relativeTo(refPath), path == refPath, formats)
     }
     NavigationItem(title, children, link, targetFormats, styles)
+  }
+
+}
+
+object NavigationBuilderContext {
+
+  def defaults: NavigationBuilderContext =
+    Impl(Root, Set(), Int.MaxValue, 1, excludeSections = false, excludeSelf = false)
+
+  case class Impl(
+      refPath: Path,
+      itemStyles: Set[String],
+      maxLevels: Int,
+      currentLevel: Int,
+      excludeSections: Boolean,
+      excludeSelf: Boolean
+  ) extends NavigationBuilderContext {
+
+    override def productPrefix: String = "NavigationBuilderContext"
+
+    lazy val nextLevel: NavigationBuilderContext = copy(currentLevel = currentLevel + 1)
+
+    def withRefPath(path: Path): NavigationBuilderContext = copy(refPath = path)
+
+    def withItemStyles(itemStyles: String*): NavigationBuilderContext =
+      copy(itemStyles = itemStyles.toSet)
+
+    def withMaxLevels(max: Int): NavigationBuilderContext = copy(maxLevels = max)
+
+    def withExcludeSections(value: Boolean): NavigationBuilderContext =
+      copy(excludeSections = value)
+
+    def withExcludeSelf(value: Boolean): NavigationBuilderContext = copy(excludeSelf = value)
+
+    private[laika] def withCurrentLevel(value: Int): NavigationBuilderContext =
+      copy(currentLevel = value)
+
   }
 
 }

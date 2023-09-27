@@ -16,8 +16,8 @@
 
 package laika.ast
 
-import laika.parse.GeneratedSource
-import laika.rewrite.ReferenceResolver.CursorKeys
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
+import laika.parse.SourceCursor
 
 /** The base type for all inline elements that
   *  can be found in a template.
@@ -36,7 +36,7 @@ trait TemplateSpanContainer extends ElementContainer[TemplateSpan] with Rewritab
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
   def rewriteTemplateSpans(rules: RewriteRule[TemplateSpan]): Self = rewriteChildren(
-    RewriteRules(templateRules = Seq(rules))
+    RewriteRules.forTemplates(rules)
   )
 
   def rewriteChildren(rules: RewriteRules): Self = withContent(rules.rewriteTemplateSpans(content))
@@ -76,7 +76,7 @@ trait TemplateSpanContainerCompanion {
   *  a template document tree. Useful when custom tags which are placed inside
   *  a template produce non-template tree elements.
   */
-case class TemplateElement(element: Element, indent: Int = 0, options: Options = NoOpt)
+case class TemplateElement(element: Element, indent: Int = 0, options: Options = Options.empty)
     extends TemplateSpan with ElementTraversal
     with RewritableContainer {
   type Self = TemplateElement
@@ -92,7 +92,7 @@ case class TemplateElement(element: Element, indent: Int = 0, options: Options =
   *  Usually renderers do not treat the container as a special element and render its children
   *  as s sub flow of the parent container.
   */
-case class TemplateSpanSequence(content: Seq[TemplateSpan], options: Options = NoOpt)
+case class TemplateSpanSequence(content: Seq[TemplateSpan], options: Options = Options.empty)
     extends TemplateSpan with TemplateSpanContainer {
   type Self = TemplateSpanSequence
   def withContent(newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
@@ -123,7 +123,7 @@ object TemplateSpanSequence extends TemplateSpanContainerCompanion {
 /** A simple string element, representing the parts of a template
   *  that are not detected as special markup constructs and treated as raw text.
   */
-case class TemplateString(content: String, options: Options = NoOpt) extends TemplateSpan
+case class TemplateString(content: String, options: Options = Options.empty) extends TemplateSpan
     with TextContainer {
   type Self = TemplateString
   def withOptions(options: Options): TemplateString = copy(options = options)
@@ -131,7 +131,7 @@ case class TemplateString(content: String, options: Options = NoOpt) extends Tem
 
 /** The root element of a template document tree.
   */
-case class TemplateRoot(content: Seq[TemplateSpan], options: Options = NoOpt) extends Block
+case class TemplateRoot(content: Seq[TemplateSpan], options: Options = Options.empty) extends Block
     with TemplateSpan with TemplateSpanContainer {
   type Self = TemplateRoot
   def withContent(newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
@@ -149,7 +149,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
     * without any surrounding decoration.
     */
   val fallback: TemplateRoot = TemplateRoot(
-    TemplateContextReference(CursorKeys.documentContent, required = true, GeneratedSource)
+    TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
   )
 
 }
@@ -157,7 +157,7 @@ object TemplateRoot extends TemplateSpanContainerCompanion {
 /** The root element of a document tree (originating from text markup) inside a template.
   *  Usually created by a template reference like `\${cursor.currentDocument.content}`.
   */
-case class EmbeddedRoot(content: Seq[Block], indent: Int = 0, options: Options = NoOpt)
+case class EmbeddedRoot(content: Seq[Block], indent: Int = 0, options: Options = Options.empty)
     extends TemplateSpan with BlockContainer {
   type Self = EmbeddedRoot
   def withContent(newContent: Seq[Block]): EmbeddedRoot = copy(content = newContent)

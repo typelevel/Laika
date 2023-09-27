@@ -16,11 +16,11 @@
 
 package laika.sbt
 
+import laika.api.bundle.{ ExtensionBundle, RenderOverrides }
+import laika.api.format.TagFormatter
 import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.ast.*
-import laika.bundle.{ ExtensionBundle, RenderOverrides }
 import laika.format.*
-import laika.render.{ FOFormatter, HTMLFormatter }
 
 /** API shortcuts for the most common extension points that create
   * an extension bundle from a single feature, so that it can be passed
@@ -36,11 +36,11 @@ import laika.render.{ FOFormatter, HTMLFormatter }
   *
   * @author Jens Halm
   */
-trait ExtensionBundles {
+private[sbt] trait ExtensionBundles {
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
-  def laikaHtmlRenderer(f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle =
+  def laikaHtmlRenderer(f: PartialFunction[(TagFormatter, Element), String]): ExtensionBundle =
     new ExtensionBundle {
       val description: String                            = "Custom HTML render function"
       override def renderOverrides: Seq[RenderOverrides] = Seq(HTML.Overrides(value = f))
@@ -48,7 +48,7 @@ trait ExtensionBundles {
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
-  def laikaEpubRenderer(f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle =
+  def laikaEpubRenderer(f: PartialFunction[(TagFormatter, Element), String]): ExtensionBundle =
     new ExtensionBundle {
       val description: String                            = "Custom XHTML render function for EPUB"
       override def renderOverrides: Seq[RenderOverrides] = Seq(EPUB.XHTML.Overrides(value = f))
@@ -59,7 +59,7 @@ trait ExtensionBundles {
     * Such a render function will also be used for PDF rendering, as XSL-FO is an interim
     * format for the PDF renderer.
     */
-  def laikaFoRenderer(f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle =
+  def laikaFoRenderer(f: PartialFunction[(TagFormatter, Element), String]): ExtensionBundle =
     new ExtensionBundle {
       val description: String                            = "Custom XSL-FO render function for PDF"
       override def renderOverrides: Seq[RenderOverrides] = Seq(XSLFO.Overrides(value = f))

@@ -18,31 +18,32 @@ package laika.render
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
-import laika.ast.Path.Root
-import laika.ast._
-import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.format.HTML
-import laika.parse.GeneratedSource
-import laika.parse.code.CodeCategory
-import laika.rewrite.{ OutputContext, Version, Versions }
-import laika.rewrite.nav.{
+import laika.api.bundle.{
   ConfigurablePathTranslator,
   PathAttributes,
   PathTranslator,
-  TargetFormats,
   TranslatorConfig
 }
+import laika.ast.Path.Root
+import laika.ast.CellType.BodyCell
+import laika.ast.*
+import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.ast.styles.StyleDeclarationSet
+import laika.config.{ MessageFilter, MessageFilters, TargetFormats, Version, Versions }
+import laika.format.HTML
+import laika.parse.SourceCursor
+import laika.parse.code.CodeCategory
 import munit.FunSuite
 
 class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
 
-  private val versions = Versions(Version("0.42", "0.42"), Nil)
+  private val versions = Versions.forCurrentVersion(Version("0.42", "0.42"))
 
   private val defaultRenderer = Renderer.of(HTML).build
 
   private def pathTranslator(
       specs: Map[Path, PathAttributes],
-      versioned: Boolean = false
+      versioned: Boolean
   ): PathTranslator = ConfigurablePathTranslator(
     TranslatorConfig(if (versioned) Some(versions) else None, "title", "index", None),
     OutputContext(HTML),
@@ -54,7 +55,11 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     assertEquals(defaultRenderer.render(elem), Right(expected))
 
   def runWithFilter(elem: Element, filter: MessageFilter, expected: String): Unit = {
-    val renderer = Renderer.of(HTML).renderMessages(filter).build
+    val filters  = MessageFilters.custom(
+      failOn = MessageFilter.Error,
+      render = filter
+    )
+    val renderer = Renderer.of(HTML).withMessageFilters(filters).build
     assertEquals(renderer.render(elem), Right(expected))
   }
 
@@ -74,7 +79,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   def runUnformatted(elem: Element, expected: String): Unit = {
-    val res = Renderer.of(HTML).unformatted.build.render(elem)
+    val res = Renderer.of(HTML).withCompactRendering.build.render(elem)
     assertEquals(res, Right(expected))
   }
 
@@ -281,11 +286,11 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
             NavigationItem(
               SpanSequence("Link-2"),
               Nil,
-              Some(NavigationLink(InternalTarget(Root / "doc-2").relativeTo(refPath))),
+              Some(NavigationLink(InternalTarget(Root / "doc-2.html").relativeTo(refPath))),
               options = Style.level(2)
             )
           ),
-          Some(NavigationLink(InternalTarget(Root / "doc-1").relativeTo(refPath))),
+          Some(NavigationLink(InternalTarget(Root / "doc-1.html").relativeTo(refPath))),
           options = Style.level(1)
         ),
         NavigationItem(
@@ -295,7 +300,10 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
               SpanSequence("Link-4"),
               Nil,
               Some(
-                NavigationLink(InternalTarget(Root / "doc-4").relativeTo(refPath), selfLink = true)
+                NavigationLink(
+                  InternalTarget(Root / "doc-4.html").relativeTo(refPath),
+                  selfLink = true
+                )
               ),
               options = Style.level(2)
             )
@@ -305,7 +313,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
         NavigationItem(
           SpanSequence("Link-5"),
           Nil,
-          Some(NavigationLink(InternalTarget(Root / "doc-5").relativeTo(refPath))),
+          Some(NavigationLink(InternalTarget(Root / "doc-5.html").relativeTo(refPath))),
           options = Style.level(1)
         )
       )
@@ -605,25 +613,20 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("render a paragraph containing a internal link with a fragment part") {
-    val elem = testPar(SpanLink.internal("/bar#foo")(Text("link"), Emphasized("text")))
+    val elem = testPar(SpanLink.internal("/bar.html#foo")(Text("link"), Emphasized("text")))
     run(elem, """<p>some <a href="bar.html#foo">link<em>text</em></a> span</p>""")
   }
 
   test("render a paragraph containing a internal link without a fragment part") {
-    val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
-    run(elem, """<p>some <a href="bar.html">link<em>text</em></a> span</p>""")
-  }
-
-  test("render a paragraph containing a internal link with an input filename without suffix") {
-    val elem = testPar(SpanLink.internal("/bar")(Text("link"), Emphasized("text")))
+    val elem = testPar(SpanLink.internal("/bar.html")(Text("link"), Emphasized("text")))
     run(elem, """<p>some <a href="bar.html">link<em>text</em></a> span</p>""")
   }
 
   test(
     "render a paragraph containing an internal link while ignoring the restricted type parameter"
   ) {
-    val target = ResolvedInternalTarget(
-      Path.parse("/doc#foo"),
+    val target = InternalTarget.Resolved(
+      Path.parse("/doc.html#foo"),
       RelativePath.parse("#foo"),
       TargetFormats.Selected("html")
     )
@@ -642,7 +645,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   }
 
   test("render a raw internal link") {
-    val elem = testPar(RawLink.internal("/doc#foo"))
+    val elem = testPar(RawLink.internal("/doc.html#foo"))
     run(elem, """<p>some #foo span</p>""")
   }
 
@@ -803,7 +806,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("render an invalid block without the runtime message in default mode") {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val html = "<p>fallback</p>"
@@ -815,7 +818,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val html = "<p>fallback</p>"
@@ -827,7 +830,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val html = """<p><span class="runtime-message warning">some message</span></p><p>fallback</p>"""
@@ -837,7 +840,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   test("render an invalid span without the runtime message in default mode") {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     run(elem, "fallback")
@@ -848,7 +851,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     runWithFilter(elem, MessageFilter.Error, "fallback")
@@ -859,7 +862,7 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     val html = """<span class="runtime-message warning">some message</span> fallback"""

@@ -32,7 +32,7 @@ laikaTheme := Theme.empty
 import cats.effect.IO
 import laika.api._
 import laika.format._
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.Theme
 
 val transformer = Transformer
@@ -54,8 +54,8 @@ to get an idea of what a theme represents in technical terms.
 
 ```scala mdoc:compile-only
 import cats.data.Kleisli
-import laika.bundle.ExtensionBundle
-import laika.factory.Format
+import laika.api.bundle.ExtensionBundle
+import laika.ast.OutputContext
 import laika.io.descriptor.ThemeDescriptor
 import laika.io.model.{ InputTree, ParsedTree }
 import laika.theme.Theme.TreeProcessor
@@ -68,7 +68,7 @@ trait Theme[F[_]] {
   
   def extensions: Seq[ExtensionBundle]
   
-  def treeProcessor: Format => TreeProcessor[F]
+  def treeProcessor: OutputContext => TreeProcessor[F]
   
 }
 
@@ -239,9 +239,9 @@ The below example shows how the `ThemeBuilder` API can be used to pre-populate t
 
 ```scala mdoc:silent
 import cats.effect.IO
+import laika.api.config.ConfigBuilder
 import laika.ast.Image
 import laika.ast.Path.Root
-import laika.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 
 val logo = Image.internal(
@@ -282,7 +282,7 @@ import cats.effect.IO
 import laika.ast.Path.Root
 import laika.io.model.InputTreeBuilder
 
-val builder: InputTreeBuilder[IO] = ???
+def builder: InputTreeBuilder[IO] = ???
 val resourcePath = "my-theme/css/theme.css"
 val vars: String = "<... generated-CSS ...>"
 builder
@@ -310,11 +310,11 @@ user configuration):
 
 ```scala mdoc:compile-only
 import cats.effect.IO
-import laika.config.ConfigBuilder
+import laika.api.config.ConfigBuilder
 import laika.theme.ThemeBuilder
 import laika.theme.config.FontDefinition
 
-val fonts: Seq[FontDefinition] = ???
+def fonts: Seq[FontDefinition] = ???
 val baseConfig = ConfigBuilder.empty
   .withValue("laika.epub.fonts", fonts)
   .withValue("laika.pdf.fonts", fonts)

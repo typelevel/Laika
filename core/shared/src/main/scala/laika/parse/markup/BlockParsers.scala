@@ -16,9 +16,8 @@
 
 package laika.parse.markup
 
-import laika.ast.~
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse._
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
@@ -121,10 +120,11 @@ trait BlockParsers {
 
     import scala.math._
 
-    abstract class Line                                                      extends Product {
+    sealed trait Line extends Product {
       def curIndent: Int
       def source: LineSource
     }
+
     case class BlankLine(curIndent: Int, source: LineSource)                 extends Line
     case class IndentedLine(curIndent: Int, indent: Int, source: LineSource) extends Line
     case class FirstLine(source: LineSource) extends Line { val curIndent: Int = Int.MaxValue }

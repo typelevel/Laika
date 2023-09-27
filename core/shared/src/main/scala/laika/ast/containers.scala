@@ -62,7 +62,7 @@ trait RewritableContainer extends Element {
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
   def rewriteSpans(rule: RewriteRule[Span]): Self = rewriteChildren(
-    RewriteRules(spanRules = Seq(rule))
+    RewriteRules.forSpans(rule)
   )
 
 }
@@ -80,7 +80,7 @@ trait BlockContainer extends ElementContainer[Block] with RewritableContainer {
     * elements they contain, plus optionally for any other elements that have custom support for rewriting.
     */
   def rewriteBlocks(rules: RewriteRule[Block]): Self = rewriteChildren(
-    RewriteRules(blockRules = Seq(rules))
+    RewriteRules.forBlocks(rules)
   )
 
   def rewriteChildren(rules: RewriteRules): Self = withContent(rules.rewriteBlocks(content))

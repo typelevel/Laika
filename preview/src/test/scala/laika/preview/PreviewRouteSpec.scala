@@ -21,7 +21,7 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.format.Markdown
 import laika.io.helper.InputBuilder
-import laika.io.implicits._
+import laika.io.syntax._
 import laika.theme.Theme
 import munit.CatsEffectSuite
 import org.http4s.headers.`Content-Type`
@@ -90,6 +90,14 @@ class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {
 
   test("serve a rendered index document") {
     run(uri"/dir", Status.Ok, Some(MediaType.text.html), stringBody("<p>foo</p>"))
+  }
+
+  test("serve the AST of a rendered document") {
+    val expected =
+      """<pre><code class="nohighlight"><span class="type-name">RootElement</span><span> - </span><span class="keyword">Blocks</span><span>: </span><span class="number-literal">1</span><span>
+        |</span><span class="tag-punctuation">. </span><span class="type-name">Paragraph</span><span> - </span><span class="keyword">Spans</span><span>: </span><span class="number-literal">1</span><span>
+        |</span><span class="tag-punctuation">. . </span><span class="type-name">Text</span><span> - </span><span class="string-literal">&#39;foo&#39;</span></code></pre>""".stripMargin
+    run(uri"/doc.html/ast", Status.Ok, Some(MediaType.text.html), stringBody(expected))
   }
 
   test("serve a static document") {

@@ -1,4 +1,4 @@
-import laika.rewrite.nav._
+import laika.config._
 import cats.data.NonEmptyChain
 
 name := "site-epub"

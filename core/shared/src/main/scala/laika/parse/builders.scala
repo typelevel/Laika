@@ -28,4 +28,10 @@ import laika.parse.text.TextParsers
   *
   * @author Jens Halm
   */
-object builders extends TextParsers with InlineParsers with BlockParsers
+object builders extends TextParsers with InlineParsers with BlockParsers {
+
+  /** A wrapper for two result values.
+    */
+  case class ~[+A, +B](_1: A, _2: B)
+
+}

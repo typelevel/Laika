@@ -16,9 +16,11 @@
 
 package laika.helium
 
-import laika.helium.builder.HeliumThemeBuilder
-import laika.helium.config._
-import laika.theme._
+import laika.helium.config.{ AllFormatsOps, EPUBOps, PDFOps, SiteOps }
+import laika.helium.internal.builder.HeliumThemeBuilder
+import laika.helium.internal.config.{ EPUBSettings, HeliumDefaults, PDFSettings, SiteSettings }
+import laika.helium.internal.generate.MermaidInitializer
+import laika.theme.ThemeProvider
 
 /** Configuration API for the Helium theme settings.
   *
@@ -119,11 +121,24 @@ class Helium private[laika] (
   def extendWith(theme: ThemeProvider): Helium =
     new Helium(siteSettings, epubSettings, pdfSettings, extensions :+ theme)
 
+  /** Creates a new Helium configuration by applying provided extension, using this instance as a base.
+    *
+    * In contrast to the `extendWith` overload, this method can be used when an extension does
+    * not only provide additional resources and/or extension bundles,
+    * but also simply needs to talk to the Helium configuration API,
+    * e.g. to configure how/when CSS/JS resources are to be included.
+    *
+    * The functionality of this method is essentially a superset of the `extendWith` overload,
+    * as the provided handler can internally call the other method, too.
+    */
+  def extendWith(ext: Helium => Helium): Helium = ext(this)
+
   /** Builds a theme provider that can be passed to the sbt plugin's `laikaTheme` setting
     * or the `withTheme` method of parsers and transformers when using the library API.
     */
   def build: ThemeProvider = {
-    val base: ThemeProvider = new HeliumThemeBuilder(this)
+    val helium              = MermaidInitializer.applyTo(this)
+    val base: ThemeProvider = new HeliumThemeBuilder(helium)
     extensions.foldLeft(base)(_.extendWith(_))
   }
 

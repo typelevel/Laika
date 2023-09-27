@@ -1,7 +1,6 @@
 import laika.ast.LengthUnit.px
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.LaikaKeys
 import laika.helium.Helium
 import laika.helium.config.{
   Favicon,
@@ -12,9 +11,7 @@ import laika.helium.config.{
   TextLink,
   VersionMenu
 }
-import laika.rewrite.link.{ ApiLinks, LinkConfig }
-import laika.rewrite.{ Version, Versions }
-import laika.rewrite.nav.{ ChoiceConfig, CoverImage, SelectionConfig, Selections }
+import laika.config.*
 import laika.sbt.LaikaConfig
 import laika.theme.ThemeProvider
 
@@ -22,24 +19,27 @@ object ManualSettings {
 
   private object versions {
 
-    private def version(version: String, stable: Boolean = false): Version = {
-      val label       = if (stable) Some("Stable") else Some("EOL")
-      val pathSegment = if (stable) "latest" else version
-      Version(version, pathSegment, "/table-of-content.html", label, canonical = stable)
+    private def version(version: String, label: String = "EOL"): Version = {
+      val (pathSegment, canonical) = version match {
+        case "1.x" => ("latest", true)
+        case _     => (version, false)
+      }
+      val v                        =
+        Version(version, pathSegment).withFallbackLink("/table-of-content.html").withLabel(label)
+      if (canonical) v.setCanonical else v
     }
 
-    val v019    = version("0.19", stable = true)
+    val v1      = version("1.x", "Dev")
+    val v019    = version("0.19", "Stable")
     val v018    = version("0.18")
     val v017    = version("0.17")
-    val v016    = version("0.16")
-    val current = v019
-    val all     = Seq(v019, v018, v017, v016)
+    val current = v1
+    val all     = Seq(v1, v019, v018, v017)
 
-    val config = Versions(
-      currentVersion = current,
-      olderVersions = all.dropWhile(_ != current).drop(1),
-      newerVersions = all.takeWhile(_ != current)
-    )
+    val config = Versions
+      .forCurrentVersion(current)
+      .withOlderVersions(all.dropWhile(_ != current).drop(1) *)
+      .withNewerVersions(all.takeWhile(_ != current) *)
 
   }
 
@@ -73,14 +73,14 @@ object ManualSettings {
     }
 
     val latestVersion = Root / versions.current.pathSegment
-    val api           = Root / "api" / "laika" / "api" / "index.html"
     val downloads     = Root / "downloads.gen"
     val logo          = images / "site" / "laika-dog-big@1.5x.png"
     val favicon       = images / "site" / "laika-favicon.png"
-    val docsURL       = "https://planet42.github.io/Laika/"
-    val srcURL        = "https://github.com/planet42/Laika"
-    val docsSrcURL    = "https://github.com/planet42/Laika/tree/master/docs/src"
-    val demoURL       = "http://planet42.org"
+    val siteBaseURL   = "https://typelevel.org/Laika/"
+    val apiURL        = "https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/"
+    val srcURL        = "https://github.com/typelevel/Laika"
+    val docsSrcURL    = s"$srcURL/tree/main/docs/src"
+    val chatURL       = "https://discord.gg/XF3CXcMzqD"
   }
 
   private object text {
@@ -122,14 +122,8 @@ object ManualSettings {
   }
 
   val config: LaikaConfig = LaikaConfig.defaults
-    .withConfigValue(
-      LinkConfig(
-        apiLinks = Seq(
-          ApiLinks("../api/")
-        ), // TODO - will not work on top level pages, but fine for now - change to absolute path
-        excludeFromValidation = Seq(Root / "api")
-      )
-    )
+    .withConfigValue(LinkConfig.empty.addApiLinks(ApiLinks(paths.apiURL)))
+    .withConfigValue(LinkValidation.Global(Seq(Root / "api")))
     .withConfigValue(
       Selections(
         SelectionConfig(
@@ -150,12 +144,14 @@ object ManualSettings {
       language = Some("en")
     )
     .all.tableOfContent("Table of Content", depth = 4)
+    .site.internalCSS(Root / "css" / "manual.css")
+    .epub.internalCSS(Root / "css" / "manual.epub.css")
     .site.topNavigationBar(
       navLinks = Seq(
         IconLink.external(paths.srcURL, HeliumIcon.github),
-        IconLink.internal(paths.api, HeliumIcon.api),
+        IconLink.external(paths.apiURL + "laika/", HeliumIcon.api),
         IconLink.internal(paths.downloads, HeliumIcon.download),
-        IconLink.external(paths.demoURL, HeliumIcon.demo)
+        IconLink.external(paths.chatURL, HeliumIcon.chat)
       ),
       versionMenu = VersionMenu.create(
         "Version",
@@ -168,7 +164,7 @@ object ManualSettings {
     .site.pageNavigation(sourceBaseURL = Some(paths.docsSrcURL))
     .site.downloadPage("Documentation Downloads", Some(text.downloadDesc))
     .site.versions(versions.config)
-    .site.baseURL(paths.docsURL)
+    .site.baseURL(paths.siteBaseURL)
     .site.landingPage(
       logo = Some(
         Image.internal(
@@ -179,7 +175,10 @@ object ManualSettings {
         )
       ),
       subtitle = Some(text.mainDesc),
-      latestReleases = Seq(ReleaseInfo("Latest Release", "0.19.1")),
+      latestReleases = Seq(
+        ReleaseInfo("Latest Pre-Release", "1.0.0-M5"),
+        ReleaseInfo("Latest Stable Release", "0.19.5")
+      ),
       license = Some("Apache 2.0"),
       documentationLinks = Seq(
         TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),
@@ -191,7 +190,7 @@ object ManualSettings {
       ),
       projectLinks = Seq(
         TextLink.external(paths.srcURL, "Source on GitHub"),
-        TextLink.external(paths.demoURL, "Demo Application")
+        TextLink.external(paths.chatURL, "Typelevel Chat")
       ),
       teasers = text.teasers
     )

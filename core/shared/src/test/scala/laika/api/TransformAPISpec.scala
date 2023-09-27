@@ -17,6 +17,7 @@
 package laika.api
 
 import laika.ast._
+import laika.ast.RewriteAction.Replace
 import laika.config.LaikaKeys
 import laika.format._
 import munit.FunSuite
@@ -72,7 +73,7 @@ class TransformAPISpec extends FunSuite {
     val modifiedOutput  = output.replace("foo", "bar")
     val transformCustom = builder
       .usingSpanRule { case Text("foo", _) => Replace(Text("bar")) }
-      .usingSpanRule { case Text(_, _) => Retain }
+      .usingSpanRule { case Text(_, _) => RewriteAction.Retain }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
   }
 
@@ -96,6 +97,25 @@ class TransformAPISpec extends FunSuite {
       }
       .usingSpanRule { case Text("foo", _) => Replace(Text("bar")) }
     assertEquals(transformCustom.build.transform(input), Right(modifiedOutput))
+  }
+
+  test("do not validate or translate URLs when transforming a single string - Markdown") {
+    val input    = "An inline ![image](image.png)."
+    val expected = """<p>An inline <img src="image.png" alt="image">.</p>"""
+    val result   = Transformer.from(Markdown).to(HTML).build.transform(input)
+    assertEquals(result, Right(expected))
+  }
+
+  test("do not validate or translate URLs when transforming a single string - reStructuredText") {
+    val input       = "An image:\n\n.. image:: image.png"
+    val expected    =
+      """<p>An image:</p>
+        |<p><img src="image.png"></p>""".stripMargin
+    val transformer = Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .build
+    assertEquals(transformer.transform(input), Right(expected))
   }
 
 }

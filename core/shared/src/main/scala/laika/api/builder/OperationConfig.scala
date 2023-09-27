@@ -16,27 +16,28 @@
 
 package laika.api.builder
 
-import laika.ast.RewriteRules.RewriteRulesBuilder
-import laika.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key, ValidationError }
-import laika.ast._
-import laika.bundle.ExtensionBundle.PathTranslatorExtensionContext
-import laika.bundle.{
+import laika.api.bundle.{
   BundleOrigin,
   ConfigProvider,
   DocumentTypeMatcher,
   ExtensionBundle,
-  MarkupExtensions
+  MarkupExtensions,
+  PathTranslator,
+  SlugBuilder
 }
-import laika.config.Config.ConfigResult
-import laika.directive.DirectiveSupport
-import laika.directive.std.StandardDirectives
-import laika.factory.{ MarkupFormat, RenderFormat }
+import laika.api.config.{ Config, ConfigBuilder, ConfigEncoder, DefaultKey, Key }
+import laika.api.format.{ MarkupFormat, RenderFormat }
+import laika.ast.RewriteRules.RewriteRulesBuilder
+import laika.api.config.ConfigError.ValidationFailed
+import laika.ast.*
+import laika.api.bundle.ExtensionBundle.PathTranslatorExtensionContext
+import laika.api.config.Config.ConfigResult
+import laika.ast.styles.StyleDeclaration
+import laika.config.MessageFilters
+import laika.internal.directive.{ DirectiveSupport, StandardDirectives }
+import laika.internal.rewrite.RecursiveResolverRules
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.rewrite.OutputContext
-import laika.rewrite.RecursiveResolverRules
-import laika.rewrite.link.SlugBuilder
-import laika.rewrite.nav.PathTranslator
 
 import scala.annotation.tailrec
 
@@ -48,18 +49,33 @@ import scala.annotation.tailrec
   * @param bundles all extension bundles defined by this operation
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
   * @param configBuilder a builder for assembling values for the base configuration as
-  * @param failOnMessages the filter to apply to runtime messages that should cause the transformation to fail
-  * @param renderMessages the filter to apply to runtime messages that should be rendered in the output
-  * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
+  * @param messageFilters indicates how to handle runtime messages embedded in the document AST
+  * @param compactRendering indicates whether rendering should exclude any formatting (line breaks or indentation)
   */
-case class OperationConfig(
-    bundles: Seq[ExtensionBundle] = Nil,
-    bundleFilter: BundleFilter = BundleFilter(),
+class OperationConfig private[laika] (
+    val bundles: Seq[ExtensionBundle] = Nil,
+    private[laika] val bundleFilter: BundleFilter = BundleFilter(),
     configBuilder: ConfigBuilder = ConfigBuilder.empty,
-    failOnMessages: MessageFilter = MessageFilter.Error,
-    renderMessages: MessageFilter = MessageFilter.None,
-    renderFormatted: Boolean = true
-) extends RenderConfig {
+    val messageFilters: MessageFilters = MessageFilters.defaults,
+    val compactRendering: Boolean = false
+) {
+
+  private def copy(
+      bundles: Seq[ExtensionBundle] = this.bundles,
+      bundleFilter: BundleFilter = this.bundleFilter,
+      configBuilder: ConfigBuilder = this.configBuilder,
+      messageFilters: MessageFilters = this.messageFilters,
+      compactRendering: Boolean = this.compactRendering
+  ): OperationConfig = new OperationConfig(
+    bundles,
+    bundleFilter,
+    configBuilder,
+    messageFilters,
+    compactRendering
+  )
+
+  private[laika] def withBundleFilter(filter: BundleFilter): OperationConfig =
+    copy(bundleFilter = filter)
 
   private lazy val mergedBundle: ExtensionBundle =
     OperationConfig.mergeBundles(bundleFilter(bundles))
@@ -69,6 +85,15 @@ case class OperationConfig(
     * directories and/or config headers in markup and template documents.
     */
   lazy val baseConfig: Config = configBuilder.build(mergedBundle.baseConfig)
+
+  /** Specifies the message filters to apply to the operation.
+    *
+    * By default operations fail on errors and do not render any messages (e.g. warnings) embedded in the AST.
+    * For visual debugging `MessageFilters.forVisualDebugging` can be used instead,
+    * where the transformation will always succeed (unless an error occurs that cannot be recovered from),
+    * and messages in the AST with level `Info` or higher will be rendered in the position they occurred.
+    */
+  def withMessageFilters(filters: MessageFilters): OperationConfig = copy(messageFilters = filters)
 
   /** Returns a new instance with the specified configuration value added.
     *
@@ -107,7 +132,7 @@ case class OperationConfig(
   /** Provides all extensions for the text markup parser extracted from
     * all defined bundles.
     */
-  lazy val markupExtensions: MarkupExtensions = mergedBundle.parsers.markupExtensions
+  private[laika] lazy val markupExtensions: MarkupExtensions = mergedBundle.parsers.markupExtensions
 
   /** Provides the parser for configuration documents and configuration headers in text markup
     * and template documents.
@@ -169,7 +194,7 @@ case class OperationConfig(
   ): ConfigResult[PathTranslator] = for {
     cursor         <- RootCursor(root, Some(outputContext))
     baseTranslator <- cursor.pathTranslator.toRight(
-      ValidationError("Internal error: path translator should not be empty")
+      ValidationFailed("Internal error: path translator should not be empty")
     )
   } yield {
     val context = new PathTranslatorExtensionContext(baseTranslator, outputContext, cursor.config)
@@ -204,6 +229,11 @@ case class OperationConfig(
     (mergedBundle.renderOverrides.collect { case t: format.Overrides =>
       t
     } :+ format.Overrides()).reduceLeft(_ withBase _)
+
+  /** Renders without any formatting (line breaks or indentation).
+    * Useful when storing the output in a database for example.
+    */
+  def withCompactRendering: OperationConfig = copy(compactRendering = true)
 
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher
@@ -249,25 +279,12 @@ case class OperationConfig(
 
 }
 
-/** Represents the subset of OperationConfig relevant for renderers.
-  */
-trait RenderConfig {
-
-  /** The filter to apply to runtime messages that should get rendered to the output.
-    */
-  def renderMessages: MessageFilter
-
-  /** Indicates whether rendering should include any formatting (line breaks or indentation).
-    */
-  def renderFormatted: Boolean
-}
-
 /** A filter that might deactivate or activate some of the bundles based on user configuration.
   *
   * @param strict indicates that text markup should be interpreted as defined by its specification, without any extensions
   * @param acceptRawContent indicates that the users accepts the inclusion of raw content in text markup
   */
-case class BundleFilter(strict: Boolean = false, acceptRawContent: Boolean = false) {
+private[laika] case class BundleFilter(strict: Boolean = false, acceptRawContent: Boolean = false) {
 
   def apply(bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] = {
     val strictApplied = if (!strict) bundles else bundles.flatMap(_.forStrictMode)
@@ -291,20 +308,20 @@ object OperationConfig {
     BundleOrigin.User
   )
 
-  def sortBundles(bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] =
+  private def sortBundles(bundles: Seq[ExtensionBundle]): Seq[ExtensionBundle] =
     bundles.distinct.sortBy(b => originOrder.indexOf(b.origin))
 
   /** Merges a sequence of bundles, including the invocation of their `processExtension` methods that allows
     * bundles to modify other bundles. The sequence is treated with decreasing precedence for features where
     * a bundle may overwrite other bundles.
     */
-  def mergeBundles(bundles: Seq[ExtensionBundle]): ExtensionBundle = {
+  private def mergeBundles(bundles: Seq[ExtensionBundle]): ExtensionBundle = {
 
     @tailrec
     def processBundles(
-        past: Seq[ExtensionBundle],
-        pending: Seq[ExtensionBundle]
-    ): Seq[ExtensionBundle] = pending match {
+        past: List[ExtensionBundle],
+        pending: List[ExtensionBundle]
+    ): List[ExtensionBundle] = pending match {
       case Nil          => past
       case next :: rest =>
         val newPast    = past.map(ex => next.processExtension.lift(ex).getOrElse(ex)) :+ next
@@ -312,19 +329,20 @@ object OperationConfig {
         processBundles(newPast, newPending)
     }
 
-    processBundles(Nil, sortBundles(bundles)).reverse.reduceLeftOption(_ withBase _).getOrElse(
-      ExtensionBundle.Empty
-    )
+    processBundles(Nil, sortBundles(bundles).toList)
+      .reverse
+      .reduceLeftOption(_ withBase _)
+      .getOrElse(ExtensionBundle.empty)
   }
 
   /** A configuration instance with all the libraries default extension bundles.
     */
-  val default: OperationConfig = OperationConfig(
+  val default: OperationConfig = new OperationConfig(
     bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives)
   )
 
   /** An empty configuration instance.
     */
-  val empty: OperationConfig = OperationConfig()
+  val empty: OperationConfig = new OperationConfig()
 
 }

@@ -18,13 +18,13 @@ package laika.rst
 
 import cats.data.NonEmptySet
 import laika.api.Transformer
+import laika.api.format.TagFormatter
 import laika.ast.Path.Root
-import laika.ast.{ InternalTarget, _ }
-import laika.config.LaikaKeys
+import laika.ast.*
+import laika.config.{ LaikaKeys, MessageFilter, MessageFilters }
 import laika.file.FileIO
 import laika.format.{ HTML, ReStructuredText }
 import laika.html.TidyHTML
-import laika.render.HTMLFormatter
 import munit.FunSuite
 
 import scala.io.Codec
@@ -64,31 +64,28 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
   }
 
   def transformAndCompare(name: String): Unit = {
-    val noValidation =
-      """{%
-        |laika.links.excludeFromValidation = ["/"] 
-        |%}
-        |""".stripMargin
-
     val path  = FileIO.classPathResourcePath("/rstSpec") + "/" + name
-    val input = noValidation + FileIO.readFile(path + ".rst")
+    val input = FileIO.readFile(path + ".rst")
 
-    def quotedBlockContent(content: Seq[Block], attr: Seq[Span]) =
-      if (attr.isEmpty) content
-      else
-        content :+ Paragraph(RawContent(NonEmptySet.one("html"), "§§§§") +: attr, Style.attribution)
+    def renderQuotedBlock(fmt: TagFormatter, qb: QuotedBlock): String = {
+      val tagName = "blockquote"
 
-    def renderBlocks(
-        fmt: HTMLFormatter,
-        tagName: String,
-        options: Options,
-        content: Seq[Block],
-        attrs: (String, String)*
-    ): String = content match {
-      case Seq(ss: SpanSequence)      => fmt.element(tagName, options, Seq(ss), attrs: _*)
-      case Seq(Paragraph(spans, opt)) =>
-        fmt.element(tagName, options, Seq(SpanSequence(spans, opt)), attrs: _*)
-      case other                      => fmt.indentedElement(tagName, options, other, attrs: _*)
+      val quotedBlockContainer: BlockContainer =
+        if (qb.attribution.isEmpty) qb
+        else
+          BlockSequence(
+            qb.content :+ Paragraph(
+              RawContent(NonEmptySet.one("html"), "§§§§") +: qb.attribution,
+              Style.attribution
+            )
+          )
+
+      quotedBlockContainer.content match {
+        case Seq(ss: SpanSequence)      => fmt.element(tagName, ss.withOptions(qb.options))
+        case Seq(Paragraph(spans, opt)) =>
+          fmt.element(tagName, SpanSequence(spans).withOptions(opt))
+        case _ => fmt.indentedElement(tagName, quotedBlockContainer.withOptions(qb.options))
+      }
     }
 
     def dropLaikaPrefix(id: String): String = if (id.startsWith("__")) id.drop(5) else id
@@ -101,18 +98,17 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
       .from(ReStructuredText)
       .to(HTML)
       .rendering {
-        case (fmt, i @ InvalidSpan(_, _, Literal(fb, _), _))                           =>
+        case (fmt, i @ InvalidSpan(_, _, Literal(fb, _), _))       =>
           fmt.child(i.copy(fallback = Text(fb)))
-        case (fmt, Emphasized(content, opt)) if opt.styles.contains("title-reference") =>
-          fmt.element("cite", NoOpt, content)
-        case (fmt, sl @ SpanLink(content, target, title, opt))                         =>
+        case (fmt, e: Emphasized) if e.hasStyle("title-reference") =>
+          fmt.element("cite", e.clearOptions)
+        case (fmt, sl @ SpanLink(_, target, title, _))             =>
           target match {
             case ExternalTarget(url) =>
               fmt.element(
                 "a",
-                opt + Styles("reference", "external"),
-                content,
-                fmt.optAttributes("href" -> Some(url), "title" -> title): _*
+                sl.withStyles("reference", "external"),
+                fmt.optAttributes("href" -> Some(url), "title" -> title) *
               )
             case it: InternalTarget  =>
               val relativePath = it.relativeTo(fmt.path).relativePath
@@ -122,49 +118,49 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
               else
                 fmt.element(
                   "a",
-                  opt + Styles("reference", "internal"),
-                  content,
+                  sl.withStyles("reference", "internal"),
                   fmt.optAttributes(
                     "href"  -> Some("#" + relativePath.fragment.get),
                     "title" -> title
-                  ): _*
+                  ) *
                 )
           }
-        case (fmt, LiteralBlock(content, opt))                                         =>
-          fmt.withoutIndentation(_.textElement("pre", opt + Styles("literal-block"), content))
-        case (fmt, Literal(content, opt))                                              =>
-          fmt.withoutIndentation(_.textElement("tt", opt + Styles("docutils", "literal"), content))
-        case (fmt, FootnoteLink(id, label, opt))                                       =>
-          fmt.textElement(
-            "a",
-            opt + Styles("footnote-reference"),
-            s"[$label]",
-            "href" -> ("#" + dropLaikaPrefix(id))
-          )
-        case (fmt, f: Footnote) if f.options.id.exists(_.startsWith("__"))             =>
+
+        case (fmt, lb: LiteralBlock)             =>
+          fmt.withoutIndentation(_.textElement("pre", lb.withStyle("literal-block")))
+        case (fmt, l: Literal)                   =>
+          fmt.withoutIndentation(_.textElement("tt", l.withStyles("docutils", "literal")))
+        case (fmt, FootnoteLink(id, label, opt)) =>
+          val text = Text(s"[$label]").withOptions(opt + Styles("footnote-reference"))
+          fmt.textElement("a", text, "href" -> ("#" + dropLaikaPrefix(id)))
+
+        case (fmt, f: Footnote) if f.options.id.exists(_.startsWith("__")) =>
           fmt.child(f.withId(dropLaikaPrefix(f.options.id.get)))
-        case (fmt, Section(header, content, opt))                                      =>
+        case (fmt, Section(header, content, opt))                          =>
+          val options = opt + Id(header.options.id.getOrElse("")) +
+            (if (header.level == 1) Styles("document") else Style.section)
           fmt.indentedElement(
             "div",
-            opt + Id(header.options.id.getOrElse("")) + (if (header.level == 1) Styles("document")
-                                                         else Style.section),
-            header +: content
+            BlockSequence(header +: content).withOptions(options)
           )
-        case (fmt, Header(level, (it: InternalLinkTarget) :: rest, opt))               =>
+        case (fmt, Header(level, (it: InternalLinkTarget) :: rest, opt))   =>
           fmt.childPerLine(
             Seq(it, Header(level, rest, opt))
           ) // move target out of the header content
-        case (fmt, Header(level, content, opt))                                        =>
-          fmt.element("h" + (level - 1), NoOpt, content) // rst special treatment of first header
-        case (fmt, Title(content, opt)) => fmt.element("h1", NoOpt, content, "class" -> "title")
+        case (fmt, h: Header)                                              =>
+          fmt.element("h" + (h.level - 1), h.clearOptions) // rst special treatment of first header
+        case (fmt, t: Title) => fmt.element("h1", t.clearOptions, "class" -> "title")
         case (fmt, TitledBlock(title, content, opt)) =>
-          fmt.indentedElement("div", opt, Paragraph(title, Styles("admonition-title")) +: content)
-        case (fmt, QuotedBlock(content, attr, opt))  =>
-          renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content, attr))
-        case (fmt, InternalLinkTarget(opt))          => fmt.textElement("span", opt, "")
-        case (_, _: InvalidBlock)                    => ""
+          val element = BlockSequence(Paragraph(title, Styles("admonition-title")) +: content)
+            .withOptions(opt)
+          fmt.indentedElement("div", element)
+        case (fmt, qb: QuotedBlock)                  => renderQuotedBlock(fmt, qb)
+        case (fmt, InternalLinkTarget(opt)) => fmt.textElement("span", Text("").withOptions(opt))
+        case (_, _: InvalidBlock)           => ""
       }
-      .failOnMessages(MessageFilter.None)
+      .withMessageFilters(
+        MessageFilters.custom(failOn = MessageFilter.None, render = MessageFilter.None)
+      )
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .transform(input, Root / "doc")

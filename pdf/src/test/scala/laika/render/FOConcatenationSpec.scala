@@ -18,17 +18,18 @@ package laika.render
 
 import cats.effect.IO
 import laika.api.builder.OperationConfig
+import laika.api.bundle.PathTranslator
+import laika.api.config.Config
+import laika.api.errors.InvalidDocument
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
-import laika.config.Config
-import laika.format.{ PDF, XSLFO }
+import laika.config.MessageFilters
+import laika.format.XSLFO
 import laika.io.model.{ RenderedDocument, RenderedTree, RenderedTreeRoot }
-import laika.parse.markup.DocumentParser.InvalidDocument
+import laika.pdf.internal.FOConcatenation
 import laika.render.fo.TestTheme
-import laika.render.pdf.FOConcatenation
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.BasicPathTranslator
+import laika.theme.config.BookConfig
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -37,33 +38,32 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
 
   private val invalidElement = InvalidSpan("WRONG", generatedSource("faulty input"))
 
-  private val result = RenderedTreeRoot[IO](
-    tree = RenderedTree(
-      Root,
-      None,
-      Seq(RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
-    ),
-    defaultTemplate = TemplateRoot(TemplateElement(invalidElement)),
-    config = Config.empty,
-    outputContext = OutputContext(XSLFO),
-    pathTranslator = BasicPathTranslator("fo"),
-    styles = TestTheme.foStyles
-  )
+  private val result = {
+    val tree = new RenderedTreeRoot[IO](
+      tree = new RenderedTree(
+        Root,
+        None,
+        Seq(new RenderedDocument(Root / "doc", None, Nil, "content", Config.empty))
+      ),
+      input = DocumentTreeRoot(DocumentTree.empty).addStyles(Map("fo" -> TestTheme.foStyles)),
+      outputContext = OutputContext(XSLFO),
+      pathTranslator = PathTranslator.noOp
+    )
+    tree.withDefaultTemplate(TemplateRoot(TemplateElement(invalidElement)))
+  }
 
   test("fail when there are invalid elements in the template result") {
-    val actual   = FOConcatenation(result, PDF.BookConfig(), OperationConfig.default)
+    val actual   = FOConcatenation(result, BookConfig.empty, OperationConfig.default)
     val expected = Left(InvalidDocument(Root / "merged.fo", invalidElement))
     assertEquals(actual, expected)
   }
 
   test("succeed when there are errors in the template result, but the filter is None") {
-    val config   = OperationConfig.default.copy(
-      renderMessages = MessageFilter.Warning,
-      failOnMessages = MessageFilter.None
-    )
+    val config   = OperationConfig.default
+      .withMessageFilters(MessageFilters.forVisualDebugging)
     val expected =
       """<fo:inline background-color="#ffe9e3" border="1pt solid #d83030" color="#d83030" padding="1pt 2pt">WRONG</fo:inline> <fo:inline font-family="monospaced" font-size="0.9em">faulty input</fo:inline>"""
-    assertEquals(FOConcatenation(result, PDF.BookConfig(), config), Right(expected))
+    assertEquals(FOConcatenation(result, BookConfig.empty, config), Right(expected))
   }
 
 }

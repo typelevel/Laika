@@ -17,45 +17,42 @@
 package laika.render
 
 import cats.effect.{ Async, IO, Resource }
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, TwoPhaseRendererBuilder }
+import laika.api.config.Config
+import laika.api.format.{ BinaryPostProcessor, RenderFormat, TagFormatter, TwoPhaseRenderFormat }
 import laika.ast.{ DocumentTreeRoot, TemplateRoot }
-import laika.config.{ Config, ConfigException }
-import laika.factory.{
-  BinaryPostProcessor,
-  BinaryPostProcessorBuilder,
-  RenderFormat,
-  TwoPhaseRenderFormat
-}
 import laika.format.{ Markdown, PDF, XSLFO }
 import laika.io.FileIO
 import laika.io.api.BinaryTreeRenderer
 import laika.io.helper.RenderResult
-import laika.io.implicits._
+import laika.io.syntax.*
 import laika.io.model.{ BinaryOutput, RenderedTreeRoot }
-import laika.render.FOFormatter.Preamble
+import laika.internal.render.FOFormatter.Preamble
+import laika.io.internal.errors.ConfigException
+import laika.pdf.internal.FOConcatenation
 import laika.render.fo.TestTheme
-import laika.render.pdf.FOConcatenation
 import laika.theme.Theme
+import laika.theme.config.BookConfig
 import munit.CatsEffectSuite
 
 class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
 
-  object FOTest extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessorBuilder] {
+  object FOTest extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builder] {
 
-    val interimFormat: RenderFormat[FOFormatter] = XSLFO
+    val interimFormat: RenderFormat[TagFormatter] = XSLFO
 
     def prepareTree(root: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(
       root
         .modifyTree(_.withDefaultTemplate(TemplateRoot.fallback, "fo"))
-        .mapDocuments { doc =>
+        .modifyDocumentsRecursively { doc =>
           val preamble = Preamble(doc.title.fold(doc.name)(_.extractText))
-          doc.copy(content = doc.content.withContent(preamble +: doc.content.content))
+          doc.prependContent(preamble)
         }
     )
 
-    def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+    def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
       def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
         Resource.pure[F, BinaryPostProcessor[F]](new BinaryPostProcessor[F] {
@@ -66,7 +63,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
               opConfig: OperationConfig
           ): F[Unit] = {
 
-            val pdfConfig = PDF.BookConfig.decodeWithDefaults(result.config)
+            val pdfConfig = BookConfig.decodeWithDefaults(result.config, PDF.configKey)
             output.resource.use { out =>
               for {
                 config <- Async[F].fromEither(pdfConfig.left.map(ConfigException.apply))
@@ -159,7 +156,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
       .build
   }
 
-  type Builder = TwoPhaseRendererBuilder[FOFormatter, BinaryPostProcessor[IO]]
+  type Builder = TwoPhaseRendererBuilder[TagFormatter, BinaryPostProcessor[IO]]
 
   def result(navigationDepth: Int = 23, useTitleDocuments: Boolean = false): IO[String] =
     renderer.use { r =>
@@ -167,7 +164,7 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
         TestTheme.foTemplate,
         "fo"
       )
-      val root = DocumentTreeRoot(tree, styles = Map("fo" -> TestTheme.foStyles))
+      val root = DocumentTreeRoot(tree).addStyles(Map("fo" -> TestTheme.foStyles))
       withByteArrayTextOutput { out =>
         r
           .from(root)

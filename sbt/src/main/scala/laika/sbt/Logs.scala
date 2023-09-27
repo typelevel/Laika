@@ -18,7 +18,8 @@ package laika.sbt
 
 import cats.effect.IO
 import laika.ast.DocumentType.{ Config, Markup, StyleSheet, Template }
-import laika.ast._
+import laika.ast.*
+import laika.config.MessageFilter
 import laika.io.model.InputTree
 import sbt.Logger
 
@@ -26,7 +27,7 @@ import sbt.Logger
   *
   * @author Jens Halm
   */
-object Logs {
+private[sbt] object Logs {
 
   def s(num: Int): String = if (num == 1) "" else "s"
 

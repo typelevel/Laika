@@ -16,14 +16,14 @@
 
 package laika.api.builder
 
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 
 /** Base API for specifying configuration options that apply to all
   * kinds of operations (Parser, Renderer and Transformer).
   *
   * @author Jens Halm
   */
-trait CommonBuilderOps {
+private[api] trait CommonBuilderOps {
 
   /** The type of the operation being configured by this instance.
     */

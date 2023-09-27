@@ -16,8 +16,8 @@
 
 package laika.markdown
 
-import laika.ast.{ Span, TextContainer }
-import laika.markdown.ast._
+import laika.ast.html.*
+import laika.ast.{ Span, TextContainer, html }
 
 trait HTMLModelBuilder {
 
@@ -25,10 +25,10 @@ trait HTMLModelBuilder {
     attributes.toList map (a => HTMLAttribute(a._1, List(a._2), Some('\"')))
 
   def emptyTag(name: String, attributes: (String, Span with TextContainer)*): HTMLEmptyElement =
-    HTMLEmptyElement(name, toAttributes(attributes: _*))
+    html.HTMLEmptyElement(name, toAttributes(attributes: _*))
 
   def startTag(name: String, attributes: (String, Span with TextContainer)*): HTMLStartTag =
-    HTMLStartTag(name, toAttributes(attributes: _*))
+    html.HTMLStartTag(name, toAttributes(attributes: _*))
 
   def startTag(name: String, attribute: HTMLAttribute): HTMLStartTag =
     HTMLStartTag(name, List(attribute))

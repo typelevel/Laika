@@ -49,7 +49,7 @@ h1.title {
   padding-top: calc(40px + var(--top-bar-height));
   padding-bottom: 10px;
   margin-bottom: calc(var(--block-spacing) * 3);
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-border);
 }
 h2 {
   font-size: var(--header2-font-size);
@@ -203,7 +203,7 @@ ul.tab-group {
 }
 li.tab {
   display: inline-block;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-radius: 5px 5px 0 0;
   background-color: var(--primary-light);
   padding: 2px 5px;
@@ -224,7 +224,7 @@ li.tab.active {
 .tab-content {
   display: none;
   padding: 12px 5px 5px;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-radius: 0 5px 5px 5px;
   margin-top: 0 !important;
 }
@@ -236,11 +236,11 @@ li.tab.active {
 
 table {
   margin: calc(var(--block-spacing) * 2) 0;
-  border: 1px solid var(--primary-medium);
+  border: 1px solid var(--component-border);
   border-collapse: collapse;
 }
 thead > tr {
-  border-bottom: 1px solid var(--primary-medium);
+  border-bottom: 1px solid var(--component-border);
 }
 td, th {
   padding: 5px 8px;
@@ -266,11 +266,11 @@ tbody > tr:nth-child(odd) {
 }
 
 .svg-shape {
-  fill: var(--primary-color);
+  fill: var(--component-color);
 }
 
 a:hover .svg-shape {
-  fill: var(--secondary-color);
+  fill: var(--component-hover);
 }
 
 /* footer ========================================== */
@@ -307,3 +307,13 @@ p.title {
 .keep-together {
   page-break-inside: avoid;
 }
+
+/* mermaid diagrams ==================== */
+
+pre.mermaid {
+  color: var(--bg-color); /* avoiding page load flicker */
+  background-color: var(--bg-color);
+  border: 1px solid var(--primary-medium);
+  text-align: center;
+}
+

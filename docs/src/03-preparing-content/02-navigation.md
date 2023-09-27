@@ -4,8 +4,6 @@ Navigation
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 Laika's functionality for navigation can roughly be divided into four categories:
@@ -65,37 +63,33 @@ you can explicitly disable validation for certain paths within the virtual tree:
 @:choice(sbt)
 ```scala mdoc:compile-only
 import laika.ast.Path.Root
-import laika.rewrite.link.LinkConfig
+import laika.config.LinkValidation
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+  .withConfigValue(LinkValidation.Global(excluded = Seq(Root / "generated")))
 ```
 
 @:choice(library)
-```scala mdoc:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.ast.Path.Root
+import laika.config.LinkValidation
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.LinkConfig
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root / "generated")))
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(LinkValidation.Global(excluded = Seq(Root / "generated")))
   .build
 ```
 @:@
 
-Alternatively, if preferred, you can also disable validation via the `directory.conf` file right within that 
-directory:
+This disables validation for the specified directories and all their subdirectories.
 
-```hocon
-laika.validateLinks = false
-```
-
-This disables validation for that directory and all its sub-directories.
+In the unusual case you want to disable all validation you can alternatively use
+`LinkValidation.Off` or `LinkValidation.Local`, where the latter will still validate all links
+pointing to sections within the same document, but not those pointing elsewhere.
 
 
 Global Link Definitions
@@ -132,32 +126,33 @@ Simply add them to the project's configuration:
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.ast.ExternalTarget
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
+import laika.config.{ LinkConfig, TargetDefinition }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(targets = Seq(
-    TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
-    TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
-  )))
+  .withConfigValue(LinkConfig.empty
+    .addTargets(
+      TargetDefinition.external("Example 1", "https://example1.com/"),
+      TargetDefinition.external("Example 2", "https://example2.com/")
+    )
+  )
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:silent
 import laika.api._
-import laika.ast.ExternalTarget
+import laika.config.{ LinkConfig, TargetDefinition }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, TargetDefinition }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(targets = Seq(
-    TargetDefinition("Example 1", ExternalTarget("https://example1.com/")),
-    TargetDefinition("Example 2", ExternalTarget("https://example2.com/"))
-  )))
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(LinkConfig.empty
+    .addTargets(
+      TargetDefinition.external("Example 1", "https://example1.com/"),
+      TargetDefinition.external("Example 2", "https://example2.com/")
+    )
+  )
   .build
 ```
 @:@
@@ -253,28 +248,27 @@ This directive requires the base URI to be defined in the project's configuratio
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
+import laika.config.{ LinkConfig, ApiLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(apiLinks = Seq(
-    ApiLinks(baseUri = "https://example.com/api")
-  )))
+  .withConfigValue(LinkConfig.empty
+    .addApiLinks(ApiLinks(baseUri = "https://example.com/api"))
+  )
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
+import laika.config.{ LinkConfig, ApiLinks }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(apiLinks = Seq(
-    ApiLinks(baseUri = "https://example.com/api")
-  )))
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(LinkConfig.empty
+    .addApiLinks(ApiLinks(baseUri = "https://example.com/api"))
+  )
   .build
 ```
 @:@
@@ -286,30 +280,29 @@ while keeping one base URI as a default for all packages that do not match any p
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
+import laika.config.{ LinkConfig, ApiLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(apiLinks = Seq(
-    ApiLinks(baseUri = "https://example.com/api"),
-    ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
-  )))
+  .withConfigValue(LinkConfig.empty
+    .addApiLinks(ApiLinks("https://example.com/api"))
+    .addApiLinks(ApiLinks("https://somewhere-else/").withPackagePrefix("com.lib42"))
+  )
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
+import laika.config.{ LinkConfig, ApiLinks }
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, ApiLinks }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(apiLinks = Seq(
-    ApiLinks(baseUri = "https://example.com/api"),
-    ApiLinks(baseUri = "https://somewhere-else/", packagePrefix = "com.lib42")
-  )))
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(LinkConfig.empty
+    .addApiLinks(ApiLinks("https://example.com/api"))
+    .addApiLinks(ApiLinks("https://somewhere-else/").withPackagePrefix("com.lib42"))
+  )
   .build
 ```
 
@@ -334,28 +327,31 @@ This directive requires the base URI and suffix to be defined in the project's c
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
-    SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
-  )))
+  .withConfigValue(LinkConfig.empty
+    .addSourceLinks(
+      SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
+    )
+  )
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
-     SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
-  )))
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(LinkConfig.empty
+    .addSourceLinks(
+      SourceLinks(baseUri = "https://github.com/team/project", suffix = "scala")
+    )
+  )
   .build
 ```
 @:@
@@ -367,44 +363,41 @@ while keeping one base URI as a default for all packages that do not match any p
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
-    SourceLinks(
+  .withConfigValue(LinkConfig.empty
+    .addSourceLinks(SourceLinks(
       baseUri = "https://github.com/team/project", 
       suffix = "scala"
-    ),
-    SourceLinks(
+    ))
+    .addSourceLinks(SourceLinks(
       baseUri = "https://github.com/elsewhere/project", 
-      suffix = "scala", 
-      packagePrefix = "com.lib42"
-    )
-  )))
+      suffix = "scala"
+    ).withPackagePrefix("com.lib42"))
+  )
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.link.{ LinkConfig, SourceLinks }
+import laika.config.{ LinkConfig, SourceLinks }
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(LinkConfig(sourceLinks = Seq(
-    SourceLinks(
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(LinkConfig.empty
+    .addSourceLinks(SourceLinks(
       baseUri = "https://github.com/team/project", 
       suffix = "scala"
-    ),
-    SourceLinks(
+    ))
+    .addSourceLinks(SourceLinks(
       baseUri = "https://github.com/elsewhere/project", 
-      suffix = "scala", 
-      packagePrefix = "com.lib42"
-    )
-  )))
+      suffix = "scala"
+    ).withPackagePrefix("com.lib42"))
+  )
   .build
 ```
 
@@ -600,24 +593,23 @@ Auto-numbering can be switched on per configuration:
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.nav.AutonumberConfig
+import laika.config.AutonumberConfig
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(AutonumberConfig(maxDepth = 3))
+  .withConfigValue(AutonumberConfig.allEnabled.withMaxDepth(3))
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
+import laika.config.AutonumberConfig
 import laika.format._
-import laika.markdown.github.GitHubFlavor
-import laika.rewrite.nav.AutonumberConfig
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .withConfigValue(AutonumberConfig(maxDepth = 3))
+  .using(Markdown.GitHubFlavor)
+  .withConfigValue(AutonumberConfig.allEnabled.withMaxDepth(3))
   .build
 ```
 @:@
@@ -651,16 +643,16 @@ It can be enabled like any other extension:
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.rewrite.nav.PrettyURLs
+import laika.config.PrettyURLs
 
 laikaExtensions += PrettyURLs
 ```
 
 @:choice(library)
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 import laika.api._
+import laika.config.PrettyURLs
 import laika.format._
-import laika.rewrite.nav.PrettyURLs
 
 val transformer = Transformer
   .from(Markdown)

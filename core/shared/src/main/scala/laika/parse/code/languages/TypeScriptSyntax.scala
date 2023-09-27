@@ -17,7 +17,7 @@
 package laika.parse.code.languages
 
 import cats.data.NonEmptyList
-import laika.bundle.SyntaxHighlighter
+import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue, TypeName }
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common._
@@ -26,7 +26,7 @@ import laika.parse.code.common._
   */
 object TypeScriptSyntax extends SyntaxHighlighter {
 
-  val stringEmbeds: CodeSpanParser =
+  private val stringEmbeds: CodeSpanParser =
     JavaScriptSyntax.unicodeCodePointEscape ++
       StringLiteral.Escape.unicode ++
       StringLiteral.Escape.hex ++

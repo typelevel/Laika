@@ -18,26 +18,20 @@ package laika.format
 
 import cats.effect.{ Async, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.config.Config
+import laika.api.format.{ BinaryPostProcessor, Formatter, RenderFormat, TwoPhaseRenderFormat }
 import laika.ast.DocumentTreeRoot
-import laika.config.Config
-import laika.factory.{
-  BinaryPostProcessor,
-  BinaryPostProcessorBuilder,
-  RenderFormat,
-  TwoPhaseRenderFormat
-}
 import laika.io.model.{ BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot }
-import laika.render.TextFormatter
 import laika.theme.Theme
 
 object TestRenderResultProcessor
-    extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessorBuilder] {
+    extends TwoPhaseRenderFormat[Formatter, BinaryPostProcessor.Builder] {
 
-  val interimFormat: RenderFormat[TextFormatter] = AST
+  val interimFormat: RenderFormat[Formatter] = AST
 
   def prepareTree(tree: DocumentTreeRoot): Either[Throwable, DocumentTreeRoot] = Right(tree)
 
-  def postProcessor: BinaryPostProcessorBuilder = new BinaryPostProcessorBuilder {
+  def postProcessor: BinaryPostProcessor.Builder = new BinaryPostProcessor.Builder {
 
     def build[F[_]: Async](config: Config, theme: Theme[F]): Resource[F, BinaryPostProcessor[F]] =
       Resource.pure(new BinaryPostProcessor[F] {

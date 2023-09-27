@@ -155,7 +155,7 @@ object Message {
 
   val ExpectedEOL: Message = fixed("Expected end of line")
 
-  class MessageFactory[T](f: T => String) extends (T => Message) {
+  private class MessageFactory[T](f: T => String) extends (T => Message) {
 
     def apply(value: T): Message = new Message {
 
@@ -174,17 +174,16 @@ object Message {
 
   }
 
-  /** Builds a message instance for the specified
-    * factory function.
+  /** Builds a message instance for the specified factory function.
     */
   def forContext(f: SourceCursor => String): Message = new Message {
     def message(source: SourceCursor): String = f(source)
   }
 
   /** Builds a factory function that produces new messages
-    * based on some arbitrary input type. This allows
-    * to pre-capture some context for the message that
-    * does not relate to the parser context.
+    * based on some arbitrary input type.
+    * This allows to pre-capture some context for the message
+    * that does not relate to the parser context.
     */
   def forRuntimeValue[T](f: T => String): T => Message = new MessageFactory(f)
 

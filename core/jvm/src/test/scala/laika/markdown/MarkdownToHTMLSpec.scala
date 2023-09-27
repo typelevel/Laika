@@ -17,7 +17,8 @@
 package laika.markdown
 
 import laika.api.Transformer
-import laika.ast._
+import laika.ast.*
+import laika.config.{ MessageFilter, MessageFilters }
 import laika.file.FileIO
 import laika.format.{ HTML, Markdown }
 import laika.html.TidyHTML
@@ -50,6 +51,7 @@ class MarkdownToHTMLSpec extends FunSuite {
   }
 
   def transformAndCompare(name: String): Unit = {
+
     def renderPath(relPath: VirtualPath): Target =
       if (relPath == RelativePath.CurrentDocument()) ExternalTarget("")
       else ExternalTarget(relPath.toString)
@@ -59,25 +61,24 @@ class MarkdownToHTMLSpec extends FunSuite {
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .usingSpanRule { case LinkPathReference(content, relPath, _, title, opt) =>
-        Replace(
+        RewriteAction.Replace(
           SpanLink(content, renderPath(relPath), title, opt)
         ) // We do not validate cross-links in these tests
       }
       .rendering {
         case (fmt, i @ InvalidSpan(_, _, Literal(fb, _), _)) =>
           fmt.child(i.copy(fallback = Text(fb)))
-        case (fmt, QuotedBlock(content, _, opt))             =>
-          fmt.indentedElement(
-            "blockquote",
-            opt,
-            content
-          ) // Markdown always writes p tags inside blockquotes
+        case (fmt, qb: QuotedBlock)                          =>
+          // Markdown always writes p tags inside blockquotes
+          fmt.indentedElement("blockquote", qb)
         case (fmt, h @ Header(_, _, Id(_)))                  =>
-          fmt.child(h.withOptions(NoOpt)) // Markdown classic does not generate header ids
+          fmt.child(h.clearOptions) // Markdown classic does not generate header ids
         case (fmt, t @ Title(_, Id("unordered")))            => fmt.child(Header(2, t.content))
-        case (fmt, t @ Title(_, Id(_)))                      => fmt.child(t.withOptions(NoOpt))
+        case (fmt, t @ Title(_, Id(_)))                      => fmt.child(t.clearOptions)
       }
-      .failOnMessages(MessageFilter.None)
+      .withMessageFilters(
+        MessageFilters.custom(failOn = MessageFilter.None, render = MessageFilter.None)
+      )
       .build
       .transform(input)
       .map(tidyAndAdjust)

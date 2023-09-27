@@ -18,11 +18,9 @@ package laika.ast
 
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
-import laika.ast.Path.Root
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.config.LaikaKeys
 import laika.format.Markdown
-import laika.parse.markup.DocumentParser.ParserError
 import munit.FunSuite
 
 class DocumentAPISpec extends FunSuite
@@ -78,9 +76,9 @@ class DocumentAPISpec extends FunSuite
       .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
       .build
       .parse(markup)
-      .flatMap(_.title.toRight(ParserError("no title", Root)))
+      .map(_.title)
 
-    assertEquals(res, Right(SpanSequence("Title")))
+    assertEquals(res, Right(Some(SpanSequence("Title"))))
   }
 
   test(
@@ -134,19 +132,24 @@ class DocumentAPISpec extends FunSuite
                    |
                    |Some more text""".stripMargin
 
-    val raw       = defaultParser.parseUnresolved(markup).toOption.get.document
+    val raw       = defaultParser.parseUnresolved(markup).toOption.get.document.modifyConfig(
+      _.withValue(LaikaKeys.orphan, false)
+    )
     val testRule  = RewriteRules.forSpans { case Text("Some text", _) =>
-      Replace(Text("Swapped"))
+      RewriteAction.Replace(Text("Swapped"))
     }
     val rewritten = OperationConfig.default
-      .rewriteRulesFor(raw.copy(position = TreePosition.root), RewritePhase.Resolve)
+      .rewriteRulesFor(raw, RewritePhase.Resolve)
       .flatMap(r => raw.rewrite(testRule ++ r))
 
     assertEquals(
       rewritten.map(_.content),
       Right(
         RootElement(
-          Title(List(Text("Title")), Id("title") + Style.title),
+          Section(
+            Header(1, List(Text("Title")), Id("title") + Style.section),
+            Nil
+          ),
           Section(
             Header(1, List(Text("Section 1")), Id("section-1") + Style.section),
             List(p("Swapped"))

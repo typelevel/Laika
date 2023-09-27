@@ -16,16 +16,17 @@
 
 package laika.api.builder
 
+import laika.api.bundle.ExtensionBundle
 import laika.ast.RewriteRules.{ RewritePhaseBuilder, RewriteRulesBuilder }
 import laika.ast._
-import laika.bundle.ExtensionBundle
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain both, a parsing and a rendering step (only Transform API).
   *
   * @author Jens Halm
   */
-trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOps[FMT] {
+private[api] trait TransformerBuilderOps[FMT] extends ParserBuilderOps
+    with RendererBuilderOps[FMT] {
 
   type ThisType <: TransformerBuilderOps[FMT]
 
@@ -49,13 +50,8 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     *  been processed.
     */
   def usingRules(newRules: RewriteRules): ThisType = using(new ExtensionBundle {
-    val description: String = "Custom rewrite rules"
-
-    override def rewriteRules: RewritePhaseBuilder = {
-      case RewritePhase.Build     => Seq(newRules.copy(templateRules = Nil).asBuilder)
-      case RewritePhase.Render(_) =>
-        Seq(RewriteRules(templateRules = newRules.templateRules).asBuilder)
-    }
+    val description: String                        = "Custom rewrite rules"
+    override def rewriteRules: RewritePhaseBuilder = newRules.asDefaultPhaseBuilder
 
   })
 
@@ -162,8 +158,5 @@ trait TransformerBuilderOps[FMT] extends ParserBuilderOps with RendererBuilderOp
     }
 
   })
-
-  @deprecated("use buildingRules", "0.19.0")
-  def buildingRule(newRules: RewriteRulesBuilder): ThisType = buildingRules(newRules)
 
 }

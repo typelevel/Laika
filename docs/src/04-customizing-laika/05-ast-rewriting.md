@@ -54,15 +54,13 @@ into a `Strong` node while processing everything else with default rules:
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
 import laika.ast._
 
 laikaExtensions += laikaSpanRewriteRule { 
-  case Emphasized(content, opts) => Replace(Strong(content, opts))
+  case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
 }
 ```
 
@@ -84,7 +82,7 @@ val transformer = Transformer
   .from(ReStructuredText)
   .to(HTML)
   .usingSpanRule {
-    case Emphasized(content, opts) => Replace(Strong(content, opts))
+    case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
   }.build
 ```
 
@@ -104,10 +102,10 @@ Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes f
 ```scala mdoc:compile-only
 import laika.ast._
 
-val doc: Document = ??? // obtained through the Parser API
+def doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forSpans {
-  case Emphasized(content, opts) => Replace(Strong(content, opts))
+  case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
 })
 ```
 
@@ -117,11 +115,11 @@ To accomplish this you need to nest a rewrite operation inside another one:
 ```scala mdoc:compile-only
 import laika.ast._
 
-val doc: Document = ??? // obtained through the Parser API
+def doc: Document = ??? // obtained through the Parser API
 
 val newDoc = doc.rewrite(RewriteRules.forBlocks {
-  case h: Header => Replace(h.rewriteSpans {
-    case Emphasized(content, opts) => Replace(Strong(content, opts))
+  case h: Header => RewriteAction.Replace(h.rewriteSpans {
+    case Emphasized(content, opts) => RewriteAction.Replace(Strong(content, opts))
   })
 })
 ```

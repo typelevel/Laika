@@ -101,9 +101,9 @@ or by [Creating a Config Instance] yourself, reading from it is quite straightfo
 You have to provide the key you want to read and the type you expect:
 
 ```scala mdoc:compile-only
-import laika.config.Config
+import laika.api.config.Config
 
-val config: Config = ???
+def config: Config = ???
 
 val version = config.get[String]("project.version")
 ```
@@ -155,12 +155,13 @@ object Color {
 You can then flatMap on the string decoder to obtain a Color decoder:
 
 ```scala mdoc:silent
-import laika.config._
+import laika.api.config._
+import laika.api.config.ConfigError.DecodingFailed
 
 implicit val colorDecoder: ConfigDecoder[Color] = 
   ConfigDecoder.string.flatMap { str =>
     Color.fromString(str)
-      .toRight(DecodingError(s"Unsupported color name: $str"))
+      .toRight(DecodingFailed(s"Unsupported color name: $str"))
   }
 ```
 
@@ -174,7 +175,7 @@ For mapping a HOCON object to a Scala case class you would usually build on top 
 which decodes a nested object into an instance that has the same API for querying values as the root.
 
 ```scala mdoc:silent
-import laika.config._
+import laika.api.config._
 
 implicit val decoder: ConfigDecoder[Person] = 
   ConfigDecoder.config.flatMap { config =>
@@ -266,7 +267,7 @@ You can alternatively create your own encoder as shown above.
 If you have a fallback instance, you can pass it to the constructor:
 
 ```scala mdoc:compile-only
-val parentConfig: Config = ???
+def parentConfig: Config = ???
 
 val config = ConfigBuilder.withFallback(parentConfig)
   .withValue("laika.epub.coverImage", "/images/epub-cover.jpg")
@@ -276,24 +277,21 @@ val config = ConfigBuilder.withFallback(parentConfig)
 
 The fallback will be used for resolving any values not present in the current instance.
 
-Finally, if you are building a `Config` instance that you want to assign to a `Document` instance in cases
-where you build an entire tree programmatically, you also have to provide a correct `Origin` instance:
+Finally, if you want to modify an existing `Config` instance of a particular `Document` instance
+you can use the `modifyConfig` method:
 
 ```scala mdoc:compile-only
 import laika.ast.Document
 
-val doc: Document = ???
-val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
+def doc: Document = ???
 
-val config = ConfigBuilder.withOrigin(docOrigin)
+val finalDoc = doc.modifyConfig(_
   .withValue("laika.epub.coverImage", "/images/epub-cover.jpg")
   .withValue("laika.pdf.coverImage", "/images/pdf-cover.jpg")
-  .build
-  
-val finalDoc = doc.copy(config = config)
+)
 ```
 
-This is essential for resolving relative paths defined in that configuration correctly.
+This is more efficient than replacing the config and preserves the origin info in the existing config property which is essential for resolving relative paths defined in that configuration correctly.
 
 
 ### Parsing HOCON
@@ -301,7 +299,7 @@ This is essential for resolving relative paths defined in that configuration cor
 The `ConfigParser` has a very simple API:
 
 ```scala mdoc:compile-only
-val hoconInput: String = ???
+def hoconInput: String = ???
 
 val result: Either[ConfigError, Config] = ConfigParser
   .parse(hoconInput)
@@ -316,8 +314,8 @@ The `resolve` step then finally creates a `Config` instance, resolving and valid
 If you have a fallback instance, you can pass it via `resolve`:
 
 ```scala mdoc:compile-only
-val hoconInput: String = ???
-val parentConfig: Config = ???
+def hoconInput: String = ???
+def parentConfig: Config = ???
 
 val result: Either[ConfigError, Config] = ConfigParser
   .parse(hoconInput)
@@ -332,15 +330,15 @@ where you build an entire tree programmatically, you also have to provide a corr
 ```scala mdoc:compile-only
 import laika.ast.Document
 
-val hoconInput: String = ???
-val doc: Document = ???
+def hoconInput: String = ???
+def doc: Document = ???
 val docOrigin: Origin = Origin(Origin.DocumentScope, doc.path) 
 
 val result: Either[ConfigError, Document] = ConfigParser
   .parse(hoconInput)
   .resolve(origin = docOrigin)
   .map { config =>
-    doc.copy(config = config)
+    doc.withConfig(config)
   }
 ```
 

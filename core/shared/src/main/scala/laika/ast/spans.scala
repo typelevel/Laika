@@ -20,14 +20,14 @@ import laika.parse.code.CodeCategory
 
 /** A simple text element.
   */
-case class Text(content: String, options: Options = NoOpt) extends Span with TextContainer {
+case class Text(content: String, options: Options = Options.empty) extends Span with TextContainer {
   type Self = Text
   def withOptions(options: Options): Text = copy(options = options)
 }
 
 /** A span of emphasized inline elements that may contain nested spans.
   */
-case class Emphasized(content: Seq[Span], options: Options = NoOpt) extends Span
+case class Emphasized(content: Seq[Span], options: Options = Options.empty) extends Span
     with SpanContainer {
   type Self = Emphasized
   def withContent(newContent: Seq[Span]): Emphasized = copy(content = newContent)
@@ -41,7 +41,8 @@ object Emphasized extends SpanContainerCompanion {
 
 /** A span of strong inline elements that may contain nested spans.
   */
-case class Strong(content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
+case class Strong(content: Seq[Span], options: Options = Options.empty) extends Span
+    with SpanContainer {
   type Self = Strong
   def withContent(newContent: Seq[Span]): Strong = copy(content = newContent)
   def withOptions(options: Options): Strong      = copy(options = options)
@@ -54,7 +55,8 @@ object Strong extends SpanContainerCompanion {
 
 /** A span containing plain, unparsed text.
   */
-case class Literal(content: String, options: Options = NoOpt) extends Span with TextContainer {
+case class Literal(content: String, options: Options = Options.empty) extends Span
+    with TextContainer {
   type Self = Literal
   def withOptions(options: Options): Literal = copy(options = options)
 }
@@ -63,7 +65,8 @@ case class Literal(content: String, options: Options = NoOpt) extends Span with 
   *  the integration of syntax highlighting systems. Without this support
   *  the sequence will only consist of a single `Text` element.
   */
-case class InlineCode(language: String, content: Seq[Span], options: Options = NoOpt) extends Span
+case class InlineCode(language: String, content: Seq[Span], options: Options = Options.empty)
+    extends Span
     with SpanContainer {
   type Self = InlineCode
   def withContent(newContent: Seq[Span]): InlineCode = copy(content = newContent)
@@ -72,7 +75,8 @@ case class InlineCode(language: String, content: Seq[Span], options: Options = N
 
 /** A span representing deleted inline elements that may contain nested spans.
   */
-case class Deleted(content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
+case class Deleted(content: Seq[Span], options: Options = Options.empty) extends Span
+    with SpanContainer {
   type Self = Deleted
   def withContent(newContent: Seq[Span]): Deleted = copy(content = newContent)
   def withOptions(options: Options): Deleted      = copy(options = options)
@@ -85,7 +89,8 @@ object Deleted extends SpanContainerCompanion {
 
 /** A span representing inserted inline elements that may contain nested spans.
   */
-case class Inserted(content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
+case class Inserted(content: Seq[Span], options: Options = Options.empty) extends Span
+    with SpanContainer {
   type Self = Inserted
   def withContent(newContent: Seq[Span]): Inserted = copy(content = newContent)
   def withOptions(options: Options): Inserted      = copy(options = options)
@@ -102,7 +107,8 @@ object Inserted extends SpanContainerCompanion {
   *  as s sub flow of the parent container. A span sequence is special in that in can be
   *  used as both a span and a block.
   */
-case class SpanSequence(content: Seq[Span], options: Options = NoOpt) extends Block with Span
+case class SpanSequence(content: Seq[Span], options: Options = Options.empty) extends Block
+    with Span
     with SpanContainer {
   type Self = SpanSequence
   def withContent(newContent: Seq[Span]): SpanSequence = copy(content = newContent)
@@ -117,7 +123,7 @@ object SpanSequence extends SpanContainerCompanion {
 /** Represents a section number, usually used in header elements
   *  when autonumbering is applied.
   */
-case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends Span
+case class SectionNumber(position: Seq[Int], options: Options = Options.empty) extends Span
     with TextContainer {
 
   type Self = SectionNumber
@@ -139,8 +145,11 @@ sealed trait CategorizedCode extends Span
 
 /** A span of code associated with zero or more code categories.
   */
-case class CodeSpan(content: String, categories: Set[CodeCategory], options: Options = NoOpt)
-    extends CategorizedCode with TextContainer {
+case class CodeSpan(
+    content: String,
+    categories: Set[CodeCategory],
+    options: Options = Options.empty
+) extends CategorizedCode with TextContainer {
   type Self = CodeSpan
   def withOptions(options: Options): CodeSpan = copy(options = options)
 }
@@ -149,7 +158,7 @@ object CodeSpan {
 
   def apply(content: String, category: CodeCategory): CodeSpan = apply(content, Set(category))
 
-  def apply(content: String): CodeSpan = apply(content, Set(), NoOpt)
+  def apply(content: String): CodeSpan = apply(content, Set(), Options.empty)
 
 }
 
@@ -189,7 +198,8 @@ object CodeSpans {
 
 /** A sequence of code spans where most of them are usually associated with zero or more code categories.
   */
-case class CodeSpanSequence(content: Seq[Span], options: Options = NoOpt) extends CategorizedCode
+case class CodeSpanSequence(content: Seq[Span], options: Options = Options.empty)
+    extends CategorizedCode
     with SpanContainer {
   type Self = CodeSpanSequence
   def withContent(newContent: Seq[Span]): CodeSpanSequence = copy(content = newContent)
@@ -203,12 +213,12 @@ object CodeSpanSequence extends SpanContainerCompanion {
 
 /** An explicit hard line break.
   */
-case class LineBreak(options: Options = NoOpt) extends Span {
+case class LineBreak(options: Options = Options.empty) extends Span {
   type Self = LineBreak
   def withOptions(options: Options): LineBreak = copy(options = options)
 }
 
-case class Reverse(length: Int, target: Span, fallback: Span, options: Options = NoOpt)
+case class Reverse(length: Int, target: Span, fallback: Span, options: Options = Options.empty)
     extends Span {
   type Self = Reverse
   def withOptions(options: Options): Reverse = copy(options = options)

@@ -19,37 +19,24 @@ package laika.helium
 import java.util.Locale
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
-import laika.ast.{ /, Image, Path }
+import laika.ast.{ Image, Path }
 import laika.ast.Path.Root
 import laika.format.{ HTML, Markdown }
-import laika.helium.config._
+import laika.helium.config.*
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
-import laika.rewrite.{ Version, Versions }
-import laika.rewrite.link.LinkConfig
-import laika.theme._
+import laika.io.syntax.*
+import laika.theme.*
+import laika.theme.config.Color
 import munit.CatsEffectSuite
 
 class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
+    with TestVersions
     with StringOps {
-
-  private val versions = Versions(
-    Version("0.42.x", "0.42"),
-    Seq(
-      Version("0.41.x", "0.41"),
-      Version("0.40.x", "0.40", fallbackLink = "toc.html")
-    ),
-    Seq(
-      Version("0.43.x", "0.43")
-    )
-  )
 
   def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -68,7 +55,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "index.html", start, end)
           .toRight(new RuntimeException("Missing document under test"))
@@ -109,21 +96,21 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
          |<meta charset="utf-8">
          |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-         |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+         |<meta name="generator" content="Typelevel Laika + Helium Theme" />
          |<title></title>
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-         |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/landing-page.css" />
          |<link rel="stylesheet" type="text/css" href="styles/landing-extra.page.css" />
-         |<script src="helium/laika-helium.js"></script>
-         |<script src="helium/laika-versions.js"></script>
+         |<script src="helium/site/laika-helium.js"></script>
+         |<script src="helium/site/laika-versions.js"></script>
          |<script>initVersions("", "", "", null);</script>
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>
-         |<div id="header">
+         |<div id="header" class="light-inverted dark-inverted">
          |<div id="header-left">
          |<img src="home.png" alt="Project Logo">
          |<h1>My Project</h1>
@@ -159,7 +146,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |</div>
          |<p class="medium"><a class="text-link" href="doc-1.html">Text Link</a></p>
          |<p class="medium"><a class="button-link" href="http://somewhere.com/">Somewhere</a></p>
-         |<p class="medium"><span class="row links"><a class="icon-link glyph-link" href="doc-2.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a><a class="icon-link glyph-link" href="doc-3.md"><i class="icofont-laika info">&#xef4e;</i></a></span></p>
+         |<p class="medium"><span class="row links"><a class="icon-link glyph-link" href="doc-1.html"><i class="icofont-laika demo" title="Demo">&#xeeea;</i></a><a class="icon-link glyph-link" href="doc-2.html"><i class="icofont-laika info">&#xef4e;</i></a></span></p>
          |</div>
          |</div>
          |$teaserHTML
@@ -167,6 +154,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
     val imagePath = Root / "home.png"
     val helium    = Helium.defaults
       .site.versions(versions)
+      .site.internalCSS(Root / "styles" / "landing-extra.page.css")
       .site.landingPage(
         logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
         title = Some("My Project"),
@@ -192,16 +180,15 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
           TextLink.internal(Root / "doc-1.md", "Text Link"),
           ButtonLink.external("http://somewhere.com/", "Somewhere"),
           LinkGroup.create(
-            IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
-            IconLink.internal(Root / "doc-3.md", HeliumIcon.info)
+            IconLink.internal(Root / "doc-1.md", HeliumIcon.demo),
+            IconLink.internal(Root / "doc-2.md", HeliumIcon.info)
           )
         ),
         teasers = Seq(
           Teaser("Teaser 1", "Description 1"),
           Teaser("Teaser 2", "Description 2"),
           Teaser("Teaser 3", "Description 3")
-        ),
-        styles = Seq(Root / "styles" / "landing-extra.page.css")
+        )
       )
     transformAndExtract(
       inputs,
@@ -212,24 +199,26 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
       .assertEquals(expected)
   }
 
-  test("partial landing page configured with custom content and fragment") {
+  test(
+    "partial landing page configured with custom content and fragment and light background gradient"
+  ) {
     val expected           =
       s"""<head>
          |<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
          |<meta charset="utf-8">
          |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-         |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+         |<meta name="generator" content="Typelevel Laika + Helium Theme" />
          |<title></title>
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-         |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-         |<link rel="stylesheet" type="text/css" href="helium/landing.page.css" />
-         |<script src="helium/laika-helium.js"></script>
+         |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/site/landing-page.css" />
+         |<script src="helium/site/laika-helium.js"></script>
          |<script> /* for avoiding page load transitions */ </script>
          |</head>
          |<body>
-         |<div id="header">
+         |<div id="header" class="light-default dark-inverted">
          |<div id="header-left">
          |<img src="home.png" alt="Project Logo">
          |<h2>Awesome Hyperbole Overkill</h2>
@@ -246,29 +235,39 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<p>Some <em>markup</em> here.</p>
          |</body>""".stripMargin
     val imagePath          = Root / "home.png"
-    val helium             = Helium.defaults.site.landingPage(
-      logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
-      subtitle = Some("Awesome Hyperbole Overkill"),
-      latestReleases = Seq(
-        ReleaseInfo("Latest Release", "2.3.5")
-      ),
-      projectLinks = Seq(
-        IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
-        ButtonLink.external("http://somewhere.com/", "Somewhere")
-      ),
-      teasers = Seq(
-        Teaser("Teaser 1", "Description 1"),
-        Teaser("Teaser 2", "Description 2"),
-        Teaser("Teaser 3", "Description 3")
+    val helium             = Helium.defaults
+      .site.landingPage(
+        logo = Some(Image.internal(imagePath, alt = Some("Project Logo"))),
+        subtitle = Some("Awesome Hyperbole Overkill"),
+        latestReleases = Seq(
+          ReleaseInfo("Latest Release", "2.3.5")
+        ),
+        projectLinks = Seq(
+          IconLink.internal(Root / "doc-2.md", HeliumIcon.demo),
+          ButtonLink.external("http://somewhere.com/", "Somewhere")
+        ),
+        teasers = Seq(
+          Teaser("Teaser 1", "Description 1"),
+          Teaser("Teaser 2", "Description 2"),
+          Teaser("Teaser 3", "Description 3")
+        )
       )
-    )
+      .site.themeColors(
+        primary = Color.hex("007c99"),
+        secondary = Color.hex("931813"),
+        primaryMedium = Color.hex("a7d4de"),
+        primaryLight = Color.hex("ebf6f7"),
+        text = Color.hex("5f5f5f"),
+        background = Color.hex("ffffff"),
+        bgGradient = (Color.hex("a7d4de"), Color.hex("ebf6f7")) // light bg from medium to light
+      )
     val content            =
       """@:fragment(header)
         |Some *Header*
         |@:@
         |
         |Some *markup* here.""".stripMargin
-    val inputsWithExtraDoc = inputs :+ (Root / "landing-page.md", content)
+    val inputsWithExtraDoc = inputs :+ ((Root / "landing-page.md", content))
     transformAndExtract(
       inputsWithExtraDoc,
       helium,

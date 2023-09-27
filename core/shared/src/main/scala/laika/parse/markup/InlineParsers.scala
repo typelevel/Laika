@@ -16,8 +16,9 @@
 
 package laika.parse.markup
 
-import laika.ast._
-import laika.parse._
+import laika.ast.*
+import laika.internal.parse.markup.{ EndDelimiter, InlineDelimiter, NestedDelimiter }
+import laika.parse.*
 import laika.parse.text.{ DelimitedParser, DelimitedText, Delimiter, PrefixedParser }
 
 import scala.annotation.tailrec
@@ -61,7 +62,7 @@ trait InlineParsers {
     def fromString(str: String): Span = Text(str)
 
     def += (item: Span): Unit = (last, item) match {
-      case (Some(Text(text1, NoOpt)), Text(text2, NoOpt))                                =>
+      case (Some(Text(text1, Options.empty)), Text(text2, Options.empty))                =>
         last = Some(Text(text1 ++ text2))
       case (Some(Text(content, _)), Reverse(len, target, _, _)) if content.length >= len =>
         buffer += Text(content.dropRight(len))
@@ -179,8 +180,8 @@ object InlineParsers extends InlineParsers
 /** Generic base parser that parses inline elements with potentially nested spans.
   *
   * The two embed methods allow the registration of parsers for nested child spans.
-  * They can be invoked multiple times. Child parsers passed first have higher
-  * precedence than those passed later.
+  * They can be invoked multiple times.
+  * Child parsers passed first have higher precedence than those passed later.
   *
   * Only parsers of type `PrefixedParser[T]` can be passed to the embed methods,
   * which are parsers with known, stable prefixes of the child span consisting

@@ -18,10 +18,10 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import cats.implicits._
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.{ Config, ConfigBuilder }
-import laika.rewrite.link.IconRegistry
+import laika.config.IconRegistry
 import munit.FunSuite
 
 class StandardDirectiveSpec extends FunSuite
@@ -112,43 +112,7 @@ class StandardDirectiveSpec extends FunSuite
     run(input, p(Text("aa "), SpanSequence(Nil), Text(" bb")))
   }
 
-  test("path directive - translate a relative path") {
-    val input = """aa @:path(theme.css) bb"""
-    runTemplate(
-      input,
-      "laika.links.excludeFromValidation = [\"/\"]",
-      TemplateString("aa "),
-      TemplateElement(RawLink.internal("../theme/theme.css")),
-      TemplateString(" bb")
-    )
-  }
-
-  test("path directive - translate an absolute path") {
-    val input = """aa @:path(/theme/theme.css) bb"""
-    runTemplate(
-      input,
-      "laika.links.excludeFromValidation = [\"/\"]",
-      TemplateString("aa "),
-      TemplateElement(RawLink.internal("../theme/theme.css")),
-      TemplateString(" bb")
-    )
-  }
-
-  test("path directive - fail with an invalid target") {
-    val dirSrc = "@:path(/theme/theme.css)"
-    val input  = s"""aa $dirSrc bb"""
-    val msg    =
-      "One or more errors processing directive 'path': unresolved internal reference: ../theme/theme.css"
-    runTemplate(
-      input,
-      "",
-      TemplateString("aa "),
-      TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
-      TemplateString(" bb")
-    )
-  }
-
-  private val resolvedTarget = ResolvedInternalTarget(
+  private val resolvedTarget = InternalTarget.Resolved(
     absolutePath = Path.parse("/theme/theme.css"),
     relativePath = RelativePath.parse("../theme/theme.css")
   )
@@ -157,7 +121,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -168,7 +132,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(/theme/theme.css) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -182,7 +146,7 @@ class StandardDirectiveSpec extends FunSuite
       "One or more errors processing directive 'target': unresolved internal reference: ../theme/theme.css"
     runTemplate(
       input,
-      "",
+      "laika.links.validation.scope = global",
       TemplateString("aa "),
       TemplateElement(InvalidSpan(msg, source(dirSrc, input)).copy(fallback = Literal(dirSrc))),
       TemplateString(" bb")
@@ -193,7 +157,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(var.link) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]\nvar.link = \"/theme/theme.css\"",
+      "var.link = \"/theme/theme.css\"",
       TemplateString("aa "),
       TemplateElement(RawLink(resolvedTarget)),
       TemplateString(" bb")
@@ -204,7 +168,7 @@ class StandardDirectiveSpec extends FunSuite
     val input = """aa @:target(http://foo.com) bb"""
     runTemplate(
       input,
-      "laika.links.excludeFromValidation = [\"/\"]",
+      Config.empty,
       TemplateString("aa "),
       TemplateElement(RawLink(ExternalTarget("http://foo.com"))),
       TemplateString(" bb")

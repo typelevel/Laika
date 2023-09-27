@@ -19,24 +19,22 @@ package laika.helium
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
 import laika.api.builder.TransformerBuilder
+import laika.api.format.TagFormatter
 import laika.ast.{ Icon, IconGlyph, Path }
 import laika.ast.Path.Root
+import laika.config.{ ChoiceConfig, SelectionConfig, Selections, SyntaxHighlighting }
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.{ AnchorPlacement, HeliumIcon }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
-import laika.render.HTMLFormatter
-import laika.rewrite.link.LinkConfig
-import laika.rewrite.nav.{ ChoiceConfig, SelectionConfig, Selections }
-import laika.theme._
+import laika.io.syntax.*
+import laika.theme.*
 import munit.CatsEffectSuite
 
 class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
     with StringOps {
 
-  type ConfigureTransformer = TransformerBuilder[HTMLFormatter] => TransformerBuilder[HTMLFormatter]
+  type ConfigureTransformer = TransformerBuilder[TagFormatter] => TransformerBuilder[TagFormatter]
 
   private val heliumBase = Helium.defaults.site.landingPage()
 
@@ -44,8 +42,8 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       theme: ThemeProvider,
       configure: ConfigureTransformer
   ): Resource[IO, TreeTransformer[IO]] = {
-    val builder = Transformer.from(Markdown).to(HTML)
-      .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    val builder =
+      Transformer.from(Markdown).to(HTML).using(Markdown.GitHubFlavor, SyntaxHighlighting)
     configure(builder)
       .parallel[IO]
       .withTheme(theme)
@@ -61,7 +59,7 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
   ): IO[String] =
     transformer(helium.build, configure).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
         res        <- IO.fromEither(
           resultTree.extractTidiedSubstring(Root / "doc.html", start, end)
             .toRight(new RuntimeException("Missing document under test"))
@@ -196,6 +194,27 @@ class HeliumRenderOverridesSpec extends CatsEffectSuite with InputBuilder with R
       AnchorPlacement.None
     )
     transformAndExtract(headlineInput, helium).assertEquals(expected)
+  }
+
+  test("mermaid block without nested <code> elements") {
+    val markup   =
+      """
+        |Title
+        |=====
+        |
+        |```mermaid
+        |graph TD 
+        |A[Client] --> B[Load Balancer] 
+        |B --> C[Server01] 
+        |B --> D[Server02]
+        |```
+      """.stripMargin
+    val expected = """<h1 id="title" class="title">Title</h1>
+                     |<pre class="mermaid">graph TD
+                     |A[Client] --&gt; B[Load Balancer]
+                     |B --&gt; C[Server01]
+                     |B --&gt; D[Server02]</pre>""".stripMargin
+    transformAndExtract(markup, heliumBase).assertEquals(expected)
   }
 
 }

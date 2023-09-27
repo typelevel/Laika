@@ -20,7 +20,7 @@ import cats.effect.Async
 import laika.ast.Path.Root
 import laika.io.model.{ BinaryOutput, FilePath }
 
-import java.io.{ File, OutputStream }
+import java.io.OutputStream
 
 /** API for specifying the output for a binary format like EPUB or PDF.
   *
@@ -29,11 +29,11 @@ import java.io.{ File, OutputStream }
   *
   * @author Jens Halm
   */
-trait BinaryOutputOps[F[_]] {
+private[io] trait BinaryOutputOps[F[_]] {
 
   type Result
 
-  def F: Async[F]
+  protected def F: Async[F]
 
   /** Builder step that instructs the runtime to render
     * to the file with the specified name.
@@ -41,9 +41,6 @@ trait BinaryOutputOps[F[_]] {
     *  @param name the name of the file to write to
     */
   def toFile(name: String): Result = toFile(FilePath.parse(name))
-
-  @deprecated("use toFile(String) or toFile(FilePath)", "0.19.0")
-  def toFile(file: File): Result = toFile(FilePath.fromJavaFile(file))
 
   /** Builder step that instructs the runtime to render
     * to the specified file.

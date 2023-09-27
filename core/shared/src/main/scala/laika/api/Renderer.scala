@@ -16,14 +16,15 @@
 
 package laika.api
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, RendererBuilder, TwoPhaseRendererBuilder }
+import laika.api.bundle.PathTranslator
+import laika.api.errors.{ InvalidConfig, RendererError }
 import laika.ast.Path.Root
-import laika.ast._
-import laika.factory.{ MarkupFormat, RenderContext, RenderFormat, TwoPhaseRenderFormat }
-import laika.parse.markup.DocumentParser.RendererError
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.{ BasicPathTranslator, PathTranslator }
+import laika.ast.*
+import laika.api.format.Formatter.Indentation
+import laika.api.format.{ Formatter, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
+import laika.ast.styles.StyleDeclarationSet
 
 /** Performs a render operation from a document AST to a target format
   * as a string. The document AST may be obtained by a preceding parse
@@ -51,7 +52,8 @@ import laika.rewrite.nav.{ BasicPathTranslator, PathTranslator }
   *
   * @author Jens Halm
   */
-abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = false) { self =>
+abstract class Renderer private[laika] (val config: OperationConfig, skipRewrite: Boolean = false) {
+  self =>
 
   type Formatter
 
@@ -68,7 +70,7 @@ abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = fals
       }
     )
 
-  private val defaultPathTranslator: PathTranslator = BasicPathTranslator(format.fileSuffix)
+  private val defaultPathTranslator: PathTranslator = PathTranslator.noOp
 
   /** Renders the specified document as a String.
     */
@@ -131,12 +133,21 @@ abstract class Renderer(val config: OperationConfig, skipRewrite: Boolean = fals
       config
         .rewriteRulesFor(doc, RewritePhase.Render(OutputContext(format)))
         .map(_.rewriteElement(targetElement))
-        .leftMap(RendererError(_, doc.path))
+        .leftMap(InvalidConfig(_))
     }
 
     (if (skipRewrite) Right(targetElement) else rewrite).map { elementToRender =>
       val renderContext =
-        RenderContext(renderFunction, elementToRender, styles, doc.path, pathTranslator, config)
+        new Formatter.Context[Formatter](
+          renderFunction,
+          elementToRender,
+          Nil,
+          styles,
+          doc.path,
+          pathTranslator,
+          if (config.compactRendering) Indentation.none else Indentation.default,
+          config.messageFilters.render
+        )
 
       val formatter = format.formatterFactory(renderContext)
 

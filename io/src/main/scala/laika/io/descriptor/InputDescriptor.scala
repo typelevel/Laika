@@ -16,9 +16,8 @@
 
 package laika.io.descriptor
 
-import cats.implicits._
 import laika.ast.DocumentType
-import laika.collection.TransitionalCollectionOps._
+import laika.internal.collection.TransitionalCollectionOps._
 import laika.io.model.{ BinaryInput, FilePath, InputTree, TextInput }
 
 /** Describes a single, textual or binary input for a parsing or rendering operation.
@@ -26,30 +25,30 @@ import laika.io.model.{ BinaryInput, FilePath, InputTree, TextInput }
   *
   * @author Jens Halm
   */
-case class InputDescriptor(description: String, docType: DocumentType)
+class InputDescriptor(val description: String, val docType: DocumentType)
 
-object InputDescriptor {
+private[io] object InputDescriptor {
 
   def create[F[_]](input: TextInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
       s"${input.path.toString}: in-memory string or stream"
     )(f => s"${input.path.toString}: file '${f.toString}'")
-    apply(desc, input.docType)
+    new InputDescriptor(desc, input.docType)
   }
 
   def create[F[_]](input: BinaryInput[F]): InputDescriptor = {
     val desc = input.sourceFile.fold(
       s"${input.path.toString}: in-memory bytes or stream"
     )(f => s"${input.path.toString}: file '${f.toString}'")
-    apply(desc, DocumentType.Static())
+    new InputDescriptor(desc, DocumentType.Static())
   }
 
 }
 
-case class TreeInputDescriptor(
-    inputs: Seq[InputDescriptor],
-    sourceDirectories: Seq[FilePath] = Nil,
-    missingDirectories: Seq[FilePath] = Nil
+class TreeInputDescriptor(
+    val inputs: Seq[InputDescriptor],
+    val sourceDirectories: Seq[FilePath] = Nil,
+    val missingDirectories: Seq[FilePath] = Nil
 ) {
 
   def formatted: String = {
@@ -73,7 +72,7 @@ case class TreeInputDescriptor(
 
 }
 
-object TreeInputDescriptor {
+private[io] object TreeInputDescriptor {
 
   private[descriptor] val rootDirectoriesText = "Root Directories"
 
@@ -86,8 +85,11 @@ object TreeInputDescriptor {
     rootDirectoriesText                       -> rootDirectoriesText
   )
 
-  def create[F[_]](input: InputTree[F], missingDirectories: Seq[FilePath]): TreeInputDescriptor =
-    TreeInputDescriptor(
+  private[io] def create[F[_]](
+      input: InputTree[F],
+      missingDirectories: Seq[FilePath]
+  ): TreeInputDescriptor =
+    new TreeInputDescriptor(
       input.textInputs.map(InputDescriptor.create[F]) ++ input.binaryInputs.map(
         InputDescriptor.create[F]
       ),

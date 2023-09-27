@@ -16,11 +16,9 @@
 
 package laika.format
 
+import laika.api.format.{ Formatter, RenderFormat, TagFormatter }
 import laika.ast.Element
-import laika.factory.{ RenderContext, RenderFormat }
-import laika.render._
-
-import scala.language.existentials
+import laika.internal.render.{ FOFormatter, FORenderer }
 
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
   *
@@ -36,14 +34,19 @@ import scala.language.existentials
   *
   *  @author Jens Halm
   */
-object XSLFO extends RenderFormat[FOFormatter] {
+object XSLFO extends RenderFormat[TagFormatter] {
 
   override val description: String = "XSL-FO"
 
   val fileSuffix = "fo"
 
-  val defaultRenderer: (FOFormatter, Element) => String = FORenderer
+  val defaultRenderer: (TagFormatter, Element) => String = FORenderer
 
-  val formatterFactory: RenderContext[FOFormatter] => FOFormatter = FOFormatter
+  val formatterFactory: Formatter.Context[TagFormatter] => TagFormatter = FOFormatter
+
+  /** Expands the `TagFormatter` API with convenient shortcuts
+    * specifically tailored for rendering XSL-FO elements.
+    */
+  object formatterSyntax extends FOFormatter.FormatterSyntax
 
 }

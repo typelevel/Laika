@@ -17,11 +17,12 @@
 package laika.rewrite
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
+import laika.ast.Path.Root
 import laika.ast.sample.{ BuilderKey, DocumentTreeAssertions, SampleTrees }
-import laika.config.Config.ConfigResult
-import laika.config.ConfigParser
-import laika.parse.GeneratedSource
+import laika.api.config.Config.ConfigResult
+import laika.api.config.{ ConfigParser, Origin }
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
@@ -35,16 +36,26 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
 
     def isIncluded(level: Int): Boolean = depth.forall(_ >= level)
 
-    def header(level: Int, title: Int, style: String = "section") =
+    def header(level: Int, title: Int, style: String = "section"): Header =
       Header(level, List(Text(s"Title $title")), Id(s"title$title") + Styles(style))
 
     def tree(content: RootElement): DocumentTree = {
-      val autonumberConfig = ConfigParser.parse(config).resolve().toOption.get
-      SampleTrees.sixDocuments
+      val autonumberConfig = ConfigParser
+        .parse(config)
+        .resolve()
+        .toOption
+        .get
+        .withOrigin(Origin(Origin.TreeScope, Root))
+      val docs             = SampleTrees.sixDocuments
         .docContent(content.content)
-        .root.config(_.withFallback(autonumberConfig))
         .build
         .tree
+        .allDocuments
+        .toList
+      DocumentTree.builder
+        .addDocuments(docs)
+        .addConfig(autonumberConfig)
+        .build
     }
 
     def numberedHeader(
@@ -79,7 +90,7 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
     )
 
     lazy val expected: DocumentTree = {
-      val docNums = List(List(1), List(2), List(5, 1), List(5, 2), List(6, 1), List(6, 2))
+      val docNums = List(List(1), List(2), List(3, 1), List(3, 2), List(4, 1), List(4, 2))
       def contents(key: BuilderKey): Seq[Block] = {
         val docNum = if (!numberDocs) Nil else docNums(key.num - 1)
         resultContent(docNum)
@@ -103,7 +114,7 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
   trait SectionsWithConfigError extends TreeModel {
 
     override def resultContent(docNum: List[Int]): List[Block] = List(
-      InvalidBlock("Invalid value for autonumbering.scope: xxx", GeneratedSource),
+      InvalidBlock("Invalid value for autonumbering.scope: xxx", SourceCursor.Generated),
       Title(numberedHeader(1, 1, docNum, "title").content, Id("title-1") + Style.title),
       numberedSection(2, 2, docNum :+ 1, numberedSection(3, 3, docNum :+ 1 :+ 1)),
       numberedSection(2, 4, docNum :+ 2, numberedSection(3, 5, docNum :+ 2 :+ 1))

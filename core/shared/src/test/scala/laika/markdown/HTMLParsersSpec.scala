@@ -17,9 +17,9 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
+import laika.ast.html.HTMLAttribute
 import laika.ast.{ Emphasized, Span, Text }
 import laika.format.Markdown
-import laika.markdown.ast.HTMLAttribute
 import laika.parse.Parser
 import laika.parse.markup.RootParserProvider.RootParserWrapper
 import munit.FunSuite
@@ -28,7 +28,7 @@ class HTMLParsersSpec extends FunSuite with HTMLModelBuilder {
 
   val rootParser = new RootParserWrapper(
     Markdown,
-    OperationConfig(Markdown.extensions).forRawContent.markupExtensions
+    new OperationConfig(Markdown.extensions).forRawContent.markupExtensions
   )
 
   val defaultParser: Parser[List[Span]] = rootParser.standaloneSpanParser

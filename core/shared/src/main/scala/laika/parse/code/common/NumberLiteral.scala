@@ -19,8 +19,8 @@ package laika.parse.code.common
 import cats.data.NonEmptySet
 import laika.ast.CodeSpan
 import laika.parse.code.CodeCategory
-import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.builders.*
+import laika.parse.syntax.*
 import laika.parse.text.{ CharGroup, PrefixCharacters, PrefixedParser }
 import laika.parse.Parser
 
@@ -31,7 +31,7 @@ import laika.parse.Parser
 object NumberLiteral {
 
   /** Parsers for common sets of digits, like hex or decimal. */
-  object DigitParsers {
+  object digits {
     val binary: PrefixCharacters[String]  = someOf('0', '1')
     val octal: PrefixCharacters[String]   = someOf(CharGroup.octalDigit)
     val decimal: PrefixCharacters[String] = someOf(CharGroup.digit)
@@ -43,34 +43,60 @@ object NumberLiteral {
     val hex: PrefixCharacters[String] = someOf(CharGroup.hexDigit)
   }
 
+  /** Common suffixes for number literal denoting the number type.
+    */
+  object suffix {
+    val float: Parser[String]     = oneOf('f', 'F', 'd', 'D')
+    val long: Parser[String]      = oneOf('l', 'L')
+    val bigInt: Parser[String]    = oneOf('n')
+    val imaginary: Parser[String] = oneOf('j', 'J')
+  }
+
   private val sign: Parser[String] = anyOf('-', '+').max(1)
 
   private val exponent: Parser[String] =
-    (oneOf('E', 'e') ~ sign ~ DigitParsers.decimal.min(1)).source
+    (oneOf('E', 'e') ~ sign ~ digits.decimal.min(1)).source
 
   private val binaryExponent: Parser[String] =
-    (oneOf('P', 'p') ~ sign ~ DigitParsers.decimal.min(1)).source
+    (oneOf('P', 'p') ~ sign ~ digits.decimal.min(1)).source
 
   private def zeroPrefix(char1: Char, char2: Char): PrefixedParser[String] =
     ("0" ~ oneOf(char1, char2)).source
 
   /* Configurable base parser for number literals. */
-  case class NumericParser(
+  class NumericParser private[NumberLiteral] (
       digits: NonEmptySet[Char],
       prefix: Option[PrefixedParser[String]] = None,
       underscores: Boolean = false,
       exponent: Option[Parser[String]] = None,
       suffix: Option[Parser[String]] = None,
-      allowFollowingLetter: Boolean = false
+      letterAfterEnd: Boolean = false
   ) extends CodeParserBase {
 
     private val emptyString: Parser[String] = success("")
 
     /** Accepts underscores as visual separators in a number literal, as in `12_045`. */
-    def withUnderscores: NumericParser = copy(underscores = true)
+    def withUnderscores: NumericParser =
+      new NumericParser(digits, prefix, underscores = true, exponent, suffix, letterAfterEnd)
+
+    /** Accepts a prefix before a number literal, e.g. the `0x` preceding hex numbers in many languages. */
+    def withPrefix(parser: PrefixedParser[String]): NumericParser =
+      new NumericParser(digits, Some(parser), underscores, exponent, suffix, letterAfterEnd)
 
     /** Accepts a suffix after a number literal, usually to denote a concrete number type as in `123L`. */
-    def withSuffix(parser: Parser[String]): NumericParser = copy(suffix = Some(parser))
+    def withSuffix(parser: Parser[String]): NumericParser =
+      new NumericParser(digits, prefix, underscores, exponent, Some(parser), letterAfterEnd)
+
+    /** Parses the exponent part of the number literal, e.g. e+1.5. */
+    def withExponent(parser: Parser[String]): NumericParser =
+      new NumericParser(digits, prefix, underscores, Some(parser), suffix, letterAfterEnd)
+
+    /** Allows a letter to follow immediately after the number literal,
+      * but without being parsed as part of the literal itself like a number suffix would.
+      * This allows to support use cases like CSS length values: `1.2em`.
+      */
+    def allowLetterAfterEnd: NumericParser =
+      new NumericParser(digits, prefix, underscores, exponent, suffix, letterAfterEnd = true)
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
@@ -97,7 +123,7 @@ object NumberLiteral {
 
         val optSuffix     = suffix.fold(emptyString)(opt(_).source)
         val postCondition =
-          if (allowFollowingLetter) success(()) else nextNot(java.lang.Character.isLetter(_))
+          if (letterAfterEnd) success(()) else nextNot(java.lang.Character.isLetter(_))
 
         (number ~ optSuffix <~ postCondition).source.map { rest =>
           Seq(CodeSpan(prefixOrFirstDigit + rest, CodeCategory.NumberLiteral))
@@ -112,50 +138,45 @@ object NumberLiteral {
     * e.g. `\0b100110`.
     */
   val binary: NumericParser =
-    NumericParser(NonEmptySet.of('0', '1'), prefix = Some(zeroPrefix('b', 'B')))
+    new NumericParser(NonEmptySet.of('0', '1'), prefix = Some(zeroPrefix('b', 'B')))
 
   /** Parses an octal number literal.
     * It must start with  `0o` or `0O`, followed by one or more octal digits,
     * e.g. `\0o257`.
     */
   val octal: NumericParser =
-    NumericParser(CharGroup.octalDigit, prefix = Some(zeroPrefix('o', 'O')))
+    new NumericParser(CharGroup.octalDigit, prefix = Some(zeroPrefix('o', 'O')))
 
   /** Parses a hexadecimal number literal.
     * It must start with  `0x` or `0X`, followed by one or more hex digits,
     * e.g. `\0x25ff7`.
     */
-  val hex: NumericParser = NumericParser(CharGroup.hexDigit, prefix = Some(zeroPrefix('x', 'X')))
+  val hex: NumericParser =
+    new NumericParser(CharGroup.hexDigit, prefix = Some(zeroPrefix('x', 'X')))
 
   /** Parses a decimal integer.
     */
-  val decimalInt: NumericParser = NumericParser(
+  val decimalInt: NumericParser = new NumericParser(
     CharGroup.digit
   ) // TODO - prevent zero followed by more digits
 
   /** Parses a decimal float with an optional exponent.
     */
-  val decimalFloat: NumericParser = NumericParser(CharGroup.digit, exponent = Some(exponent))
+  val decimalFloat: NumericParser = new NumericParser(CharGroup.digit, exponent = Some(exponent))
 
   /** Parses a hexadecimal float literal.
     * It must start with  `0x` or `0X`, followed by one or more hex digits,
     * e.g. `\0x25ff7.fa`.
     */
-  val hexFloat: NumericParser = NumericParser(
+  val hexFloat: NumericParser = new NumericParser(
     CharGroup.hexDigit,
     prefix = Some(zeroPrefix('x', 'X')),
     exponent = Some(binaryExponent)
   )
 
-}
-
-/** Common suffixes for number literal denoting the number type.
-  */
-object NumericSuffix {
-
-  val float: Parser[String]     = oneOf('f', 'F', 'd', 'D')
-  val long: Parser[String]      = oneOf('l', 'L')
-  val bigInt: Parser[String]    = oneOf('n')
-  val imaginary: Parser[String] = oneOf('j', 'J')
+  /** Creates a new numeric parser for the specified set of digit characters.
+    * Optional prefixes and suffixes can be specified with the API of the returned `NumericParser`.
+    */
+  def forDigits(digits: NonEmptySet[Char]): NumericParser = new NumericParser(digits)
 
 }

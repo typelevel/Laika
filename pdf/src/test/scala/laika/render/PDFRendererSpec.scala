@@ -19,15 +19,12 @@ package laika.render
 import cats.effect.IO
 import fs2.io.file.Files
 import laika.api.{ MarkupParser, Renderer }
-import laika.ast.{ DocumentTree, DocumentTreeRoot }
+import laika.ast.{ DefaultTemplatePath, DocumentTree, DocumentTreeRoot }
 import laika.format.{ Markdown, PDF }
 import laika.io.FileIO
-import laika.io.implicits._
-import laika.io.model.{ FilePath, InputTree, ParsedTree }
-import laika.rewrite.DefaultTemplatePath
+import laika.io.syntax.*
+import laika.io.model.{ InputTree, ParsedTree }
 import munit.CatsEffectSuite
-
-import java.io.{ BufferedInputStream, FileInputStream }
 
 /** Since there is no straightforward way to validate a rendered PDF document
   *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -46,11 +43,11 @@ class PDFRendererSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
   private val emptyTreeWithTemplate = templateParser.use(_.fromInput(InputTree[IO]).parse)
 
   def buildInputTree(templateTree: ParsedTree[IO], inputTree: DocumentTree): DocumentTreeRoot = {
-    val treeWithTemplate = inputTree.copy(
-      templates =
-        Seq(templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get),
-      config = templateTree.root.config
-    )
+    val treeWithTemplate = inputTree
+      .addTemplate(
+        templateTree.root.tree.selectTemplate(DefaultTemplatePath.forFO.relative).get
+      )
+      .withConfig(templateTree.root.config)
     DocumentTreeRoot(treeWithTemplate)
   }
 

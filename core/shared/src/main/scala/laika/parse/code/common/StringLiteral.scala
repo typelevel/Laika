@@ -19,9 +19,9 @@ package laika.parse.code.common
 import laika.ast.{ CodeSpan, CodeSpans }
 import laika.parse.Parser
 import laika.parse.builders._
-import laika.parse.code.implicits._
+import laika.parse.code.syntax._
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.{ PrefixedParser, TextParsers }
 
 /** Configurable base parsers for string literals.
@@ -49,7 +49,7 @@ object StringLiteral {
       * e.g. `\\u20ff`.
       */
     val unicode: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      ("\\u" ~ DigitParsers.hex.take(4)).source
+      ("\\u" ~ digits.hex.take(4)).source
     }
 
     /** Parses a hexadecimal character escape.
@@ -57,7 +57,7 @@ object StringLiteral {
       * e.g. `\\xf2`.
       */
     val hex: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      ("\\x" ~ DigitParsers.hex.take(2)).source
+      ("\\x" ~ digits.hex.take(2)).source
     }
 
     /** Parses a octal character escape.
@@ -65,9 +65,9 @@ object StringLiteral {
       * e.g. `\\207`.
       */
     val octal: CodeSpanParser = CodeSpanParser(CodeCategory.EscapeSequence) {
-      ("\\" ~ ((oneOf('0', '1', '2', '3') ~ DigitParsers.octal.max(
+      ("\\" ~ ((oneOf('0', '1', '2', '3') ~ digits.octal.max(
         2
-      )).source | DigitParsers.octal.min(1).max(2))).source
+      )).source | digits.octal.min(1).max(2))).source
     }
 
     /** Parses a single literal escape. Example: `$$`.
@@ -107,7 +107,7 @@ object StringLiteral {
   }
 
   /** Configurable base parser for string literals. */
-  case class StringParser(
+  class StringParser private[StringLiteral] (
       startDelimParser: PrefixedParser[String],
       endDelimParser: PrefixedParser[String],
       multiline: Boolean = false,
@@ -120,20 +120,39 @@ object StringLiteral {
       *
       * This is usually used for allowing escape sequences or substitution expressions inside the literal.
       */
-    def embed(childSpans: CodeSpanParser*): StringParser = {
-      copy(embedded = embedded ++ childSpans)
-    }
+    def embed(childSpans: CodeSpanParser*): StringParser = new StringParser(
+      startDelimParser,
+      endDelimParser,
+      multiline,
+      postCondition,
+      embedded ++ childSpans,
+      defaultCategories
+    )
 
     /** Tests and consumes a post condition after the end delimiter has been read.
       */
-    def withPostCondition(parser: Parser[Unit]): StringParser = copy(postCondition = Some(parser))
+    def withPostCondition(parser: Parser[Unit]): StringParser = new StringParser(
+      startDelimParser,
+      endDelimParser,
+      multiline,
+      Some(parser),
+      embedded,
+      defaultCategories
+    )
 
     /** Applies the specified category to the result.
       *
       * Useful where the logic of the string literal parser needs to be used with
       * a span that should not be classified as a string literal.
       */
-    def withCategory(category: CodeCategory): StringParser = copy(defaultCategories = Set(category))
+    def withCategory(category: CodeCategory): StringParser = new StringParser(
+      startDelimParser,
+      endDelimParser,
+      multiline,
+      postCondition,
+      embedded,
+      Set(category)
+    )
 
     lazy val underlying: PrefixedParser[Seq[CodeSpan]] = {
 
@@ -164,7 +183,7 @@ object StringLiteral {
   def singleLine(startDelim: String, endDelim: String): StringParser = {
     require(startDelim.nonEmpty)
     require(endDelim.nonEmpty)
-    StringParser(literal(startDelim), literal(endDelim))
+    new StringParser(literal(startDelim), literal(endDelim))
   }
 
   /** Parses a string literal on a single line enclosed by the specified start and end delimiters.
@@ -173,7 +192,7 @@ object StringLiteral {
       startDelim: PrefixedParser[String],
       endDelim: PrefixedParser[String]
   ): StringParser = {
-    StringParser(startDelim, endDelim)
+    new StringParser(startDelim, endDelim)
   }
 
   /** Parses a string literal that can span multiple lines, enclosed by the specified start and end delimiter.
@@ -185,7 +204,7 @@ object StringLiteral {
   def multiLine(startDelim: String, endDelim: String): StringParser = {
     require(startDelim.nonEmpty)
     require(endDelim.nonEmpty)
-    StringParser(literal(startDelim), literal(endDelim), multiline = true)
+    new StringParser(literal(startDelim), literal(endDelim), multiline = true)
   }
 
   /** Parses a string literal that can span multiple lines, enclosed by the specified delimiters.
@@ -194,7 +213,7 @@ object StringLiteral {
       startDelim: PrefixedParser[String],
       endDelim: PrefixedParser[String]
   ): StringParser = {
-    StringParser(startDelim, endDelim, multiline = true)
+    new StringParser(startDelim, endDelim, multiline = true)
   }
 
 }

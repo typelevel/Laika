@@ -18,8 +18,8 @@ package laika.io.helper
 
 import cats.effect.IO
 import laika.ast.{ DocumentType, Path }
+import laika.config.TargetFormats
 import laika.io.model._
-import laika.rewrite.nav.TargetFormats
 
 trait InputBuilder {
 

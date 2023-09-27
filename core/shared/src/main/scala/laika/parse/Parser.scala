@@ -16,7 +16,7 @@
 
 package laika.parse
 
-import laika.ast.~
+import laika.parse.builders.~
 import laika.parse.combinator.Parsers.opt
 import laika.parse.combinator.Repeat
 import laika.parse.text.TextParsers
@@ -301,13 +301,13 @@ abstract class Parser[+T] {
     @tailrec
     def loop(input: SourceCursor): Parsed[(List[T], Option[U])] =
       combined.parse(input) match {
-        case Success(result ~ Some(endCond), rest)    =>
+        case Success(result ~ Some(endCond), rest) =>
           elems += result
           Success((elems.toList, Some(endCond)), rest)
-        case Success(laika.ast.~(result, None), rest) =>
+        case Success(~(result, None), rest)        =>
           elems += result
           loop(rest)
-        case _: Failure                               =>
+        case _: Failure                            =>
           Success((elems.toList, None), input)
       }
 
@@ -340,7 +340,7 @@ abstract class Parser[+T] {
   }
 
   /** Handle any error, potentially recovering from it, by mapping it to a new parser that
-    * will be applied at the same starting position than the failing parser.
+    * will be applied at the same starting position as the failing parser.
     *
     * This is similar to the `orElse` or `|` method, but allows the alternative
     * parser to inspect the error of the preceding one.

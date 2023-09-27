@@ -16,7 +16,7 @@
 
 package laika.parse.combinator
 
-import laika.parse._
+import laika.parse.*
 import laika.parse.text.TextParsers
 
 import scala.util.{ Try, Failure => TFailure, Success => TSuccess }
@@ -46,8 +46,8 @@ trait Parsers {
     */
   def opt(value: String): Parser[Option[String]] = opt(TextParsers.literal(value))
 
-  /** A parser that only succeeds if the specified parser fails and
-    *  vice versa, it never consumes any input.
+  /** A parser that only succeeds if the specified parser fails and vice versa,
+    * it never consumes any input.
     */
   def not[T](p: Parser[T]): Parser[Unit] = Parser { in =>
     p.parse(in) match {
@@ -56,8 +56,8 @@ trait Parsers {
     }
   }
 
-  /** A parser that only succeeds if the parsing the specified literal value
-    * fails and vice versa, it never consumes any input.
+  /** A parser that only succeeds if parsing the specified literal value fails and vice versa,
+    * it never consumes any input.
     */
   def not(value: String): Parser[Unit] = not(TextParsers.literal(value))
 
@@ -84,11 +84,12 @@ trait Parsers {
       s"Unable to look ahead with offset $o"
     }
     Parser { in =>
-      if (in.offset - offset < 0) Failure(errMsg(offset), in)
-      p.parse(in.consume(offset)) match {
-        case Success(s1, _) => Success(s1, in)
-        case e              => e
-      }
+      if (offset > in.remaining) Failure(errMsg(offset), in)
+      else
+        p.parse(in.consume(offset)) match {
+          case Success(s1, _) => Success(s1, in)
+          case e              => e
+        }
     }
   }
 
@@ -98,8 +99,8 @@ trait Parsers {
   def lookAhead(offset: Int, value: String): Parser[String] =
     lookAhead(offset, TextParsers.literal(value))
 
-  /** Applies the specified parser at the specified offset behind the current
-    *  position. Never consumes any input.
+  /** Applies the specified parser at the specified offset behind the current position.
+    * Never consumes any input.
     */
   def lookBehind[T](offset: Int, parser: => Parser[T]): Parser[T] = {
     val errMsg: Int => Message = Message.forRuntimeValue[Int] { o =>
@@ -117,11 +118,11 @@ trait Parsers {
 
   /** A parser that always succeeds with the specified value.
     */
-  def success[T](v: T) = Parser { in => Success(v, in) }
+  def success[T](v: T): Parser[T] = Parser { in => Success(v, in) }
 
   /** A parser that always fails with the specified message.
     */
-  def failure(msg: String) = Parser { in => Failure(Message.fixed(msg), in) }
+  def failure(msg: String): Parser[Nothing] = Parser { in => Failure(Message.fixed(msg), in) }
 
   /** A parser that succeeds if the specified parser succeeds and all input has been consumed.
     */
@@ -140,8 +141,6 @@ trait Parsers {
     lazy val p0 = p
     Parser[T] { in => p0.parse(in) }
   }
-
-  case class ParserException(result: Failure) extends RuntimeException(result.toString)
 
   /** Provides additional methods to `Try` via implicit conversion.
     */

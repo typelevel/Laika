@@ -108,12 +108,11 @@ laikaConfig := LaikaConfig.defaults.strict
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .strict
   .build
 ```
@@ -151,12 +150,11 @@ laikaConfig := LaikaConfig.defaults.withRawContent
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withRawContent
   .build
 ```
@@ -176,7 +174,7 @@ When you need to work with different encodings you can override the default:
 ```scala mdoc:compile-only
 import scala.io.Codec
 
-laikaConfig := LaikaConfig.defaults.encoding(Codec.ISO8859)
+laikaConfig := LaikaConfig.defaults.withEncoding(Codec.ISO8859)
 ```
 
 @:choice(library)
@@ -242,26 +240,23 @@ You can achieve this by basically flipping the two default values in the configu
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.ast.MessageFilter
+import laika.config.MessageFilters
 
 laikaConfig := LaikaConfig.defaults
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
+  .withMessageFilters(MessageFilters.forVisualDebugging)
 ```
 
 @:choice(library)
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.ast.MessageFilter
-import laika.markdown.github.GitHubFlavor
+import laika.config.MessageFilters
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
-  .failOnMessages(MessageFilter.None)
-  .renderMessages(MessageFilter.Error)
+  .using(Markdown.GitHubFlavor)
+  .withMessageFilters(MessageFilters.forVisualDebugging)
   .build
 ```
 
@@ -347,12 +342,11 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("version.latest", "2.4.6")
   .withConfigValue("license", "Apache 2.0")
   .build

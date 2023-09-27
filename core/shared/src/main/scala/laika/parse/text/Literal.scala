@@ -23,7 +23,7 @@ import laika.parse._
   *
   * @author Jens Halm
   */
-case class Literal(expected: String) extends PrefixedParser[String] {
+private[text] class Literal(expected: String) extends PrefixedParser[String] {
 
   require(expected.nonEmpty, "string may not be empty")
 

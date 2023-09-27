@@ -21,15 +21,12 @@ import laika.api.Transformer
 import laika.ast.LengthUnit._
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.config.{ CoverImage, SyntaxHighlighting }
 import laika.format.{ Markdown, XSLFO }
 import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
-import laika.rewrite.nav.CoverImage
+import laika.io.syntax._
 import laika.theme.ThemeProvider
 import laika.theme.config.Color
 import munit.CatsEffectSuite
@@ -43,7 +40,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
     .from(Markdown)
     .to(XSLFO)
     .using(
-      GitHubFlavor,
+      Markdown.GitHubFlavor,
       SyntaxHighlighting
     )
     .parallel[IO]
@@ -57,7 +54,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "doc.fo", start, end)
           .toRight(new RuntimeException("Missing document under test"))

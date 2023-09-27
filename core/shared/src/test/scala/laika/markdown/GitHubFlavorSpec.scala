@@ -17,37 +17,36 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
-import laika.markdown.github.GitHubFlavor
+import laika.internal.parse.markup.RootParser
 import laika.parse.Parser
-import laika.parse.markup.RootParser
 import munit.FunSuite
 
 class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   val rootParser = new RootParser(
     Markdown,
-    OperationConfig(Markdown.extensions)
-      .withBundles(Seq(GitHubFlavor)).markupExtensions
+    new OperationConfig(Markdown.extensions)
+      .withBundles(Seq(Markdown.GitHubFlavor)).markupExtensions
   )
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   def headerRow(cells: String*): TableHead =
-    TableHead(Seq(Row(cells.map(c => HeadCell(c)))))
+    TableHead(Seq(Row(cells.map(c => CellType.HeadCell(c)))))
 
   def bodyRow(cells: String*): Row =
-    Row(cells.map(c => BodyCell(c)))
+    Row(cells.map(c => CellType.BodyCell(c)))
 
   def paddedBodyRow(count: Int, cells: String*): Row = {
-    val cellsWithText = bodyRow(cells: _*).content
-    Row(cellsWithText.padTo(count, BodyCell.empty))
+    val cellsWithText = bodyRow(cells *).content
+    Row(cellsWithText.padTo(count, CellType.BodyCell.empty))
   }
 
   def bodyRowSpans(cells: Seq[Span]*): Row =
-    Row(cells.map(c => BodyCell(Paragraph(c))))
+    Row(cells.map(c => CellType.BodyCell(Paragraph(c))))
 
   def runBlocks(input: String, blocks: Block*)(implicit loc: munit.Location): Unit =
     assertEquals(defaultParser.parse(input).toEither, Right(RootElement(blocks)))
@@ -240,7 +239,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
         |    code
         |    ~~~
       """.stripMargin
-    val result = BulletList(StringBullet("-"))(
+    val result = BulletList(BulletFormat.StringBullet("-"))(
       Seq(
         Paragraph("list item:"),
         CodeBlock("foo", Seq(Text("code\n  indent\ncode")))

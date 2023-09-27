@@ -41,8 +41,6 @@ Apart from standard markup syntax, markup files in Laika can also contain the fo
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ### Title Documents
@@ -71,12 +69,11 @@ laikaConfig := LaikaConfig.defaults
 import laika.config.LaikaKeys
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue(LaikaKeys.titleDocuments.inputName, "title")
   .withConfigValue(LaikaKeys.titleDocuments.outputName, "title")
   .build
@@ -143,7 +140,6 @@ the structure will also be used by various features of the library that auto-gen
 
 The presence of title documents would determine how exactly chapter title are rendered in the navigation structure.
 
-@:pageBreak
 
 **Example for a structure with title documents** 
 
@@ -294,10 +290,10 @@ or does not support the same set of output formats as the referring document.
 
 In some cases this kind of strict validation may not be desired. 
 You may, for example, have an external process that populates a directory before or after Laika is run.
-In this case you can disable validation for all link targets within that directory or its sub-directories:
+In this case you can disable validation for all link targets within that directory or its subdirectories:
 
 ```hocon
-laika.validateLinks = false
+laika.links.validation.excluded = [/generated, /styles]
 ```
 
 
@@ -320,18 +316,17 @@ Therefore, configuration for versioned documentation involves two steps:
 This is a global configuration artifact that you can define with the Helium configuration API:
 
 ```scala mdoc:silent
-import laika.rewrite.{ Version, Versions }
+import laika.config.{ Version, Versions }
 
-val versions = Versions(
-  currentVersion = Version("0.42.x", "0.42", canonical = true),
-  olderVersions = Seq(
+val versions = Versions
+  .forCurrentVersion(Version("0.42.x", "0.42").setCanonical)
+  .withOlderVersions(
     Version("0.41.x", "0.41"),
-    Version("0.40.x", "0.40", fallbackLink = "toc.html")
-  ),
-  newerVersions = Seq(
-    Version("0.43.x", "0.43", label = Some("dev"))
+    Version("0.40.x", "0.40").withFallbackLink("toc.html")
   )
-)
+  .withNewerVersions(
+    Version("0.43.x", "0.43").withLabel("dev")
+  )
 Helium.defaults.site.versions(versions)
 ```
 
@@ -343,7 +338,7 @@ like `EOL`, `Stable` or `Dev` with each version.
 Those three values come with default styles in the Helium CSS, but you can define additional labels if you manually
 include the CSS for those.
 
-Secondly, `canonical` is a boolean that allows to mark one version as the canonical version.
+Secondly, `setCanonical` allows to mark one version as the canonical version.
 When using Helium this will trigger the automatic insertion of a `<link rel="canonical" ...` into the output's
 `<head>` element in case the canonical version has a page with the same path. 
 For all other cases the canonical link can alternatively be set manually, 
@@ -393,20 +388,21 @@ The index for this flexible switching can be built up in two different ways, dep
    and the configuration for the version scanner itself:
    
    ```scala mdoc:nest
-   val versions = Versions(
-     currentVersion = Version("0.42.x", "0.42"),
-     olderVersions  = Seq(Version("0.41.x", "0.41", label = Some("EOL"))),
-     scannerConfig  = Some(VersionScannerConfig(
+   val versions = Versions
+     .forCurrentVersion(Version("0.42.x", "0.42").setCanonical)
+     .withOlderVersions(
+       Version("0.41.x", "0.41").withLabel("EOL")
+     )
+     .withVersionScanner(
        rootDirectory = "/path/to/old/site-output",
-       exclude       = Seq(Root / "api")
-     ))
-   )
+       exclude = Seq(Root / "api")
+     )
    Helium.defaults.site.versions(versions)
    ```
 
    The transformer will scan the `rootDirectory` and index all sub-directories on the top level where
    the directory name corresponds to the configured `pathSegment` of a version.
-   The `exclude` property is a path within each version that will not be scanned
+   The `exclude` parameter is a path within each version that will not be scanned
    (API documentation, for example, would bloat the generated JSON file even though the version switcher
    does not need those paths).
    
@@ -432,14 +428,13 @@ You can achieve this by setting the `renderUnversioned` flag to `false` in your 
 the maintenance branch:
 
 ```scala mdoc:nest:silent
-val versions = Versions(
-  currentVersion = Version("0.42.x", "0.42"),
-  olderVersions = Seq(),
-  newerVersions = Seq(
-    Version("0.43.x", "0.43", label = Some("dev"))
-  ),
-  renderUnversioned = false
-)
+val versions = Versions
+  .forCurrentVersion(Version("0.42.x", "0.42"))
+  .withNewerVersions(
+    Version("0.43.x", "0.43").withLabel("dev")
+  )
+  .withRenderUnversioned(false)
+  
 Helium.defaults.site.versions(versions)
 ```
 

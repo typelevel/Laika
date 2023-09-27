@@ -16,7 +16,7 @@
 
 package laika.parse
 
-import laika.ast.~
+import laika.parse.builders.~
 import laika.parse.combinator.Parsers
 import laika.parse.combinator.Parsers._
 import laika.parse.text.TextParsers
@@ -78,7 +78,7 @@ class ParserSpec extends FunSuite {
   }
 
   test("fail if the specified Either function produces a Left") {
-    expectFailure(parser1.evalMap { res => Left("wrong") }, "abc")
+    expectFailure(parser1.evalMap { _ => Left("wrong") }, "abc")
   }
 
   test("handle errors from a failed parser") {
@@ -273,6 +273,10 @@ class ParserSpec extends FunSuite {
 
   test("lookAhead - fails when the underlying parser fails at the specified offset") {
     expectFailure(TextParsers.lookAhead(2, "a"), "abcd")
+  }
+
+  test("lookAhead - fails when the specified offset is too big") {
+    expectFailure(TextParsers.lookAhead(7, "a"), "abcd")
   }
 
   object LookBehind {

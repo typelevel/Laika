@@ -18,18 +18,20 @@ package laika.io
 
 import cats.effect.{ IO, Resource }
 import laika.api.builder.OperationConfig
+import laika.api.bundle.{ ExtensionBundle, PathTranslator, SlugBuilder, TemplateDirectives }
+import laika.api.config.Config
 import laika.api.{ MarkupParser, Transformer }
 import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
-import laika.ast._
-import laika.bundle.{ BundleProvider, ExtensionBundle }
-import laika.config.Config
-import laika.directive.Templates
-import laika.format._
+import laika.ast.*
+import laika.ast.styles.{ StyleDeclaration, StylePredicate }
+import laika.bundle.BundleProvider
+import laika.config.SyntaxHighlighting
+import laika.format.*
 import laika.io.api.{ BinaryTreeTransformer, TreeTransformer }
 import laika.io.descriptor.TransformerDescriptor
 import laika.io.helper.{ InputBuilder, RenderResult, RenderedTreeAssertions, TestThemeBuilder }
-import laika.io.implicits._
+import laika.io.syntax.*
 import laika.io.model.{
   FileFilter,
   FilePath,
@@ -38,16 +40,11 @@ import laika.io.model.{
   RenderContent,
   RenderedDocument,
   RenderedTree,
-  RenderedTreeRoot,
-  StringTreeOutput
+  RenderedTreeRoot
 }
 import laika.parse.Parser
-import laika.parse.code.SyntaxHighlighting
 import laika.parse.text.TextParsers
 import laika.render.fo.TestTheme
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
-import laika.rewrite.link.SlugBuilder
-import laika.rewrite.nav.BasicPathTranslator
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -95,7 +92,7 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   def transformWithDirective(
       inputs: Seq[(Path, String)],
-      directive: Templates.Directive
+      directive: TemplateDirectives.Directive
   ): IO[RenderedTreeRoot[IO]] =
     transformWithBundle(inputs, BundleProvider.forTemplateDirective(directive))
 
@@ -115,7 +112,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     .use(
       _
         .fromInput(inputs)
-        .toOutput(StringTreeOutput)
+        .toMemory
         .describe
     )
 
@@ -128,7 +125,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     transformer.use(
       _
         .fromInput(build(inputs))
-        .toOutput(StringTreeOutput)
+        .toMemory
         .transform
     )
 
@@ -181,21 +178,20 @@ class TreeTransformerSpec extends CatsEffectSuite
       coverDocument: Option[RenderedDocument] = None,
       staticDocuments: Seq[Path] = Nil,
       outputContext: OutputContext = OutputContext(AST)
-  ): RenderedTreeRoot[IO] = RenderedTreeRoot(
-    RenderedTree(Root, None, content, titleDocument),
-    TemplateRoot.fallback,
-    Config.empty,
+  ): RenderedTreeRoot[IO] = new RenderedTreeRoot(
+    new RenderedTree(Root, None, content, titleDocument),
+    DocumentTreeRoot(DocumentTree.empty),
     outputContext,
-    BasicPathTranslator(outputContext.fileSuffix),
+    PathTranslator.noOp,
     coverDocument = coverDocument,
     staticDocuments = staticDocuments.map(ByteInput.empty(_))
   )
 
   def renderedTree(path: Path, content: Seq[RenderContent]): RenderedTree =
-    RenderedTree(path, None, content)
+    new RenderedTree(path, None, content)
 
   def renderedDoc(path: Path, expected: String): RenderedDocument =
-    RenderedDocument(path, None, Nil, expected, Config.empty)
+    new RenderedDocument(path, None, Nil, expected, Config.empty)
 
   def docs(values: (Path, String)*): Seq[RenderedDocument] =
     values.map { case (path, content) => renderedDoc(path, content) }
@@ -246,7 +242,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     )
     transformWithDocumentMapper(
       inputs,
-      doc => doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
+      doc => doc.withContent(doc.content.withContent(Seq(Paragraph("foo-bar"))))
     )
       .assertEquals(
         renderedRoot(
@@ -269,10 +265,9 @@ class TreeTransformerSpec extends CatsEffectSuite
     )
 
     val mapperFunction: Document => Document = doc =>
-      doc.copy(content = doc.content.withContent(Seq(Paragraph("foo-bar"))))
+      doc.withContent(doc.content.withContent(Seq(Paragraph("foo-bar"))))
 
-    val mapperFunctionExt: Document => Document = doc =>
-      doc.copy(content = doc.content.withContent(doc.content.content :+ Paragraph("baz")))
+    val mapperFunctionExt: Document => Document = doc => doc.appendContent(Paragraph("baz"))
 
     def transformWithProcessor(theme: ThemeProvider): IO[RenderedTreeRoot[IO]] =
       transformWith(inputs, Transformer.from(Markdown).to(AST).parallel[IO].withTheme(theme).build)
@@ -311,14 +306,14 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a document mapper from a theme specific to the output format") {
     TreeProcessors.run(
-      TestThemeBuilder.forDocumentMapper(AST)(TreeProcessors.mapperFunction),
+      TestThemeBuilder.forDocumentMapper(OutputContext(AST))(TreeProcessors.mapperFunction),
       mappedResult
     )
   }
 
   test("ignore the document mapper from a theme if the format does not match") {
     TreeProcessors.run(
-      TestThemeBuilder.forDocumentMapper(HTML)(TreeProcessors.mapperFunction),
+      TestThemeBuilder.forDocumentMapper(OutputContext(HTML))(TreeProcessors.mapperFunction),
       simpleResult
     )
   }
@@ -409,7 +404,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       .use(
         _
           .fromInput(input)
-          .toOutput(StringTreeOutput)
+          .toMemory
           .transform
       )
     renderResult.assertEquals(
@@ -417,7 +412,7 @@ class TreeTransformerSpec extends CatsEffectSuite
         docs(
           (Root / "doc1.fo", result)
         ),
-        staticDocuments = TestTheme.staticASTPaths,
+        staticDocuments = TestTheme.staticFoPaths,
         outputContext = OutputContext(XSLFO)
       )
     )
@@ -425,9 +420,9 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a template directive") {
 
-    import Templates.dsl._
+    import TemplateDirectives.dsl._
 
-    val directive = Templates.create("foo") {
+    val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
         TemplateString(_)
       }
@@ -496,7 +491,7 @@ class TreeTransformerSpec extends CatsEffectSuite
       s"""RootElement - Blocks: 1
          |. Paragraph - Spans: 2
          |. . Text - 'This is a '
-         |. . SpanLink(ResolvedInternalTarget(/baz.md#$sectionSlug,../baz.md#$sectionSlug,All),None) - Spans: 1
+         |. . SpanLink(InternalTarget(../baz.md#$sectionSlug,All),None) - Spans: 1
          |. . . Text - 'cross ref'""".stripMargin
 
     def inputs(sectionSlug: String): Seq[(Path, String)] = Seq(
@@ -504,13 +499,16 @@ class TreeTransformerSpec extends CatsEffectSuite
       Root / "foo" / "bar.md" -> refSrc(sectionSlug)
     )
 
-    def assertTree(f: IO[RenderedTreeRoot[IO]], titleSlug: String, sectionSlug: String): Unit =
+    def assertTree(f: IO[RenderedTreeRoot[IO]], titleSlug: String, sectionSlug: String): IO[Unit] =
       f.assertEquals(
         renderedRoot(
-          docs((Root / "baz.txt", targetRes(titleSlug, sectionSlug))).map(
-            _.copy(
-              title = Some(title),
-              sections = Seq(SectionInfo(sectionSlug, SpanSequence("Section Title"), Nil))
+          docs((Root / "baz.txt", targetRes(titleSlug, sectionSlug))).map(doc =>
+            new RenderedDocument(
+              doc.path,
+              Some(title),
+              Seq(SectionInfo(sectionSlug, SpanSequence("Section Title"), Nil)),
+              doc.content,
+              doc.config
             )
           ) ++
             trees((Root / "foo", docs((Root / "foo" / "bar.txt", refRes(sectionSlug))))),
@@ -678,7 +676,7 @@ class TreeTransformerSpec extends CatsEffectSuite
                      |Settings:
                      |  Strict Mode: false
                      |  Accept Raw Content: false
-                     |  Render Formatted: true
+                     |  Compact Rendering: false
                      |Sources:
                      |  Markup File(s)
                      |    /dir1/doc3.md: in-memory string or stream

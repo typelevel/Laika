@@ -16,16 +16,17 @@
 
 package laika.parse.hocon
 
-import laika.parse.hocon.HoconParsers._
+import laika.internal.parse.hocon.*
+import laika.internal.parse.hocon.HoconParsers.*
 import munit.FunSuite
 
 /** @author Jens Halm
   */
 class HoconJsonSpec extends FunSuite with ResultBuilders {
 
-  def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+  private def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
 
-  def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
+  private def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
     ObjectBuilderValue(fields)
   )
 

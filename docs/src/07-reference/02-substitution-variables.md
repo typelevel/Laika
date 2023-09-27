@@ -66,10 +66,10 @@ This is a complete list of values exposed in the `cursor` namespace:
 
     * `title`: the AST of the title of this document - including formatting.
 
+    * `rawTitle`: the raw string of the title of this document - stripping all formatting.
+
     * `sourcePath`: the absolute (virtual) path of the document in the input tree.
 
-    * `path` (deprecated since 0.19.0): use `sourcePath`.
-    
 * Access to surrounding documents via `cursor.parentDocument`, `cursor.previousDocument`, `cursor.nextDocument`,
   `cursor.flattenedSiblings.previousDocument` and `cursor.flattenedSiblings.nextDocument`.
   Any of these references may be empty, depending on the position of the current document.
@@ -86,10 +86,6 @@ This is a complete list of values exposed in the `cursor` namespace:
     * `path`: the path of the document in the generated output, e.g. `../herbs/parsley.html`.
 
     * `sourcePath`: the absolute (virtual) path of the document in the input tree, e.g. `/herbs/parsley.md`.
-    
-    * `absolutePath` (deprecated since 0.19.0): use `sourcePath`.
-    
-    * `relativePath` (deprecated since 0.19.0): use `sourcePath`.
     
 * `root.title`: The title of the root node, usually the title of the website or e-book.
     
@@ -136,8 +132,6 @@ You can add arbitrary configuration values when building a `Parser`, `Renderer` 
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 ```scala mdoc:compile-only
 laikaConfig := LaikaConfig.defaults
@@ -148,12 +142,11 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("project.version", "2.4.6")
   .build
 ```
@@ -209,10 +202,10 @@ The `DocumentCursor`, `DocumentTree`, `Document` and `TemplateDocument` types
 all have a `config` property that exposes those values:
 
 ```scala mdoc:compile-only
+import laika.api.config.ConfigError
 import laika.ast.Document
-import laika.config.ConfigError
 
-val doc: Document = ???
+def doc: Document = ???
 val version: Either[ConfigError, String] = 
   doc.config.get[String]("project.version")
 ```

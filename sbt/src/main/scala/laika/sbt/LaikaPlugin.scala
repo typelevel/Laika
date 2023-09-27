@@ -17,11 +17,11 @@
 package laika.sbt
 
 import cats.effect.IO
-import laika.bundle.ExtensionBundle
+import laika.api.bundle.ExtensionBundle
 import laika.helium.Helium
 import laika.theme.ThemeProvider
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 
 /** Plugin that adapts the features of the Laika library for use from within sbt.
   *
@@ -45,7 +45,7 @@ import sbt._
   *   context info
   *
   * - `laikaExtensions`: the main extension hook that allows to add one or more `ExtensionBundle` instances for adding
-  *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[laika.bundle.ExtensionBundle]].
+  *   directives, parser extensions, rewrite rules or custom renderers. See the API of `laika.api.bundle.ExtensionBundle`.
   *
   * - `laikaConfig`: allows to specify additional flags and settings through instances of `LaikaConfig`:
   *     - `encoding`: specifies the character encoding (default `UTF-8`)
@@ -154,10 +154,10 @@ object LaikaPlugin extends AutoPlugin {
     laikaXSLFO / target         := (Laika / target).value / "fo",
     laikaAST / target           := (Laika / target).value / "ast",
     laikaExtensions             := Nil,
-    laikaConfig                 := LaikaConfig(),
+    laikaConfig                 := LaikaConfig.defaults,
     laikaPreviewConfig          := LaikaPreviewConfig.defaults,
     laikaTheme                  := Helium.defaults.build,
-    laikaDescribe               := Settings.describe.value,
+    laikaDescribe               := Tasks.describe.value,
     laikaIncludeAPI             := false,
     laikaIncludeEPUB            := Settings.validated(
       Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includeEPUB", false)

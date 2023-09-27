@@ -17,13 +17,12 @@
 package laika.parse.code.languages
 
 import laika.api.MarkupParser
-import laika.ast._
-import laika.config.LaikaKeys
+import laika.api.errors.ParserError
+import laika.ast.*
+import laika.config.{ LaikaKeys, SyntaxHighlighting }
 import laika.format.Markdown
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.{ CodeCategory, SyntaxHighlighting }
-import laika.parse.code.CodeCategory._
-import laika.parse.markup.DocumentParser.ParserError
+import laika.parse.code.CodeCategory
+import laika.parse.code.CodeCategory.*
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -32,7 +31,7 @@ class LanguageSpec extends FunSuite {
 
   private val parser = MarkupParser
     .of(Markdown)
-    .using(GitHubFlavor, SyntaxHighlighting)
+    .using(Markdown.GitHubFlavor, SyntaxHighlighting)
     .withConfigValue(LaikaKeys.firstHeaderAsTitle, true)
     .build
 
@@ -1892,6 +1891,81 @@ class LanguageSpec extends FunSuite {
     )
 
     assertEquals(parse(input), expected)
+  }
+
+  test("shell/bash") {
+    val input    = """# Doc
+                  |
+                  |```sh
+                  |# this is a comment
+                  |export KEY=value # this is a trailing comment
+                  |echo 'hello world'
+                  |
+                  |echo hello $(whoami)
+                  |
+                  |echo $(( 3+5 ))
+                  |
+                  |echo $FOO $?
+                  |
+                  |for i in ${array[@]}; do
+                  |  read -p "" input
+                  |  echo "\"${input}\""
+                  |done
+                  |
+                  |exit
+                  |```
+                  |
+                  |""".stripMargin
+    val parsed   = parse(input)
+    val expected = result(
+      "sh",
+      comment("# this is a comment\n"),
+      id("export"),
+      other(" KEY=value "),
+      comment("# this is a trailing comment\n"),
+      id("echo"),
+      space,
+      string("'hello world'"),
+      other("\n\n"),
+      id("echo"),
+      other(" hello "),
+      subst("$(whoami)"),
+      other("\n\n"),
+      id("echo"),
+      space,
+      subst("$(( 3+5 ))"),
+      other("\n\n"),
+      id("echo"),
+      space,
+      subst("$FOO"),
+      space,
+      subst("$?"),
+      other("\n\n"),
+      keyword("for"),
+      other(" i "),
+      keyword("in"),
+      space,
+      subst("${array[@]}"),
+      other("; "),
+      keyword("do"),
+      other("\n  "),
+      id("read"),
+      other(" -p "),
+      string("\"\""),
+      other(" input\n  "),
+      id("echo"),
+      space,
+      string("\""),
+      escape("\\\""),
+      subst("${input}"),
+      escape("\\\""),
+      string("\""),
+      other("\n"),
+      keyword("done"),
+      other("\n\n"),
+      id("exit")
+    )
+    assertEquals(parsed, expected)
   }
 
   test("SQL") {

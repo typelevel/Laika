@@ -22,17 +22,16 @@ import scala.annotation.tailrec
   *
   * @author Jens Halm
   */
-class TreePosition private (private val positions: Option[Seq[Int]]) extends Ordered[TreePosition] {
+class TreePosition private (private val positions: Seq[Int]) extends Ordered[TreePosition] {
 
   /** The positions (one-based) of each nesting level of this instance
     * (an empty sequence for the root or orphan positions).
     */
-  def toSeq: Seq[Int] = positions.getOrElse(Nil)
+  def toSeq: Seq[Int] = positions
 
   override def toString: String = positions match {
-    case None      => "TreePosition.orphan"
-    case Some(Nil) => "TreePosition.root"
-    case Some(pos) => s"TreePosition(${pos.mkString(".")})"
+    case Nil => "TreePosition.root"
+    case pos => s"TreePosition(${pos.mkString(".")})"
   }
 
   /** This tree position as a span that can get rendered
@@ -46,7 +45,7 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
 
   /** Creates a position instance for a child of this element.
     */
-  def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
+  def forChild(childPos: Int): TreePosition = TreePosition(positions :+ childPos)
 
   def compare(other: TreePosition): Int = {
 
@@ -68,16 +67,12 @@ class TreePosition private (private val positions: Option[Seq[Int]]) extends Ord
 
   override def equals(obj: Any): Boolean = obj match {
     case tp: TreePosition => tp.positions == positions
+    case _                => false
   }
 
 }
 
 object TreePosition {
-  def apply(pos: Seq[Int]) = new TreePosition(Some(pos))
-  val root                 = new TreePosition(Some(Nil))
-
-  /** A document has an orphaned position assigned when it is processed on its own,
-    * not as part of a tree of documents.
-    */
-  val orphan = new TreePosition(None)
+  def apply(pos: Seq[Int]) = new TreePosition(pos)
+  val root                 = new TreePosition(Nil)
 }

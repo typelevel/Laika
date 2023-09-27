@@ -78,7 +78,7 @@ We require a mandatory `#` symbol followed by one or more digits.
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text._
 import TextParsers.someOf
 
@@ -109,20 +109,20 @@ In our case we only need to override the `parsers` property
 and leave everything else at the empty default implementations.
 
 ```scala mdoc:silent
-import laika.bundle._
+import laika.api.bundle._
 
 object TicketSyntax extends ExtensionBundle {
 
   val description: String = "Parser Extension for Tickets"
 
-  override val parsers: ParserBundle = ParserBundle(
-    spanParsers = Seq(SpanParser.standalone(ticketParser))
+  override val parsers: ParserBundle = new ParserBundle(
+    spanParsers = Seq(SpanParserBuilder.standalone(ticketParser))
   )
 
 }
 ```
 
-The `SpanParser.standalone` method can be used in cases where your parser does not need access to the parser
+The `SpanParserBuilder.standalone` method can be used in cases where your parser does not need access to the parser
 of the host language for recursive parsing.
 
 Finally you can register your extension together with any built-in extensions you may use:
@@ -132,15 +132,13 @@ Finally you can register your extension together with any built-in extensions yo
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   TicketSyntax
 )
 ```
@@ -149,12 +147,11 @@ laikaExtensions := Seq(
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(TicketSyntax)
   .build
 ```
@@ -176,7 +173,7 @@ import laika.parse.SourceFragment
 
 case class TicketResolver (num: String, 
                            source: SourceFragment, 
-                           options: Options = NoOpt) extends SpanResolver {
+                           options: Options = Options.empty) extends SpanResolver {
 
   type Self = TicketResolver
 
@@ -227,12 +224,11 @@ laikaConfig := LaikaConfig.defaults
 ```scala mdoc:compile-only
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
   .build
 ```
@@ -298,15 +294,15 @@ we only match on constructs the user actually meant to be ticket references.
 
 ### Recursive Parsing
 
-In our example we used the `SpanParser.standalone` method for registration.
+In our example we used the `SpanParserBuilder.standalone` method for registration.
 In cases where your parser needs access to the parser of the host language for recursive parsing
-we need to use the `SpanParser.recursive` entry point instead:
+we need to use the `SpanParserBuilder.recursive` entry point instead:
 
 ```scala mdoc:silent
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.TextParsers.delimitedBy
 
-SpanParser.recursive { recParsers =>
+SpanParserBuilder.recursive { recParsers =>
   ("*" ~> recParsers.recursiveSpans(delimitedBy("*"))).map(Emphasized(_))
 } 
 ```
@@ -351,12 +347,12 @@ Let's look at the implementation and examine it line by line:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.bundle.BlockParser
-import laika.parse.implicits._
+import laika.api.bundle.BlockParserBuilder
+import laika.parse.syntax._
 import laika.parse.markup.BlockParsers
 import laika.parse.text.TextParsers.ws
 
-val quotedBlockParser = BlockParser.recursive { recParsers =>
+val quotedBlockParser = BlockParserBuilder.recursive { recParsers =>
 
   val decoratedLine = ">" ~ ws  // '>' followed by whitespace
   val textBlock = BlockParsers.block(decoratedLine, decoratedLine)
@@ -366,7 +362,7 @@ val quotedBlockParser = BlockParser.recursive { recParsers =>
 ```
 
 * Our quoted block is a recursive structure, therefore we need to use the corresponding entry point
-  `BlockParser.recursive`.
+  `BlockParserBuilder.recursive`.
   Like the recursive entry point for span parsers, it provides access to the parser of the host language 
   that is fully configured with all extensions the user has specified.
   
@@ -384,7 +380,7 @@ val quotedBlockParser = BlockParser.recursive { recParsers =>
 * We map the result and create a `QuotedBlock` node (which implements `Block`).
   The nested blocks we parsed simply become the children of the quoted block.
 
-Like with span parsers, for blocks which are not recursive you can use the `BlockParser.standalone` entry point.
+Like with span parsers, for blocks which are not recursive you can use the `BlockParserBuilder.standalone` entry point.
 
 
 ### Registering a Block Parser
@@ -399,7 +395,7 @@ object QuotedBlocks extends ExtensionBundle {
   val description: String = "Parser extension for quoted blocks"
   
   override val parsers: ParserBundle = 
-    ParserBundle(blockParsers = Seq(quotedBlockParser))
+    new ParserBundle(blockParsers = Seq(quotedBlockParser))
 
 }
 ```
@@ -410,10 +406,10 @@ Finally you can register your extension together with any built-in extensions yo
 
 @:choice(sbt)
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   QuotedBlocks
 )
 ```
@@ -422,12 +418,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val extendedTransformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(QuotedBlocks)
   .build
 ```
@@ -500,7 +495,7 @@ Precedence
 Both, block and span parsers can specify a precedence:
 
 ```scala mdoc:silent
-BlockParser.recursive { implicit recParsers =>
+BlockParserBuilder.recursive { recParsers =>
   ??? // parser impl here
 }.withLowPrecedence
 ```

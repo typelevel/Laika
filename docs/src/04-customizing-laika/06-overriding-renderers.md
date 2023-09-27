@@ -24,8 +24,8 @@ PartialFunction[(Formatter, Element), String]
 ```
 
 `Formatter` is a generic type representing the formatting API which is different for each output format. 
-For HTML it is `HTMLFormatterr`, for XSL-FO it is `FOFormatter`. 
-It provides a helper APIs for rendering tags, adds the current indentation level after line breaks 
+For HTML, XHTML for EPUB and XSL-FO for PDF it is sub-type `TagFormatter`.
+It provides additional convenience APIs for rendering tags, adds the current indentation level after line breaks 
 and knows how to render child elements. 
 
 `Element` is the base type of the document AST and represents the AST node to render, 
@@ -45,11 +45,11 @@ adding a specific style class:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.render.HTMLFormatter
+import laika.api.format.TagFormatter
 
-val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
-  case (fmt, Emphasized(content, opt)) => 
-    fmt.element("em", opt, content, "class" -> "big") 
+val renderer: PartialFunction[(TagFormatter, Element), String] = {
+  case (fmt, e: Emphasized) => 
+    fmt.element("em", e, "class" -> "big") 
 }
 ```
 
@@ -81,16 +81,14 @@ In case you want to combine it with other extensions, a render override can also
 
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
 import laika.ast._
 
 laikaExtensions += laikaHtmlRenderer {
-  case (fmt, Emphasized(content, opt)) => 
-    fmt.element("em", opt, content, "class" -> "big")
+  case (fmt, e: Emphasized) => 
+    fmt.element("em", e, "class" -> "big")
 }
 ```
 
@@ -107,21 +105,21 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .rendering {
-    case (fmt, Emphasized(content, opt)) => 
-      fmt.element("em", opt, content, "class" -> "big")
+    case (fmt, e: Emphasized) => 
+      fmt.element("em", e, "class" -> "big")
   }.build
 ```
 
 **Using the Renderer API**
 
 ```scala mdoc:compile-only
-val doc: Document = ???
+def doc: Document = ???
 
 val renderer = Renderer
   .of(HTML)
   .rendering { 
-    case (fmt, Emphasized(content, opt)) => 
-      fmt.element("em", opt, content, "class" -> "big")
+    case (fmt, e: Emphasized) => 
+      fmt.element("em", e, "class" -> "big")
   }.build
 ```
 
@@ -136,10 +134,9 @@ On top of that all formatters manage the indentation level after line breaks and
 know how to delegate to the relevant renderers for child elements.
 
 
-### TextFormatter
+### Formatter
 
-This is the base API supported by both the `XSL-FO` and `HTML` renderer,
-both of them adding several methods with rendering logic specific to that format.
+This is the base API supported by all internal renderers.
 
 * `newLine` renders a newline character followed by whitespace for the current level of indentation.
 
@@ -151,9 +148,13 @@ both of them adding several methods with rendering logic specific to that format
   indented one level to the right from the current indentation level.
 
 
-### HTMLFormatter
+### TagFormatter
 
-This formatter supports all methods of the `TextFormatter` API shown above, and adds the following methods:
+This formatter supports all methods of the `Formatter` API shown above, 
+but adds additional convenience methods for all tag-based formats: HTML, XHTML for EPUB, XSL-FO for PDF.
+This is the API you would use in almost all cases when writing renderer overrides.
+
+It adds the following methods (amongst others):
 
 * `element` renders a tag where the specified list of child elements will be used to render the content of the tag
 

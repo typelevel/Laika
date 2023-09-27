@@ -17,8 +17,8 @@
 package laika.helium.config
 
 import laika.ast.{ Icon, IconGlyph, InlineSVGIcon, Styles }
-import laika.helium.builder.SVGIcons
-import laika.rewrite.link.IconRegistry
+import laika.config.IconRegistry
+import laika.helium.internal.builder.SVGIcons
 
 /** Enumeration for using any of the icons provided by the Helium theme out of the box in the theme configuration.
   *
@@ -52,7 +52,7 @@ object HeliumIcon {
   val github: Icon   = InlineSVGIcon(SVGIcons.githubIcon, Some("Source Code"), Styles("github"))
   val mastodon: Icon = InlineSVGIcon(SVGIcons.mastodonIcon, Some("Mastodon"), Styles("mastodon"))
 
-  val registry: IconRegistry = IconRegistry(
+  private[helium] val registry: IconRegistry = IconRegistry(
     "navigationMenu" -> navigationMenu,
     "home"           -> home,
     "link"           -> link,

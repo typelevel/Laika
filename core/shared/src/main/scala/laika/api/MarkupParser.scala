@@ -16,16 +16,16 @@
 
 package laika.api
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.{ OperationConfig, ParserBuilder }
+import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigValue, Origin }
+import laika.api.errors.{ InvalidConfig, InvalidDocument, InvalidElements, ParserError }
+import laika.api.format.MarkupFormat
 import laika.ast.Path.Root
 import laika.ast.{ Document, EmbeddedConfigValue, Path, RewritePhase, UnresolvedDocument }
-import laika.config.Origin.DocumentScope
-import laika.config.{ Config, Origin }
-import laika.factory.MarkupFormat
-import laika.parse.directive.ConfigHeaderParser
-import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocument, ParserError }
+import laika.api.config.Origin.DocumentScope
+import laika.internal.parse.markup.DocumentParser
+import DocumentParser.DocumentInput
 
 /** Performs a parse operation from text markup to a
   * document tree without a subsequent render operation.
@@ -51,7 +51,7 @@ import laika.parse.markup.DocumentParser.{ DocumentInput, InvalidDocument, Parse
   *
   * @author Jens Halm
   */
-class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
+class MarkupParser private[laika] (val format: MarkupFormat, val config: OperationConfig) {
 
   /** The file suffixes this parser will recognize
     * as a supported format.
@@ -78,28 +78,36 @@ class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
 
   /** Parses the specified markup input into a document AST structure.
     */
-  def parse(input: DocumentInput): Either[ParserError, Document] = {
+  private def parse(input: DocumentInput): Either[ParserError, Document] = {
+
+    def merge(config: Config, values: Seq[(String, ConfigValue)]): Config =
+      values.foldLeft(ConfigBuilder.withFallback(config)) { case (builder, (key, value)) =>
+        builder.withValue(key, value)
+      }.build
 
     def resolveDocument(unresolved: UnresolvedDocument, docConfig: Config): Document = {
       val embeddedConfig = unresolved.document.content.collect { case c: EmbeddedConfigValue =>
         (c.key, c.value)
       }
-      unresolved.document.copy(
-        config = ConfigHeaderParser.merge(docConfig, embeddedConfig)
-      )
+      unresolved.document.withConfig(merge(docConfig, embeddedConfig))
     }
 
     def rewritePhase(doc: Document, phase: RewritePhase): Either[ParserError, Document] = for {
-      rules  <- config.rewriteRulesFor(doc, phase).leftMap(ParserError(_, doc.path))
-      result <- doc.rewrite(rules).leftMap(ParserError.apply(_, doc.path))
+      rules  <- config.rewriteRulesFor(doc, phase).leftMap(InvalidConfig(_))
+      result <- doc.rewrite(rules).leftMap(InvalidConfig(_))
     } yield result
+
+    def createError(doc: InvalidDocument): ParserError = doc.errors match {
+      case Left(configErrors)  => InvalidConfig(ConfigError.MultipleErrors(configErrors))
+      case Right(invalidNodes) => InvalidElements(invalidNodes)
+    }
 
     def rewriteDocument(resolvedDoc: Document): Either[ParserError, Document] = for {
       phase1 <- rewritePhase(resolvedDoc, RewritePhase.Build)
       phase2 <- rewritePhase(phase1, RewritePhase.Resolve)
       result <- InvalidDocument
-        .from(phase2, config.failOnMessages)
-        .map(ParserError(_))
+        .from(phase2, config.messageFilters.failOn)
+        .map(createError)
         .toLeft(phase2)
     } yield result
 
@@ -107,7 +115,7 @@ class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
       unresolved     <- docParser(input)
       resolvedConfig <- unresolved.config
         .resolve(Origin(DocumentScope, input.path), config.baseConfig)
-        .left.map(ParserError(_, input.path))
+        .left.map(InvalidConfig(_))
       resolvedDoc = resolveDocument(unresolved, resolvedConfig)
       result <- rewriteDocument(resolvedDoc)
     } yield result
@@ -131,9 +139,10 @@ class MarkupParser(val format: MarkupFormat, val config: OperationConfig) {
     *
     * This low-level hook is rarely used by application code.
     */
-  def parseUnresolved(input: DocumentInput): Either[ParserError, UnresolvedDocument] = docParser(
-    input
-  )
+  private[laika] def parseUnresolved(
+      input: DocumentInput
+  ): Either[ParserError, UnresolvedDocument] =
+    docParser(input)
 
 }
 

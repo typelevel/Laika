@@ -17,9 +17,8 @@
 package laika.api.builder
 
 import laika.api.MarkupParser
-import laika.ast.DocumentType.Markup
-import laika.ast.TextDocumentType
-import laika.factory.MarkupFormat
+import laika.api.format.MarkupFormat
+import laika.config.{ MessageFilter, MessageFilters }
 
 /** Builder API for Parser instances.
   *
@@ -27,13 +26,22 @@ import laika.factory.MarkupFormat
   *
   * @author Jens Halm
   */
-class ParserBuilder(format: MarkupFormat, val config: OperationConfig) extends ParserBuilderOps {
-
-  val docType: TextDocumentType = Markup
+class ParserBuilder private[laika] (format: MarkupFormat, val config: OperationConfig)
+    extends ParserBuilderOps {
 
   type ThisType = ParserBuilder
 
   def withConfig(newConfig: OperationConfig): ThisType = new ParserBuilder(format, newConfig)
+
+  /** Specifies the filter to apply to runtime messages that should cause a transformation to fail.
+    *
+    * The default is to fail transformations on messages of level `Error` or higher.
+    */
+  def failOnMessages(filter: MessageFilter): ThisType = withConfig(
+    config.withMessageFilters(
+      MessageFilters.custom(failOn = filter, render = config.messageFilters.render)
+    )
+  )
 
   /** Applies all configuration specified with this builder
     * and returns a new MarkupParser instance.

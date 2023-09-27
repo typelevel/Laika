@@ -18,7 +18,8 @@ package laika.io.descriptor
 
 import cats.Applicative
 import laika.io.api.{ BinaryTreeRenderer, TreeRenderer }
-import laika.io.model.{ BinaryOutput, DirectoryOutput, TreeOutput }
+import laika.io.internal.model.{ DirectoryOutput, TreeOutput }
+import laika.io.model.BinaryOutput
 
 /** Provides a description of a render operation, including the renderers
   * and extension bundles used, as well as the output target.
@@ -26,12 +27,12 @@ import laika.io.model.{ BinaryOutput, DirectoryOutput, TreeOutput }
   *
   * @author Jens Halm
   */
-case class RendererDescriptor(
-    renderer: String,
-    bundles: Seq[ExtensionBundleDescriptor],
-    theme: ThemeDescriptor,
-    output: String,
-    renderFormatted: Boolean
+class RendererDescriptor(
+    val renderer: String,
+    val bundles: Seq[ExtensionBundleDescriptor],
+    val theme: ThemeDescriptor,
+    val output: String,
+    val compactRendering: Boolean
 ) {
 
   def formatted: String = {
@@ -42,18 +43,18 @@ case class RendererDescriptor(
        |Theme:
        |  ${theme.formatted}
        |Settings:
-       |  Render Formatted: $renderFormatted
+       |  Compact Rendering: $compactRendering
        |Target:
        |  $output""".stripMargin
   }
 
 }
 
-object RendererDescriptor {
+private[io] object RendererDescriptor {
 
   private def describeOutput[F[_]](out: BinaryOutput[F]): String = out.targetFile.fold(
     "In-memory bytes or stream"
-  )(f => s"File '${f.getPath}'")
+  )(f => s"File '${f.toString}'")
 
   private def describeOutput(out: TreeOutput): String = out match {
     case DirectoryOutput(dir, _) => s"Directory '${dir.toString}'"
@@ -62,23 +63,23 @@ object RendererDescriptor {
 
   def create[F[_]: Applicative](op: TreeRenderer.Op[F]): F[RendererDescriptor] =
     Applicative[F].pure(
-      apply(
+      new RendererDescriptor(
         op.renderer.format.description,
-        op.renderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+        op.renderer.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
         op.theme.descriptor,
         describeOutput(op.output),
-        op.renderer.config.renderFormatted
+        op.renderer.config.compactRendering
       )
     )
 
   def create[F[_]: Applicative](op: BinaryTreeRenderer.Op[F]): F[RendererDescriptor] =
     Applicative[F].pure(
-      apply(
+      new RendererDescriptor(
         op.renderer.description,
-        op.renderer.interimRenderer.config.filteredBundles.map(ExtensionBundleDescriptor.apply),
+        op.renderer.interimRenderer.config.filteredBundles.map(new ExtensionBundleDescriptor(_)),
         op.theme.descriptor,
         describeOutput(op.output),
-        op.renderer.interimRenderer.config.renderFormatted
+        op.renderer.interimRenderer.config.compactRendering
       )
     )
 

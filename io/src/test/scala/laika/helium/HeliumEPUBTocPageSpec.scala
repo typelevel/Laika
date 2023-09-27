@@ -24,8 +24,7 @@ import laika.ast.Path.Root
 import laika.format.{ EPUB, Markdown }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
+import laika.io.syntax._
 import laika.theme._
 import munit.CatsEffectSuite
 
@@ -53,9 +52,9 @@ class HeliumEPUBTocPageSpec extends CatsEffectSuite with InputBuilder with Resul
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
-        resultTree.extractTidiedSubstring(Root / "table-of-content.epub.xhtml", start, end)
+        resultTree.extractTidiedSubstring(Root / "table-of-content.xhtml", start, end)
           .toRight(new RuntimeException("Missing document under test"))
       )
     } yield res
@@ -71,18 +70,18 @@ class HeliumEPUBTocPageSpec extends CatsEffectSuite with InputBuilder with Resul
       s"""<head>
          |<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
          |<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-         |<meta name="generator" content="Laika ${LaikaVersion.value} + Helium Theme" />
+         |<meta name="generator" content="Typelevel Laika + Helium Theme" />
          |<title>Contents</title>
-         |<link rel="stylesheet" type="text/css" href="helium/laika-helium.epub.css" />
+         |<link rel="stylesheet" type="text/css" href="helium/epub/laika-helium.css" />
          |</head>
          |<body epub:type="bodymatter">
          |<main class="content">
          |<h1 class="title">Contents</h1>
          |<ul class="toc nav-list">
-         |<li class="level1 toc nav-leaf"><a href="doc-1.epub.xhtml">doc-1.md</a></li>
-         |<li class="level1 toc nav-leaf"><a href="doc-2.epub.xhtml">doc-2.md</a></li>
+         |<li class="level1 toc nav-leaf"><a href="doc-1.xhtml">doc-1.md</a></li>
+         |<li class="level1 toc nav-leaf"><a href="doc-2.xhtml">doc-2.md</a></li>
          |<li class="level1 toc nav-header">dir-1</li>
-         |<li class="level2 toc nav-leaf"><a href="dir-1/doc-3.epub.xhtml">doc-3.md</a></li>
+         |<li class="level2 toc nav-leaf"><a href="dir-1/doc-3.xhtml">doc-3.md</a></li>
          |</ul>
          |</main>
          |</body>""".stripMargin

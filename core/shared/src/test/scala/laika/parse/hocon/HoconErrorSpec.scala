@@ -16,7 +16,8 @@
 
 package laika.parse.hocon
 
-import laika.config.{ ConfigParser, ConfigParserErrors }
+import laika.api.config.ConfigParser
+import laika.api.config.ConfigError.InvalidFields
 import munit.FunSuite
 
 /** @author Jens Halm
@@ -26,11 +27,11 @@ class HoconErrorSpec extends FunSuite {
   def run(input: String, expectedMessage: String)(implicit loc: munit.Location): Unit = {
 
     ConfigParser.parse(input).resolve() match {
-      case Right(result)                    => fail(s"Unexpected parser success: $result")
-      case Left(ConfigParserErrors(errors)) =>
-        assertEquals(errors.size, 1)
+      case Right(result)               => fail(s"Unexpected parser success: $result")
+      case Left(InvalidFields(errors)) =>
+        assertEquals(errors.length, 1L)
         assertEquals(errors.head.toString, expectedMessage)
-      case Left(other)                      => fail(s"Unexpected parser error: $other")
+      case Left(other)                 => fail(s"Unexpected parser error: $other")
     }
 
   }
@@ -43,7 +44,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[2.13] failure: Expected closing '"'
+      """'a': [2.13] failure: Expected closing '"'
         |
         |a = "foo bar
         |            ^""".stripMargin
@@ -62,7 +63,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[5.12] failure: Expected closing '"'
+      """'a.2': [5.12] failure: Expected closing '"'
         |
         | "some text
         |           ^""".stripMargin
@@ -80,7 +81,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[3.17] failure: Expected closing '"'
+      """'a.aa': [3.17] failure: Expected closing '"'
         |
         | aa = "some text
         |                ^""".stripMargin
@@ -95,7 +96,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[2.16] failure: Invalid key: Expected closing '"'
+      """'a': [2.16] failure: Invalid key: Expected closing '"'
         |
         |a = ${"foo.bar}
         |               ^""".stripMargin
@@ -125,7 +126,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[2.9] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
+      """'a': [2.9] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
         |
         |a = foo ? bar
         |        ^""".stripMargin
@@ -144,7 +145,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[5.7] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+      """'a.2': [5.7] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
         |
         | some ? text
         |      ^""".stripMargin
@@ -162,7 +163,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[3.12] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
+      """'a.aa': [3.12] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
         |
         | aa = some ? text
         |           ^""".stripMargin
@@ -177,7 +178,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[2.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+      """'a': [2.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
         |
         |a = ${foo = bar}
         |          ^""".stripMargin
@@ -213,7 +214,7 @@ class HoconErrorSpec extends FunSuite {
         |d = 7  
         |""".stripMargin
     val expectedMessage =
-      """[3.15] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
+      """'a.b.x': [3.15] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', '}'
         |
         |  b { x = 5 y = 6 }
         |              ^""".stripMargin
@@ -228,7 +229,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[2.11] failure: Invalid escape sequence: \x
+      """'a': [2.11] failure: Invalid escape sequence: \x
         |
         |a = "foo \x bar"
         |          ^""".stripMargin
@@ -243,7 +244,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
         |""".stripMargin
     val expectedMessage =
-      """[4.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+      """'a.3': [4.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
         |
         |b = 9
         |  ^""".stripMargin
@@ -261,7 +262,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[7.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+      """'a.3': [7.3] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
         |
         |b = 9
         |  ^""".stripMargin
@@ -283,7 +284,7 @@ class HoconErrorSpec extends FunSuite {
         |d = 7  
       """.stripMargin
     val expectedMessage =
-      """[8.5] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
+      """'b.3': [8.5] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\n', ']'
         |
         |  c = 9
         |    ^""".stripMargin
@@ -299,7 +300,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
         |""".stripMargin
     val expectedMessage =
-      """[6.1] failure: Expected closing '}'
+      """'a': [6.1] failure: Expected closing '}'
         |
         |
         |^""".stripMargin
@@ -318,7 +319,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[4.2] failure: Expected closing '}'
+      """'a.0': [4.2] failure: Expected closing '}'
         |
         | { x = 4 }
         | ^""".stripMargin
@@ -337,7 +338,7 @@ class HoconErrorSpec extends FunSuite {
         |d = 7  
         |""".stripMargin
     val expectedMessage =
-      """[9.1] failure: Expected closing '}'
+      """'a': [9.1] failure: Expected closing '}'
         |
         |
         |^""".stripMargin
@@ -405,7 +406,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
         |""".stripMargin
     val expectedMessage =
-      """[2.14] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+      """'a': [2.14] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
         |
         |a = ${foo.bar
         |             ^""".stripMargin
@@ -424,7 +425,7 @@ class HoconErrorSpec extends FunSuite {
         |b = 9
       """.stripMargin
     val expectedMessage =
-      """[3.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+      """'a.0': [3.11] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
         |
         | ${foo.bar
         |          ^""".stripMargin
@@ -443,7 +444,7 @@ class HoconErrorSpec extends FunSuite {
         |d = 7  
         |""".stripMargin
     val expectedMessage =
-      """[3.16] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
+      """'a.b': [3.16] failure: Invalid key: Illegal character in unquoted string, expected delimiter is '}'
         |
         |  b = ${foo.bar
         |               ^""".stripMargin
@@ -458,7 +459,7 @@ class HoconErrorSpec extends FunSuite {
         |       
         |b = 9""".stripMargin.replace("+", "\"")
     val expectedMessage =
-      """[5.6] failure: Expected closing triple quote
+      """'a': [5.6] failure: Expected closing triple quote
         |
         |b = 9
         |     ^""".stripMargin
@@ -475,7 +476,7 @@ class HoconErrorSpec extends FunSuite {
         |       
         |b = 9""".stripMargin.replace("+", "\"")
     val expectedMessage =
-      """[7.6] failure: Expected closing triple quote
+      """'aa': [7.6] failure: Expected closing triple quote
         |
         |b = 9
         |     ^""".stripMargin

@@ -19,31 +19,34 @@ package laika.io.api
 import cats.effect.{ Async, Resource }
 import laika.api.Renderer
 import laika.api.builder.{ OperationConfig, RendererBuilder }
+import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
 import laika.ast.DocumentTreeRoot
-import laika.factory.{ BinaryPostProcessor, BinaryPostProcessorBuilder, TwoPhaseRenderFormat }
 import laika.io.api.BinaryTreeRenderer.BinaryRenderer
 import laika.io.descriptor.RendererDescriptor
+import laika.io.internal.runtime.{ Batch, RendererRuntime }
 import laika.io.model.{ BinaryInput, BinaryOutput, ParsedTree }
 import laika.io.ops.BinaryOutputOps
-import laika.io.runtime.{ Batch, RendererRuntime }
 import laika.theme.{ Theme, ThemeProvider }
 
 /** Renderer that merges a tree of input documents to a single binary output document.
   *
   * @author Jens Halm
   */
-class BinaryTreeRenderer[F[_]: Async: Batch](renderer: BinaryRenderer[F], theme: Theme[F]) {
+class BinaryTreeRenderer[F[_]: Async: Batch] private (
+    renderer: BinaryRenderer[F],
+    theme: Theme[F]
+) {
 
   /** Builder step that specifies the root of the document tree to render.
     */
   def from(input: DocumentTreeRoot): BinaryTreeRenderer.OutputOps[F] =
-    BinaryTreeRenderer.OutputOps(renderer, theme, input, Nil)
+    new BinaryTreeRenderer.OutputOps(renderer, theme, input, Nil)
 
   /** Builder step that specifies the root of the document tree to render
     * and the static documents to copy to the target (if it is file-system based).
     */
   def from(input: ParsedTree[F]): BinaryTreeRenderer.OutputOps[F] =
-    BinaryTreeRenderer.OutputOps(renderer, theme, input.root, input.staticDocuments)
+    new BinaryTreeRenderer.OutputOps(renderer, theme, input.root, input.staticDocuments)
 
 }
 
@@ -66,14 +69,14 @@ object BinaryTreeRenderer {
     *                      result, the implementing type may vary from format to format
     * @param description short string describing the output format for tooling and logging
     */
-  case class BinaryRenderer[F[_]: Async](
-      interimRenderer: Renderer,
-      prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
-      postProcessor: BinaryPostProcessor[F],
-      description: String
+  class BinaryRenderer[F[_]](
+      private[io] val interimRenderer: Renderer,
+      private[io] val prepareTree: DocumentTreeRoot => Either[Throwable, DocumentTreeRoot],
+      private[io] val postProcessor: BinaryPostProcessor[F],
+      private[io] val description: String
   )
 
-  type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessorBuilder]
+  type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessor.Builder]
 
   private[laika] def buildRenderer[F[_]: Async](
       format: BinaryRenderFormat,
@@ -84,13 +87,13 @@ object BinaryTreeRenderer {
     format.postProcessor.build(combinedConfig.baseConfig, theme).map { pp =>
       val targetRenderer =
         new RendererBuilder(format.interimFormat, combinedConfig).build.skipRewritePhase
-      BinaryRenderer(targetRenderer, format.prepareTree, pp, format.description)
+      new BinaryRenderer(targetRenderer, format.prepareTree, pp, format.description)
     }
   }
 
   /** Builder step that allows to specify the execution context for blocking IO and CPU-bound tasks.
     */
-  class Builder[F[_]: Async: Batch](
+  class Builder[F[_]: Async: Batch] private[io] (
       format: BinaryRenderFormat,
       config: OperationConfig,
       theme: Resource[F, Theme[F]]
@@ -116,14 +119,14 @@ object BinaryTreeRenderer {
 
   /** Builder step that allows to specify the output to render to.
     */
-  case class OutputOps[F[_]: Async: Batch](
-      renderer: BinaryRenderer[F],
-      theme: Theme[F],
-      input: DocumentTreeRoot,
-      staticDocuments: Seq[BinaryInput[F]]
+  class OutputOps[F[_]: Async: Batch] private[api] (
+      private[io] val renderer: BinaryRenderer[F],
+      private[io] val theme: Theme[F],
+      private[io] val input: DocumentTreeRoot,
+      private[io] val staticDocuments: Seq[BinaryInput[F]]
   ) extends BinaryOutputOps[F] {
 
-    val F: Async[F] = Async[F]
+    protected val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
@@ -131,10 +134,10 @@ object BinaryTreeRenderer {
       * in addition to rendering the document tree.
       */
     def copying(toCopy: Seq[BinaryInput[F]]): OutputOps[F] =
-      copy(staticDocuments = staticDocuments ++ toCopy)
+      new OutputOps(renderer, theme, input, staticDocuments ++ toCopy)
 
     def toOutput(output: BinaryOutput[F]): Op[F] =
-      Op[F](renderer, theme, input, output, staticDocuments)
+      new Op[F](renderer, theme, input, output, staticDocuments)
 
   }
 
@@ -144,12 +147,12 @@ object BinaryTreeRenderer {
     * default runtime implementation or by developing a custom runner that performs
     * the rendering based on this operation's properties.
     */
-  case class Op[F[_]: Async: Batch](
-      renderer: BinaryRenderer[F],
-      theme: Theme[F],
-      input: DocumentTreeRoot,
-      output: BinaryOutput[F],
-      staticDocuments: Seq[BinaryInput[F]] = Nil
+  class Op[F[_]: Async: Batch] private[io] (
+      private[io] val renderer: BinaryRenderer[F],
+      private[io] val theme: Theme[F],
+      private[io] val input: DocumentTreeRoot,
+      private[io] val output: BinaryOutput[F],
+      private[io] val staticDocuments: Seq[BinaryInput[F]] = Nil
   ) {
 
     /** The configuration of the renderer for the interim format.

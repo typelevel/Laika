@@ -19,11 +19,10 @@ package laika.directive.std
 import cats.syntax.all._
 import laika.api.builder.OperationConfig
 import laika.ast.sample.{ BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees }
-import laika.ast._
-import laika.rewrite.{ DefaultTemplatePath, OutputContext }
+import laika.ast.*
 import munit.Assertions
 import Path.Root
-import laika.config.ConfigBuilder
+import laika.api.config.ConfigBuilder
 import laika.format.HTML
 
 object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Assertions {

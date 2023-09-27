@@ -31,14 +31,14 @@ object RenderResult {
 
   object html {
 
-    def withDefaultTemplate(title: String, content: String): String =
+    def withDefaultTemplate(content: String): String =
       buildResult(TestTheme.htmlTemplate, Seq(content))
 
   }
 
   object epub {
 
-    def withDefaultTemplate(title: String, content: String): String =
+    def withDefaultTemplate(content: String): String =
       buildResult(TestTheme.htmlTemplate, Seq(content))
 
   }

@@ -18,28 +18,27 @@ package laika.render.fo
 
 import cats.data.NonEmptySet
 import laika.api.Renderer
-import laika.ast.Path.Root
-import laika.ast.RelativePath.CurrentTree
-import laika.ast._
-import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
-import laika.config.{ ConfigBuilder, LaikaKeys }
-import laika.format.XSLFO
-import laika.parse.GeneratedSource
-import laika.parse.code.CodeCategory
-import laika.parse.markup.DocumentParser.RendererError
-import laika.rewrite.OutputContext
-import laika.rewrite.nav.{
-  BasicPathTranslator,
+import laika.api.bundle.{
   ConfigurablePathTranslator,
   PathAttributes,
-  TargetFormats,
+  PathTranslator,
   TranslatorConfig
 }
+import laika.api.config.ConfigBuilder
+import laika.api.errors.RendererError
+import laika.ast.Path.Root
+import laika.ast.RelativePath.CurrentTree
+import laika.ast.*
+import laika.ast.CellType.BodyCell
+import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
+import laika.ast.styles.{ StyleDeclaration, StyleDeclarationSet, StylePredicate, StyleSelector }
+import laika.config.{ LaikaKeys, MessageFilter, MessageFilters, TargetFormats }
+import laika.format.XSLFO
+import laika.parse.SourceCursor
+import laika.parse.code.CodeCategory
 import munit.FunSuite
 
 class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with TestSourceBuilders {
-
-  private val pathTranslator = BasicPathTranslator(XSLFO.fileSuffix)
 
   private val defaultRenderer = Renderer.of(XSLFO).build
 
@@ -50,7 +49,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     """<fo:block space-after="3mm"><fo:leader leader-length="100%" leader-pattern="rule" rule-style="solid" rule-thickness="2pt"></fo:leader></fo:block>"""
 
   def render(elem: Element, style: StyleDeclarationSet): Either[RendererError, String] =
-    defaultRenderer.render(elem, Root / "doc", pathTranslator, style)
+    defaultRenderer.render(elem, Root / "doc", PathTranslator.noOp, style)
 
   def run(input: Element, expectedFO: String)(implicit loc: munit.Location): Unit =
     assertEquals(render(input, TestTheme.foStyles), Right(expectedFO))
@@ -58,33 +57,37 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   def run(input: Element, style: StyleDeclaration, expectedFO: String)(implicit
       loc: munit.Location
   ): Unit =
-    run(input, TestTheme.foStyles ++ StyleDeclarationSet(Path.Root, style), expectedFO)
+    run(input, TestTheme.foStyles ++ styles.StyleDeclarationSet(Path.Root, style), expectedFO)
 
   def run(input: Element, style: StyleDeclarationSet, expectedFO: String)(implicit
       loc: munit.Location
   ): Unit =
     assertEquals(
-      defaultRenderer.render(input, Root / "doc", pathTranslator, style),
+      defaultRenderer.render(input, Root / "doc", PathTranslator.noOp, style),
       Right(expectedFO)
     )
 
   def run(elem: Element, messageFilter: MessageFilter, expectedFO: String)(implicit
       loc: munit.Location
   ): Unit = {
-    val res = Renderer.of(XSLFO).renderMessages(messageFilter).build.render(
+    val filters = MessageFilters.custom(
+      failOn = MessageFilter.Error,
+      render = messageFilter
+    )
+    val res     = Renderer.of(XSLFO).withMessageFilters(filters).build.render(
       elem,
       Root / "doc",
-      pathTranslator,
+      PathTranslator.noOp,
       TestTheme.foStyles
     )
     assertEquals(res, Right(expectedFO))
   }
 
   def runUnformatted(input: Element, expectedFO: String): Unit = {
-    val res = Renderer.of(XSLFO).unformatted.build.render(
+    val res = Renderer.of(XSLFO).withCompactRendering.build.render(
       input,
       Root / "doc",
-      pathTranslator,
+      PathTranslator.noOp,
       TestTheme.foStyles
     )
     assertEquals(res, Right(expectedFO))
@@ -830,7 +833,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   }
 
   test("translate to external URL when an internal link is not defined for PDF as a target") {
-    val target     = ResolvedInternalTarget(
+    val target     = InternalTarget.Resolved(
       Path.parse("/foo#ref"),
       RelativePath.parse("foo#ref"),
       TargetFormats.Selected("html")
@@ -844,7 +847,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       val lookup: Path => Option[PathAttributes] = path =>
         if (path == Root / "doc") Some(PathAttributes(isStatic = false, isVersioned = false))
         else None
-      ConfigurablePathTranslator(tConfig, OutputContext("fo", "pdf"), Root / "doc", lookup)
+      ConfigurablePathTranslator(tConfig, OutputContext(XSLFO), Root / "doc", lookup)
     }
     assertEquals(
       defaultRenderer.render(elem, Root / "doc", translator, TestTheme.foStyles),
@@ -1009,7 +1012,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render an invalid block without the runtime message in default mode") {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val fo   = s"""<fo:block $defaultParagraphStyles>fallback</fo:block>"""
@@ -1021,7 +1024,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val fo   = s"""<fo:block $defaultParagraphStyles>fallback</fo:block>"""
@@ -1033,7 +1036,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidBlock(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       p("fallback")
     )
     val fo   = s"""<fo:block $defaultParagraphStyles>""" +
@@ -1045,7 +1048,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render an invalid span without the runtime message in default mode") {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     run(elem, "fallback")
@@ -1056,7 +1059,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     run(elem, MessageFilter.Error, "fallback")
@@ -1067,7 +1070,7 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = InvalidSpan(
       RuntimeMessage(MessageLevel.Warning, "some message"),
-      GeneratedSource,
+      SourceCursor.Generated,
       Text("fallback")
     )
     val fo   = s"""<fo:inline $warningProps>some message</fo:inline> fallback"""

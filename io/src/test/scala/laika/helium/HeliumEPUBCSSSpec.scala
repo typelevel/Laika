@@ -25,8 +25,7 @@ import laika.format.{ EPUB, Markdown }
 import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.implicits._
-import laika.io.model.StringTreeOutput
+import laika.io.syntax.*
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -51,16 +50,20 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-      res <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css", start, end)
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
+      res        <- resultTree.extractStaticContent(
+        Root / "helium" / "epub" / "laika-helium.css",
+        start,
+        end
+      )
     } yield res
   }
 
   def transformAndExtract(inputs: Seq[(Path, String)], helium: Helium): IO[String] =
     transformer(helium.build).use { t =>
       for {
-        resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
-        res        <- resultTree.extractStaticContent(Root / "helium" / "laika-helium.epub.css")
+        resultTree <- t.fromInput(build(inputs)).toMemory.transform
+        res        <- resultTree.extractStaticContent(Root / "helium" / "epub" / "laika-helium.css")
       } yield res
     }
 
@@ -75,10 +78,11 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |--bg-color: #ffffff;
                       |--gradient-top: #095269;
                       |--gradient-bottom: #007c99;
-                      |--top-color: var(--primary-color);
-                      |--top-bg: var(--primary-light);
-                      |--top-hover: var(--secondary-color);
-                      |--top-border: var(--primary-medium);
+                      |--component-color: var(--primary-color);
+                      |--component-area-bg: var(--primary-light);
+                      |--component-hover: var(--secondary-color);
+                      |--component-border: var(--primary-medium);
+                      |--subtle-highlight: rgba(0, 0, 0, 0.05);
                       |--messages-info: #007c99;
                       |--messages-info-light: #ebf6f7;
                       |--messages-warning: #b1a400;
@@ -117,37 +121,37 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
         |font-family: "Lato";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/Lato-Regular.ttf");
+        |src: url("../../laika/fonts/Lato-Regular.ttf");
         |}
         |@font-face {
         |font-family: "Lato";
         |font-weight: normal;
         |font-style: italic;
-        |src: url("../laika/fonts/Lato-Italic.ttf");
+        |src: url("../../laika/fonts/Lato-Italic.ttf");
         |}
         |@font-face {
         |font-family: "Lato";
         |font-weight: bold;
         |font-style: normal;
-        |src: url("../laika/fonts/Lato-Bold.ttf");
+        |src: url("../../laika/fonts/Lato-Bold.ttf");
         |}
         |@font-face {
         |font-family: "Lato";
         |font-weight: bold;
         |font-style: italic;
-        |src: url("../laika/fonts/Lato-BoldItalic.ttf");
+        |src: url("../../laika/fonts/Lato-BoldItalic.ttf");
         |}
         |@font-face {
         |font-family: "Fira Mono";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/FiraMono-Medium.otf");
+        |src: url("../../laika/fonts/FiraMono-Medium.otf");
         |}
         |@font-face {
         |font-family: "IcoFont";
         |font-weight: normal;
         |font-style: normal;
-        |src: url("../laika/fonts/icofont.ttf");
+        |src: url("../../laika/fonts/icofont.ttf");
         |}
         |""".stripMargin
     transformAndExtract(singleDoc, Helium.defaults)
@@ -163,10 +167,11 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                |--bg-color: #ffffff;
                                |--gradient-top: #095269;
                                |--gradient-bottom: #007c99;
-                               |--top-color: var(--primary-color);
-                               |--top-bg: var(--primary-light);
-                               |--top-hover: var(--secondary-color);
-                               |--top-border: var(--primary-medium);
+                               |--component-color: var(--primary-color);
+                               |--component-area-bg: var(--primary-light);
+                               |--component-hover: var(--secondary-color);
+                               |--component-border: var(--primary-medium);
+                               |--subtle-highlight: rgba(0, 0, 0, 0.05);
                                |--messages-info: #007c99;
                                |--messages-info-light: #ebf6f7;
                                |--messages-warning: #b1a400;
@@ -235,10 +240,11 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                 |--bg-color: rgb(11,11,11);
                                 |--gradient-top: rgb(0,0,0);
                                 |--gradient-bottom: rgb(9,9,9);
-                                |--top-color: var(--primary-color);
-                                |--top-bg: var(--primary-light);
-                                |--top-hover: var(--secondary-color);
-                                |--top-border: var(--primary-medium);
+                                |--component-color: var(--primary-color);
+                                |--component-area-bg: var(--primary-light);
+                                |--component-hover: var(--secondary-color);
+                                |--component-border: var(--primary-medium);
+                                |--subtle-highlight: rgba(0, 0, 0, 0.05);
                                 |--messages-info: #aaaaaa;
                                 |--messages-info-light: #aaaaab;
                                 |--messages-warning: #aaaaac;
@@ -280,10 +286,11 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                  |--bg-color: rgb(111,111,111);
                                  |--gradient-top: rgb(10,10,10);
                                  |--gradient-bottom: rgb(19,19,19);
-                                 |--top-color: var(--primary-color);
-                                 |--top-bg: var(--primary-light);
-                                 |--top-hover: var(--secondary-color);
-                                 |--top-border: var(--primary-medium);
+                                 |--component-color: var(--primary-color);
+                                 |--component-area-bg: var(--primary-light);
+                                 |--component-hover: var(--secondary-color);
+                                 |--component-border: var(--primary-medium);
+                                 |--subtle-highlight: rgba(255, 255, 255, 0.15);
                                  |--messages-info: #00aaaa;
                                  |--messages-info-light: #00aaab;
                                  |--messages-warning: #00aaac;
@@ -422,10 +429,11 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                       |--bg-color: #ffffff;
                       |--gradient-top: #095269;
                       |--gradient-bottom: #007c99;
-                      |--top-color: var(--primary-color);
-                      |--top-bg: var(--primary-light);
-                      |--top-hover: var(--secondary-color);
-                      |--top-border: var(--primary-medium);
+                      |--component-color: var(--primary-color);
+                      |--component-area-bg: var(--primary-light);
+                      |--component-hover: var(--secondary-color);
+                      |--component-border: var(--primary-medium);
+                      |--subtle-highlight: rgba(0, 0, 0, 0.05);
                       |--messages-info: #007c99;
                       |--messages-info-light: #ebf6f7;
                       |--messages-warning: #b1a400;

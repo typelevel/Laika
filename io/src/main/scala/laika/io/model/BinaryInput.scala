@@ -18,9 +18,9 @@ package laika.io.model
 
 import cats.effect.{ Async, Sync }
 import fs2.io.file.Files
-import laika.ast.{ Navigatable, Path }
+import laika.ast.{ Navigatable, Path, StaticDocument }
 import laika.ast.Path.Root
-import laika.rewrite.nav.TargetFormats
+import laika.config.TargetFormats
 
 import java.io.InputStream
 import scala.reflect.ClassTag
@@ -36,22 +36,39 @@ import scala.reflect.ClassTag
   *                   if necessary (e.g. to only include it in HTML output, but omit it from PDF or EPUB)
   * @param sourceFile The source file from the file system, empty if this does not represent a file system resource
   */
-case class BinaryInput[F[_]: Sync](
-    input: fs2.Stream[F, Byte],
-    path: Path,
-    formats: TargetFormats = TargetFormats.All,
-    sourceFile: Option[FilePath] = None
-) extends Navigatable
+class BinaryInput[F[_]] private (
+    val input: fs2.Stream[F, Byte],
+    val path: Path,
+    val formats: TargetFormats,
+    val sourceFile: Option[FilePath] = None
+) extends Navigatable {
+
+  def withPath(newPath: Path): BinaryInput[F] = new BinaryInput(input, newPath, formats, sourceFile)
+
+  def forTargetFormats(newFormats: TargetFormats): BinaryInput[F] =
+    new BinaryInput(input, path, newFormats, sourceFile)
+
+  def descriptor: StaticDocument = StaticDocument(path, formats)
+
+}
 
 object BinaryInput {
 
-  def fromString[F[_]: Sync](
+  def fromStream[F[_]](
+      input: fs2.Stream[F, Byte],
+      mountPoint: Path = Root / "doc",
+      targetFormats: TargetFormats = TargetFormats.All
+  ): BinaryInput[F] = {
+    new BinaryInput(input, mountPoint, targetFormats)
+  }
+
+  def fromString[F[_]](
       input: String,
       mountPoint: Path = Root / "doc",
       targetFormats: TargetFormats = TargetFormats.All
   ): BinaryInput[F] = {
     val stream = fs2.Stream.emit(input).through(fs2.text.utf8.encode)
-    BinaryInput(stream, mountPoint, targetFormats)
+    new BinaryInput(stream, mountPoint, targetFormats)
   }
 
   def fromFile[F[_]: Async](
@@ -59,8 +76,8 @@ object BinaryInput {
       mountPoint: Path = Root / "doc",
       targetFormats: TargetFormats = TargetFormats.All
   ): BinaryInput[F] = {
-    val stream = Files[F].readAll(file.toFS2Path)
-    BinaryInput(stream, mountPoint, targetFormats, Some(file))
+    val stream = Files.forAsync[F].readAll(file.toFS2Path)
+    new BinaryInput(stream, mountPoint, targetFormats, Some(file))
   }
 
   def fromInputStream[F[_]: Sync](
@@ -70,7 +87,7 @@ object BinaryInput {
       targetFormats: TargetFormats = TargetFormats.All
   ): BinaryInput[F] = {
     val input = fs2.io.readInputStream(stream, 64 * 1024, autoClose)
-    BinaryInput(input, mountPoint, targetFormats)
+    new BinaryInput(input, mountPoint, targetFormats)
   }
 
   def fromClassResource[F[_]: Async, T: ClassTag](
@@ -79,7 +96,7 @@ object BinaryInput {
       targetFormats: TargetFormats = TargetFormats.All
   ): BinaryInput[F] = {
     val stream = fs2.io.readClassResource[F, T](resource)
-    BinaryInput(stream, mountPoint, targetFormats)
+    new BinaryInput(stream, mountPoint, targetFormats)
   }
 
   def fromClassLoaderResource[F[_]: Async](
@@ -89,7 +106,7 @@ object BinaryInput {
       classLoader: ClassLoader = getClass.getClassLoader
   ): BinaryInput[F] = {
     val stream = fs2.io.readClassLoaderResource(resource, classLoader = classLoader)
-    BinaryInput(stream, mountPoint, targetFormats)
+    new BinaryInput(stream, mountPoint, targetFormats)
   }
 
 }

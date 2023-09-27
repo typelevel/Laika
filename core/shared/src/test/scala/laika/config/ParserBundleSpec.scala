@@ -19,19 +19,28 @@ package laika.config
 import laika.api.MarkupParser
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.TestSourceBuilders
-import laika.bundle._
-import laika.factory.MarkupFormat
-import laika.parse._
-import laika.parse.builders._
+import laika.bundle.*
+import laika.api.config.ConfigError.ParsingFailed
+import laika.api.format.MarkupFormat
+import MarkupFormat.MarkupParsers
+import laika.api.bundle.{
+  BlockParserBuilder,
+  ConfigHeaderParser,
+  ConfigProvider,
+  ExtensionBundle,
+  SpanParserBuilder
+}
+import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Origin }
+import laika.ast.styles.{ StyleDeclaration, StylePredicate }
+import laika.internal.parse.css.CSSParsers
+import laika.parse.*
+import laika.parse.builders.*
 import laika.parse.combinator.Parsers
-import laika.parse.css.CSSParsers
-import laika.parse.directive.ConfigHeaderParser
-import laika.parse.implicits._
-import laika.parse.markup.DocumentParser.DocumentInput
+import laika.parse.syntax.*
 import laika.parse.text.TextParsers
-import laika.rewrite.ReferenceResolver.CursorKeys
+import laika.internal.rewrite.ReferenceResolver.CursorKeys
 import munit.FunSuite
 
 trait ParserSetup {
@@ -51,8 +60,12 @@ trait ParserSetup {
 
     new MarkupFormat {
       val fileSuffixes    = Set("foo")
-      val blockParsers    = blocks
-      val spanParsers     = spans
+      val blockParsers    = new MarkupParsers[BlockParserBuilder] {
+        val all: Seq[BlockParserBuilder] = blocks
+      }
+      val spanParsers     = new MarkupParsers[SpanParserBuilder] {
+        val all: Seq[SpanParserBuilder] = spans
+      }
       lazy val extensions = bundles
     }
 
@@ -81,7 +94,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
       |bbb
     """.stripMargin
 
-  case class DecoratedBlock(deco: Char, content: Seq[Span], options: Options = NoOpt) extends Block
+  case class DecoratedBlock(deco: Char, content: Seq[Span], options: Options = Options.empty)
+      extends Block
       with SpanContainer {
     type Self = DecoratedBlock
     def withContent(newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
@@ -91,7 +105,7 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
   def blockFor(deco: Char): BlockParserBuilder = blockFor(deco, deco)
 
   def blockFor(deco: Char, overrideDeco: Char): BlockParserBuilder =
-    BlockParser.withSpans { spanParsers =>
+    BlockParserBuilder.withSpans { spanParsers =>
       builders.oneOf(deco) ~> spanParsers.recursiveSpans(defaultTextBlockParser).map(
         DecoratedBlock(overrideDeco, _)
       )
@@ -100,9 +114,8 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
   def doc(blocks: (Char, String)*): Document =
     Document(
       Root / "doc",
-      RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) }),
-      config = defaultDocConfig
-    )
+      RootElement(blocks.map { case (deco, text) => DecoratedBlock(deco, Seq(Text(text))) })
+    ).withConfig(defaultDocConfig)
 
   test("merge parsers from a host language with parsers from an app extension") {
     val format = createParser(blocks = Seq(blockFor('>')))
@@ -145,7 +158,7 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
 
     val bundle = BundleProvider.forMarkupParser(blockParsers =
       Seq(
-        BlockParser.standalone(literal("+").map(_ => Rule())).withLowPrecedence
+        BlockParserBuilder.standalone(literal("+").map(_ => Rule())).withLowPrecedence
       )
     )
 
@@ -159,16 +172,16 @@ class BlockParserConfigSpec extends FunSuite with ParserSetup {
 
 class SpanParserConfigSpec extends FunSuite with ParserSetup {
 
-  import TextParsers._
+  import TextParsers.*
 
   val input = ">aaa +bbb"
 
-  val blockParsers: Seq[BlockParserBuilder] = Seq(BlockParser.withSpans { spanParsers =>
+  val blockParsers: Seq[BlockParserBuilder] = Seq(BlockParserBuilder.withSpans { spanParsers =>
     spanParsers.recursiveSpans(defaultTextBlockParser).map(Paragraph(_))
   })
 
   case class DecoratedSpan(deco: Char, text: String) extends Span {
-    val options: Options = NoOpt
+    val options: Options = Options.empty
     type Self = DecoratedSpan
     def withOptions(options: Options): DecoratedSpan = this
   }
@@ -176,7 +189,7 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
   def spanFor(deco: Char): SpanParserBuilder = spanFor(deco, deco)
 
   def spanFor(deco: Char, overrideDeco: Char): SpanParserBuilder =
-    SpanParser.standalone {
+    SpanParserBuilder.standalone {
       (deco.toString ~> anyNot(' ') <~ opt(" ")).map(DecoratedSpan(overrideDeco, _))
     }
 
@@ -187,9 +200,8 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
         Paragraph(
           spans.map { case (deco, text) => DecoratedSpan(deco, text) }
         )
-      ),
-      config = defaultDocConfig
-    )
+      )
+    ).withConfig(defaultDocConfig)
 
   def parser(spans: SpanParserBuilder*): MarkupFormat = createParser(
     spans = spans,
@@ -237,7 +249,7 @@ class SpanParserConfigSpec extends FunSuite with ParserSetup {
 
     val bundle = BundleProvider.forMarkupParser(spanParsers =
       Seq(
-        SpanParser.standalone(literal("+").map(Text(_))).withLowPrecedence
+        SpanParserBuilder.standalone(literal("+").map(Text(_))).withLowPrecedence
       )
     )
 
@@ -253,37 +265,36 @@ class ParserHookSpec extends FunSuite with ParserSetup {
 
   def parserBuilder(bundles: ExtensionBundle*): laika.api.builder.ParserBuilder = MarkupParser.of(
     createParser(
-      blocks = Seq(BlockParser.standalone {
+      blocks = Seq(BlockParserBuilder.standalone {
         TextParsers.textLine.map(Paragraph(_))
       }),
       bundles = bundles
     )
   )
 
-  def preProcess(append: String): DocumentInput => DocumentInput = { input =>
-    val raw = input.source.input
-    input.copy(source = SourceCursor(raw + append, input.path))
+  def preProcess(append: String): String => String = { raw =>
+    raw + append
   }
 
   def appendString(root: RootElement, append: String): RootElement =
-    root.copy(content = root.content.map { case Paragraph(Seq(Text(text, _)), _) =>
+    root.copy(content = root.content.collect { case Paragraph(Seq(Text(text, _)), _) =>
       Paragraph(text + append)
     })
 
   def processDoc(append: String): UnresolvedDocument => UnresolvedDocument = { unresolved =>
     unresolved.copy(document =
-      unresolved.document.copy(content = appendString(unresolved.document.content, append))
+      unresolved.document.withContent(appendString(unresolved.document.content, append))
     )
   }
 
   def processBlocks(append: String): Seq[Block] => Seq[Block] = { blocks =>
-    blocks map { case Paragraph(Seq(Text(text, _)), _) =>
+    blocks.collect { case Paragraph(Seq(Text(text, _)), _) =>
       Paragraph(text + append)
     }
   }
 
   def doc(text: String): Document =
-    Document(Root / "doc", RootElement(text), config = defaultDocConfig)
+    Document(Root / "doc", RootElement(text)).withConfig(defaultDocConfig)
 
   test(
     "preProcessInput - apply the hook from a parser extension before the hook in an app extension"
@@ -400,7 +411,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
     .parse(input) match {
       case Success(builderRoot, _) =>
         builderRoot.resolve(Origin.root, Config.empty, Map.empty)
-      case f: Failure              => Left(ConfigParserError(f))
+      case f: Failure              => Left(ParsingFailed(f))
     }
 
   private val expectedConfig = ConfigBuilder.empty.withValue("foo", 7).build
@@ -436,7 +447,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
     val input = "[[\nfoo: 7\n]]"
 
     parseWith(createConfig(createParser()), input) match {
-      case Left(ConfigParserError(f)) =>
+      case Left(ParsingFailed(f)) =>
         assertEquals(
           f.toString,
           """[1.1] failure: `{%' expected but `[[` found
@@ -444,7 +455,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
             |[[
             |^""".stripMargin
         )
-      case other                      => fail(s"Unexpected result: $other")
+      case other                  => fail(s"Unexpected result: $other")
     }
   }
 

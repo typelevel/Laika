@@ -161,10 +161,10 @@ Let's walk through the implementation of our little ticket directive:
 
 ```scala mdoc:silent
 import laika.ast._
-import laika.directive.Spans
-import Spans.dsl._
+import laika.api.bundle.SpanDirectives
+import SpanDirectives.dsl._
 
-val ticketDirective = Spans.create("ticket") {
+val ticketDirective = SpanDirectives.create("ticket") {
   attribute(0).as[Int].map { ticketNo => 
     val url = s"http://our-tracker.com/$ticketNo"
     SpanLink(Seq(Text("#" + ticketNo)), ExternalTarget(url))
@@ -200,7 +200,7 @@ This is a sub-trait of `ExtensionBundle`.
 For our case we only need to register our ticket directive, which is a span directive: 
 
 ```scala mdoc
-import laika.directive.DirectiveRegistry
+import laika.api.bundle.DirectiveRegistry
 
 object MyDirectives extends DirectiveRegistry {
   val spanDirectives = Seq(ticketDirective)
@@ -217,15 +217,13 @@ Finally we need to register our registry together with any built-in extensions y
 @:choice(sbt)
 ```scala mdoc:invisible
 import laika.sbt.LaikaPlugin.autoImport._
-import sbt.Keys._
-import sbt._
 ```
 
 ```scala mdoc:compile-only
-import laika.markdown.github.GitHubFlavor
+import laika.format.Markdown
 
 laikaExtensions := Seq(
-  GitHubFlavor,
+  Markdown.GitHubFlavor,
   MyDirectives
 )
 ```
@@ -234,12 +232,11 @@ laikaExtensions := Seq(
 ```scala mdoc:silent
 import laika.api._
 import laika.format._
-import laika.markdown.github.GitHubFlavor
 
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .using(MyDirectives)
   .build
 ```
@@ -258,10 +255,10 @@ provided alongside the expected attribute value:
 ```scala mdoc:silent
 import cats.syntax.all._
 import laika.ast._
-import laika.directive.Spans
-import Spans.dsl._
+import laika.api.bundle.SpanDirectives
+import SpanDirectives.dsl._
 
-val spanDirective = Spans.create("ticket") {
+val spanDirective = SpanDirectives.create("ticket") {
   (attribute(0).as[Int], cursor, source).mapN { (num, cursor, source) => 
     cursor.config.get[String]("ticket.baseURL").fold(
       error   => InvalidSpan(s"Invalid base URL: $error", source),
@@ -301,7 +298,7 @@ laikaConfig := LaikaConfig.defaults
 val transformer = Transformer
   .from(Markdown)
   .to(HTML)
-  .using(GitHubFlavor)
+  .using(Markdown.GitHubFlavor)
   .withConfigValue("ticket.baseURL", "https://example.com/issues")
   .build
 ```
@@ -347,7 +344,7 @@ Combinators:
 Combinator Example:
 
 ```scala mdoc:compile-only
-val ticketDirective = Spans.create("directive-name") {
+val ticketDirective = SpanDirectives.create("directive-name") {
   attribute(0).as[Int].map { ticketNo => 
     ??? // produce AST span node
   }
@@ -388,7 +385,7 @@ Combinator Example:
 We'll use the `allAttributes` combinator together with the one for accessing body elements:
 
 ```scala mdoc:compile-only
-val directive = Spans.create("custom") {
+val directive = SpanDirectives.create("custom") {
   (allAttributes, parsedBody).mapN { (attributes, bodyContent) => 
     val path = attributes.getOpt[Path]("filePath")
     val index = attributes.getOpt[Int]("index")
@@ -478,7 +475,7 @@ Combinators:
 Combinator Example:
 
 ```scala mdoc:compile-only
-val directive = Spans.create("custom") {
+val directive = SpanDirectives.create("custom") {
   (attribute("name"), parsedBody).mapN { (nameAttribute, bodyContent) => 
     ??? // produce AST span node, bodyContent will be Seq[Span] here
   }
@@ -493,7 +490,7 @@ You can request access to the parser of the host language with all extensions th
 with an overload of the `parsedBody` combinator:
 
 ```scala mdoc:compile-only
-import laika.parse.implicits._
+import laika.parse.syntax._
 import laika.parse.text.TextParsers._
 
 val bodyPart = parsedBody { recParsers =>
@@ -549,9 +546,9 @@ The directive implementation you need to provide is then merely a simple functio
 Example:
 
 ```scala mdoc:compile-only
-import laika.directive.Links
+import laika.api.bundle.LinkDirectives
 
-val directive = Links.create("github") { (path, _) =>
+val directive = LinkDirectives.create("github") { (path, _) =>
   val url = s"https://github.com/our-project/$path"
   SpanLink(Seq(Text(s"GitHub ($path)")), ExternalTarget(url))
 }
@@ -610,7 +607,7 @@ only that you call `separator` instead of `create`:
 ```scala mdoc:silent
 case class Child (content: Seq[Span])
 
-val sepDir = Spans.separator("child", min = 1) { parsedBody.map(Child) }   
+val sepDir = SpanDirectives.separator("child", min = 1) { parsedBody.map(Child) }   
 ```
 
 Here you specify the name of the directive `child`, as well as that it has to be present in 
@@ -621,7 +618,7 @@ in this case only the `parsedBody` that you map to the `Child` type.
 Now you can use this directive in the parent:
 
 ```scala mdoc:compile-only
-val directive = Spans.create("parent") { 
+val directive = SpanDirectives.create("parent") { 
   separatedBody(Seq(sepDir)) map { multipart =>
     val seps = multipart.children.flatMap { sep => 
       Text("Child: ") +: sep.content 

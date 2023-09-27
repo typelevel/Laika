@@ -16,8 +16,8 @@
 
 package laika.io.ops
 
-import cats.implicits._
-import cats.effect.Sync
+import cats.Monad
+import cats.syntax.all.*
 import laika.ast.{ Document, DocumentTree, TreeContent }
 import laika.io.model.ParsedTree
 
@@ -31,16 +31,16 @@ import laika.io.model.ParsedTree
   *
   * @author Jens Halm
   */
-abstract class TreeMapperOps[F[_]: Sync] {
-
-  val F: Sync[F] = Sync[F]
+private[laika] abstract class TreeMapperOps[F[_]: Monad] {
 
   type MapRes
 
   /** Creates a new transformer that applies the specified function to each document in the parsed tree
     * before rendering.
     */
-  def mapDocuments(f: Document => Document): MapRes = evalMapDocuments(f.andThen(F.pure))
+  def mapDocuments(f: Document => Document): MapRes = evalMapDocuments(
+    f.andThen(Monad[F].pure)
+  )
 
   /** Creates a new transformer that applies the specified effectful function to each document in the parsed tree
     * before rendering.
@@ -52,19 +52,21 @@ abstract class TreeMapperOps[F[_]: Sync] {
         case tree: DocumentTree => mapTree(tree).widen[TreeContent]
       }
       newTitle   <- tree.titleDocument.traverse(f)
-    } yield tree.copy(content = newContent, titleDocument = newTitle)
+    } yield tree.replaceContent(newContent).withTitleDocument(newTitle)
 
     for {
       mappedTree  <- mapTree(parsed.root.tree)
       mappedCover <- parsed.root.coverDocument.traverse(f)
-    } yield parsed.modifyRoot(_.copy(tree = mappedTree, coverDocument = mappedCover))
+    } yield parsed.modifyRoot(_.modifyTree(_ => mappedTree).withCoverDocument(mappedCover))
 
   }
 
   /** Creates a new transformer that applies the specified function to the parsed tree
     * before rendering.
     */
-  def mapTree(f: ParsedTree[F] => ParsedTree[F]): MapRes = evalMapTree(f.andThen(F.pure))
+  def mapTree(f: ParsedTree[F] => ParsedTree[F]): MapRes = evalMapTree(
+    f.andThen(Monad[F].pure)
+  )
 
   /** Creates a new transformer that applies the specified effectful function to the parsed tree
     * before rendering.

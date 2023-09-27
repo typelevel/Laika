@@ -16,27 +16,24 @@
 
 package laika.parse.text
 
-import laika.parse.SourceCursor
-import laika.parse.markup.DocumentParser.DocumentInput
-
 /** Processes whitespace, removing or replacing most whitespace characters except
-  *  for newline and space.
+  * for newline and space.
   *
-  *  It modifies string input in the following ways:
+  * It modifies string input in the following ways:
   *
-  *  - Replaces all occurrences of tabs with the corresponding number of spaces,
-  *    depending on the column the tab is placed in and the configured `tabStops` value.
+  * - Replaces all occurrences of tabs with the corresponding number of spaces,
+  *   depending on the column the tab is placed in and the configured `tabStops` value.
   *
-  *  - Removes any return character.
+  * - Removes any return character.
   *
-  *  - Replaces form feed and vertical tab with spaces.
+  * - Replaces form feed and vertical tab with spaces.
   *
-  *  The processor should run on text input before it is passed to the actual
-  *  parsers as they would not be able to deal with tabs properly.
+  * The processor should run on text input before it is passed to the actual
+  * parsers as they would not be able to deal with tabs properly.
   *
   * @author Jens Halm
   */
-class WhitespacePreprocessor extends (String => String) {
+class WhitespacePreprocessor private[text] extends (String => String) {
 
   /** The number of columns between tab stops.
     */
@@ -91,15 +88,5 @@ object WhitespacePreprocessor {
   /** Processes all whitespace in the specified string.
     */
   val forString: String => String = new WhitespacePreprocessor
-
-  /** Processes the specified Input instance and returns
-    * a new instance with the same path, but all whitespace
-    * pre-processed.
-    */
-  val forInput: DocumentInput => DocumentInput = { input =>
-    val raw          = input.source.input
-    val preprocessed = forString(raw.toString)
-    input.copy(source = SourceCursor(preprocessed, input.path))
-  }
 
 }

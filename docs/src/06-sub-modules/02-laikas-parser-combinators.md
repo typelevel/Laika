@@ -67,9 +67,8 @@ way to define text parsers, in particular with larger, more complex expressions.
 For defining parsers you usually need at least the following imports:
 
 ```scala mdoc:silent
-import laika.ast.~
 import laika.parse.builders._
-import laika.parse.implicits._
+import laika.parse.syntax._
 ```
 
 When working with character groups this additional import can be used:
@@ -171,7 +170,7 @@ In many cases we are only interested in one of the results of a concatenation,
 when some of the results are known for example.
 The `~>` combinator ignores the left result, `<~` ignores the right one: 
 
-```scala mdoc:nest:silent
+```scala mdoc:compile-only
 val p = "<" ~> someOf(range('a', 'z')) <~ ">"
 ```
 
@@ -382,7 +381,7 @@ import laika.ast.Span
 import laika.parse.markup.InlineParsers
 import laika.parse.text.PrefixedParser
 
-val nestedSpanParsers: Seq[PrefixedParser[Span]] = ???
+def nestedSpanParsers: Seq[PrefixedParser[Span]] = ???
 val linkSpanParser = delimitedBy("]").failOn('\n')
 
 "[" ~> InlineParsers.spans(linkSpanParser).embedAll(nestedSpanParsers)

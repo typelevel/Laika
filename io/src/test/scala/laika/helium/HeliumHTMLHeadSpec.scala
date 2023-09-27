@@ -18,27 +18,34 @@ package laika.helium
 
 import cats.effect.{ Async, IO, Resource }
 import laika.api.{ MarkupParser, Renderer, Transformer }
-import laika.ast.{ /, Path }
+import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.LaikaKeys
+import laika.config.LinkValidation
 import laika.format.{ HTML, Markdown }
 import laika.helium.config.Favicon
 import laika.io.api.{ TreeParser, TreeRenderer, TreeTransformer }
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps, TestThemeBuilder }
-import laika.io.implicits._
-import laika.io.model.{ InputTree, StringTreeOutput }
-import laika.rewrite.link.LinkConfig
-import laika.rewrite.{ Version, Versions }
-import laika.theme._
-import laika.theme.config.{ Font, FontDefinition, FontStyle, FontWeight }
+import laika.io.syntax.*
+import laika.io.model.InputTree
+import laika.theme.ThemeProvider
+import laika.theme.config.{
+  CrossOrigin,
+  Font,
+  FontDefinition,
+  FontStyle,
+  FontWeight,
+  ScriptAttributes,
+  StyleAttributes
+}
 import munit.CatsEffectSuite
 
 class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultExtractor
+    with TestVersions
     with StringOps {
 
   val parser: Resource[IO, TreeParser[IO]] = MarkupParser
     .of(Markdown)
-    .withConfigValue(LinkConfig(excludeFromValidation = Seq(Root)))
+    .using(Markdown.GitHubFlavor)
     .parallel[IO]
     .build
 
@@ -56,10 +63,14 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     r <- renderer
   } yield (p, r)
 
-  def transformer(theme: ThemeProvider): Resource[IO, TreeTransformer[IO]] = Transformer
+  def transformer(
+      theme: ThemeProvider,
+      validation: LinkValidation = LinkValidation.Local
+  ): Resource[IO, TreeTransformer[IO]] = Transformer
     .from(Markdown)
     .to(HTML)
-    .withConfigValue(LaikaKeys.links.child("excludeFromValidation"), Seq("/"))
+    .using(Markdown.GitHubFlavor)
+    .withConfigValue(validation)
     .parallel[IO]
     .withTheme(theme)
     .build
@@ -90,30 +101,17 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   val meta = s"""<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 |<meta charset="utf-8">
                 |<meta name="viewport" content="width=device-width, initial-scale=1.0">
-                |<meta name="generator" content="Laika ${
-                 LaikaVersion.value
-               } + Helium Theme" />""".stripMargin
+                |<meta name="generator" content="Typelevel Laika + Helium Theme" />""".stripMargin
 
   val defaultResult =
     meta ++ """
               |<title></title>
               |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
               |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-              |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-              |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-              |<script src="helium/laika-helium.js"></script>
+              |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+              |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+              |<script src="helium/site/laika-helium.js"></script>
               |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-
-  val versions = Versions(
-    Version("0.42.x", "0.42"),
-    Seq(
-      Version("0.41.x", "0.41"),
-      Version("0.40.x", "0.40", fallbackLink = "toc.html")
-    ),
-    Seq(
-      Version("0.43.x", "0.43")
-    )
-  )
 
   val heliumBase = Helium.defaults.site.landingPage()
 
@@ -123,10 +121,11 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   def transformAndExtractHead(
       inputs: Seq[(Path, String)],
       helium: Helium,
-      underTest: Path = Root / "name.html"
-  ): IO[String] = transformer(helium.build).use { t =>
+      underTest: Path = Root / "name.html",
+      validation: LinkValidation = LinkValidation.Local
+  ): IO[String] = transformer(helium.build, validation).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedTagContent(underTest, "head")
           .toRight(new RuntimeException("Missing document under test"))
@@ -141,7 +140,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       end: String
   ): IO[String] = transformer(helium.build).use { t =>
     for {
-      resultTree <- t.fromInput(build(inputs)).toOutput(StringTreeOutput).transform
+      resultTree <- t.fromInput(build(inputs)).toMemory.transform
       res        <- IO.fromEither(
         resultTree.extractTidiedSubstring(Root / "name.html", start, end)
           .toRight(new RuntimeException("Missing document under test"))
@@ -152,7 +151,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   test("Helium defaults via separate parser and renderer") {
     parserAndRenderer.use { case (p, r) =>
       p.fromInput(build(singleDocPlusHome)).parse.flatMap { tree =>
-        r.from(tree.root).toOutput(StringTreeOutput).render
+        r.from(tree.root).toMemory.render
       }
     }
       .map(_.extractTidiedSubstring(Root / "name.html", "<head>", "</head>"))
@@ -172,27 +171,37 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, heliumBase).assertEquals(defaultResult)
   }
 
-  test("custom CSS and JS files") {
+  test("internal CSS and JS resources, some using conditions") {
     val inputs   = Seq(
-      Root / "name.md"         -> "text",
-      Root / "web" / "foo.js"  -> "",
-      Root / "web" / "foo.css" -> ""
+      Root / "name.md"            -> "text",
+      Root / "web-1" / "foo-1.js" -> "",
+      Root / "web-1" / "foo-2.js" -> "",
+      Root / "web-1" / "foo.css"  -> "",
+      Root / "web-2" / "bar.js"   -> "",
+      Root / "web-2" / "bar.css"  -> ""
     )
+    val helium   = heliumBase
+      .site.internalJS(Root / "web-1", condition = _.path.name == "name.md")
+      .site.internalJS(Root / "web-2", condition = _.path.name == "none.md")
+      .site.internalCSS(Root / "web-1", condition = _.path.name == "name.md")
+      .site.internalCSS(Root / "web-2", condition = _.path.name == "none.md")
     val expected =
-      meta ++ """
-                |<title></title>
-                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<link rel="stylesheet" type="text/css" href="web/foo.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="web/foo.js"></script>
-                |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
+      meta ++
+        """
+          |<title></title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="web-1/foo.css" />
+          |<script src="helium/site/laika-helium.js"></script>
+          |<script src="web-1/foo-1.js"></script>
+          |<script src="web-1/foo-2.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
 
-  test("custom CSS and JS files, including a file from a theme extension") {
+  test("internal CSS and JS resources, including a file from a theme extension") {
     val inputs                               = Seq(
       Root / "name.md"         -> "text",
       Root / "web" / "foo.js"  -> "",
@@ -201,44 +210,86 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     val themeInputs: TestThemeBuilder.Inputs = new TestThemeBuilder.Inputs {
       def build[G[_]: Async] = InputTree[G].addString("", Root / "theme" / "bar.css")
     }
-    val themeExt                             = TestThemeBuilder.forInputs(themeInputs)
-    val expected                             =
-      meta ++ """
-                |<title></title>
-                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
-                |<link rel="stylesheet" type="text/css" href="web/foo.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="web/foo.js"></script>
-                |<script> /* for avoiding page load transitions */ </script>""".stripMargin
-    transformAndExtractHead(inputs, heliumBase.extendWith(themeExt)).assertEquals(expected)
+
+    val themeExt = TestThemeBuilder.forInputs(themeInputs)
+    val helium   = heliumBase
+      .site.internalCSS(Root / "theme")
+      .site.internalJS(Root / "web")
+      .site.internalCSS(Root / "web")
+    val expected =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<link rel="stylesheet" type="text/css" href="theme/bar.css" />
+          |<link rel="stylesheet" type="text/css" href="web/foo.css" />
+          |<script src="helium/site/laika-helium.js"></script>
+          |<script src="web/foo.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium.extendWith(themeExt)).assertEquals(expected)
   }
 
-  test("custom configuration for CSS and JS file locations") {
-    val inputs   = Seq(
-      Root / "name.md"                -> "text",
-      Root / "web" / "foo.js"         -> "",
-      Root / "web" / "foo.css"        -> "",
-      Root / "custom-js" / "foo.js"   -> "",
-      Root / "custom-css" / "foo.css" -> ""
+  test("external CSS and JS resources, using attribute properties") {
+    val inputs           = Seq(
+      Root / "name.md" -> "text"
     )
+    val scriptAttributes =
+      ScriptAttributes.defaults.defer.withIntegrity("xyz").withCrossOrigin(CrossOrigin.Anonymous)
+    val styleAttributes  =
+      StyleAttributes.defaults.withIntegrity("xyz").withCrossOrigin(CrossOrigin.Anonymous)
+    val helium           = heliumBase
+      .site.externalJS("https://foo.com/script.js", scriptAttributes)
+      .site.externalCSS("https://foo.com/styles.css", styleAttributes)
+    val expected         =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="https://foo.com/styles.css" integrity="xyz" crossorigin="anonymous" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<script src="https://foo.com/script.js" defer integrity="xyz" crossorigin="anonymous"></script>
+          |<script src="helium/site/laika-helium.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test("inline styles and script") {
+    val inputs   = Seq(
+      Root / "name.md" -> "text"
+    )
+    val script   =
+      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        |mermaid.initialize({ startOnLoad: true });""".stripMargin
+    val styles   =
+      """h1 {
+        |  color: #111111;
+        |}""".stripMargin
     val helium   = heliumBase
-      .site.autoLinkCSS(Root / "custom-css")
-      .site.autoLinkJS(Root / "custom-js")
+      .site.inlineJS(script, isModule = true)
+      .site.inlineCSS(styles)
     val expected =
-      meta ++ """
-                |<title></title>
-                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
-                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<link rel="stylesheet" type="text/css" href="custom-css/foo.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="custom-js/foo.js"></script>
-                |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+      meta ++
+        s"""
+           |<title></title>
+           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+           |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+           |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+           |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+           |<style>
+           |h1 {
+           |color: #111111;
+           |}
+           |</style>
+           |<script src="helium/site/laika-helium.js"></script>
+           |<script type="module">
+           |$script
+           |</script>
+           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
   }
 
@@ -255,9 +306,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<meta name="description" content="Some description"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
@@ -276,9 +327,9 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<link rel="canonical" href="http://very.canonical/"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(docWithCanonicalLink, heliumBase).assertEquals(expected)
   }
@@ -302,11 +353,38 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<link rel="icon"  type="image/svg+xml" href="icon.svg"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium).assertEquals(expected)
+  }
+
+  test("favicons with explicit target formats") {
+    val inputs   = Seq(
+      Root / "name.md"                 -> "text",
+      Root / "site" / "directory.conf" -> "laika.targetFormats = [html]",
+      Root / "site" / "icon-1.png"     -> "",
+      Root / "site" / "icon-2.png"     -> ""
+    )
+    val helium   = heliumBase.site.favIcons(
+      Favicon.internal(Root / "site" / "icon-1.png", "32x32"),
+      Favicon.internal(Root / "site" / "icon-2.png", "64x64")
+    )
+    val expected =
+      meta ++
+        """
+          |<title></title>
+          |<link rel="icon" sizes="32x32" type="image/png" href="site/icon-1.png"/>
+          |<link rel="icon" sizes="64x64" type="image/png" href="site/icon-2.png"/>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<script src="helium/site/laika-helium.js"></script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(inputs, helium, validation = LinkValidation.Global())
+      .assertEquals(expected)
   }
 
   test("unversioned favicons in a versioned input tree") {
@@ -332,25 +410,25 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<link rel="icon" sizes="64x64" type="image/png" href="../../img/icon-2.png"/>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="../helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="../helium/laika-helium.css" />
-                |<script src="../helium/laika-helium.js"></script>
-                |<script src="../helium/laika-versions.js"></script>
+                |<link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+                |<script src="../helium/site/laika-helium.js"></script>
+                |<script src="../helium/site/laika-versions.js"></script>
                 |<script>initVersions("../../", "/dir/name.html", "0.42", null);</script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
   }
 
   test("custom web fonts") {
-    val helium   = heliumBase.site.fontResources(
+    val helium   = heliumBase.site.addFontResources(
       FontDefinition(
-        Font.webCSS("http://fonts.com/font-1.css"),
+        Font.withWebCSS("http://fonts.com/font-1.css"),
         "Font-1",
         FontWeight.Normal,
         FontStyle.Normal
       ),
       FontDefinition(
-        Font.webCSS("http://fonts.com/font-2.css"),
+        Font.withWebCSS("http://fonts.com/font-2.css"),
         "Font-2",
         FontWeight.Normal,
         FontStyle.Normal
@@ -361,34 +439,24 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
                 |<title></title>
                 |<link rel="stylesheet" href="http://fonts.com/font-1.css">
                 |<link rel="stylesheet" href="http://fonts.com/font-2.css">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
   test("version menu on a versioned page") {
-    val versions = Versions(
-      Version("0.42.x", "0.42"),
-      Seq(
-        Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", fallbackLink = "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43")
-      )
-    )
     val helium   = heliumBase.site.versions(versions).site.baseURL("https://foo.org/")
     val expected =
       meta ++ """
                 |<title></title>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="helium/laika-versions.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
+                |<script src="helium/site/laika-versions.js"></script>
                 |<script>initVersions("../", "/name.html", "0.42", "https://foo.org/");</script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleVersionedDoc, helium, Root / "0.42" / "name.html").assertEquals(
@@ -397,36 +465,26 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("version menu on an unversioned page") {
-    val versions = Versions(
-      Version("0.42.x", "0.42"),
-      Seq(
-        Version("0.41.x", "0.41"),
-        Version("0.40.x", "0.40", fallbackLink = "toc.html")
-      ),
-      Seq(
-        Version("0.43.x", "0.43")
-      )
-    )
     val helium   = heliumBase.site.versions(versions)
     val expected =
       meta ++ """
                 |<title></title>
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
                 |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
-                |<link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-                |<link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
-                |<script src="helium/laika-helium.js"></script>
-                |<script src="helium/laika-versions.js"></script>
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
+                |<script src="helium/site/laika-versions.js"></script>
                 |<script>initVersions("", "", "", null);</script>
                 |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(singleDoc, helium).assertEquals(expected)
   }
 
-  test("title") {
+  test("title - ignoring markup") {
     val markup =
       """
-        |Title
-        |=====
+        |Title **1**
+        |===========
         |
         |Text
       """.stripMargin
@@ -434,7 +492,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> markup
     )
     transformAndExtractHead(inputs, heliumBase).map(_.extractTag("title")).assertEquals(
-      Some("Title")
+      Some("Title 1")
     )
   }
 
@@ -471,6 +529,51 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "helium" / "templates" / "head.template.html" -> "<head><title>XX ${cursor.currentDocument.title}</title></head>"
     )
     val expected = "<title>XX Title</title>"
+    transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
+  }
+
+  test("add mermaid initializer when document contains one or more mermaid diagrams") {
+    val markup   =
+      """
+        |Title
+        |=====
+        |
+        |```mermaid
+        |graph TD 
+        |A[Client] --> B[Load Balancer] 
+        |B --> C[Server01] 
+        |B --> D[Server02]
+        |```
+      """.stripMargin
+    val inputs   = Seq(
+      Root / "name.md" -> markup
+    )
+    val expected =
+      meta ++
+        """
+          |<title>Title</title>
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+          |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+          |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+          |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+          |<script src="helium/site/laika-helium.js"></script>
+          |<script type="module">
+          |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          |mermaid.initialize({
+          |startOnLoad: true,
+          |theme: "base",
+          |themeVariables: {
+          |'darkMode': dark,
+          |'primaryColor': dark ? '#125d75' : '#ebf6f7',
+          |'primaryTextColor': dark ? '#a7d4de' : '#007c99',
+          |'primaryBorderColor': dark ? '#a7d4de' : '#a7d4de',
+          |'lineColor': dark ? '#a7d4de' : '#007c99',
+          |'background': dark ? '#064458' : '#ffffff',
+          |}
+          |});
+          |</script>
+          |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
   }
 

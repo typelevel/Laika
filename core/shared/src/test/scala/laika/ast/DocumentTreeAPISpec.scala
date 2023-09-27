@@ -18,20 +18,11 @@ package laika.ast
 
 import cats.data.NonEmptyChain
 import laika.api.builder.OperationConfig
-import laika.config.{
-  ArrayValue,
-  Config,
-  ConfigParser,
-  DocumentConfigErrors,
-  InvalidType,
-  Key,
-  LongValue,
-  Origin,
-  TreeConfigErrors,
-  ValidationError
-}
+import laika.api.config.{ Config, ConfigParser, Key, Origin }
+import laika.api.config.ConfigError.{ DocumentErrors, InvalidType, TreeErrors, ValidationFailed }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
+import laika.ast.RewriteAction.Replace
 import laika.ast.sample.{
   BuilderKey,
   MunitDocumentTreeAssertions,
@@ -39,11 +30,13 @@ import laika.ast.sample.{
   SampleTrees,
   TestSourceBuilders
 }
-import laika.config.Config.ConfigResult
-import laika.config.Origin.{ DocumentScope, Scope, TreeScope }
+import laika.api.config.Config.ConfigResult
+import laika.api.config.ConfigValue.{ ArrayValue, LongValue }
+import laika.api.config.Origin.{ DocumentScope, Scope, TreeScope }
+import laika.config.MessageFilter
 import laika.format.HTML
-import laika.parse.GeneratedSource
-import laika.rewrite.{ OutputContext, TemplateRewriter }
+import laika.internal.rewrite.TemplateRewriter
+import laika.parse.SourceCursor
 import munit.FunSuite
 
 class DocumentTreeAPISpec extends FunSuite
@@ -63,17 +56,15 @@ class DocumentTreeAPISpec extends FunSuite
       root: RootElement,
       config: Option[String] = None
   ): DocumentTree = {
-    val doc = Document(path / name, root, config = createConfig(path / name, config))
-    if (name == "README") DocumentTree(path, Nil, titleDocument = Some(doc))
-    else DocumentTree(path, List(doc))
+    val doc = Document(path / name, root).withConfig(createConfig(path / name, config))
+    DocumentTree.builder
+      .addDocument(doc)
+      .build
   }
 
-  def treeWithTitleDoc(path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
-    DocumentTree(
-      path,
-      Nil,
-      Some(Document(path / "title", root, config = createConfig(path / "title", config)))
-    )
+  def treeWithTitleDoc(root: RootElement): DocumentTree =
+    DocumentTree.empty
+      .withTitleDocument(Document(Root / "title", root))
 
   def treeWithSubtree(
       path: Path,
@@ -82,14 +73,14 @@ class DocumentTreeAPISpec extends FunSuite
       root: RootElement,
       config: Option[String] = None
   ): DocumentTree =
-    DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
+    treeWithDoc(path / treeName, docName, root, config)
 
   def treeWithTwoSubtrees(
       contextRef: Option[String] = None,
       includeRuntimeMessage: Boolean = false
   ): DocumentTreeRoot = {
     val refNode                                 = contextRef.fold(Seq.empty[Span])(ref =>
-      Seq(MarkupContextReference(Key.parse(ref), required = false, GeneratedSource))
+      Seq(MarkupContextReference(Key.parse(ref), required = false, SourceCursor.Generated))
     )
     def targetRoot(key: BuilderKey): Seq[Block] = {
       val msgNode =
@@ -176,7 +167,7 @@ class DocumentTreeAPISpec extends FunSuite
 
   test("obtain the tree title from the title document if present") {
     val title = Seq(Text("Title"))
-    val tree  = treeWithTitleDoc(Root, RootElement(laika.ast.Title(title)))
+    val tree  = treeWithTitleDoc(RootElement(laika.ast.Title(title)))
     assertEquals(tree.title, Some(SpanSequence(title)))
   }
 
@@ -195,13 +186,12 @@ class DocumentTreeAPISpec extends FunSuite
     val title      = Seq(Text("from-content"))
     val treeConfig = createConfig(Root, Some("laika.title: from-config"), TreeScope)
     val docConfig  = createConfig(Root / "doc", Some("foo: bar")).withFallback(treeConfig)
-    val tree       = DocumentTree(
-      Root,
-      List(
-        Document(Root / "doc", RootElement(laika.ast.Title(title)), config = docConfig)
-      ),
-      config = treeConfig
-    )
+    val tree       = DocumentTree.builder
+      .addDocument(
+        Document(Root / "doc", RootElement(laika.ast.Title(title))).withConfig(docConfig)
+      )
+      .addConfig(treeConfig)
+      .build
     assertEquals(tree.content.head.title, Some(SpanSequence(title)))
   }
 
@@ -230,10 +220,9 @@ class DocumentTreeAPISpec extends FunSuite
   }
 
   test("allow to select a subtree in a child directory using a relative path") {
-    val tree     = treeWithSubtree(Root / "top", "sub", "doc", RootElement.empty)
-    val treeRoot = DocumentTree(Root, List(tree))
+    val tree = treeWithSubtree(Root / "top", "sub", "doc", RootElement.empty)
     assertEquals(
-      treeRoot.selectSubtree(CurrentTree / "top" / "sub").map(_.path),
+      tree.selectSubtree(CurrentTree / "top" / "sub").map(_.path),
       Some(Root / "top" / "sub")
     )
   }
@@ -254,7 +243,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: /main.template.html")
-    ).copy(templates = List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -267,7 +256,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.html.template: /main.template.html")
-    ).copy(templates = List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -280,7 +269,7 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: ../main.template.html")
-    ).copy(templates = List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(result, Right(Some(template)))
   }
@@ -293,11 +282,11 @@ class DocumentTreeAPISpec extends FunSuite
       "doc",
       RootElement.empty,
       Some("laika.template: ../missing.template.html")
-    ).copy(templates = List(template))
+    ).addTemplate(template)
     val result   = firstDocCursor(tree).flatMap(TemplateRewriter.selectTemplate(_, "html"))
     assertEquals(
       result,
-      Left(ValidationError("Template with path '/missing.template.html' not found"))
+      Left(ValidationFailed("Template with path '/missing.template.html' not found"))
     )
   }
 
@@ -410,8 +399,8 @@ class DocumentTreeAPISpec extends FunSuite
     )
   }
 
-  import BuilderKey._
-  val keys = Seq(Doc(1), Doc(2), Tree(1), Doc(3), Doc(4), Tree(2), Doc(5), Doc(6))
+  import BuilderKey.*
+  private val keys = Seq(Doc(1), Doc(2), Tree(1), Doc(3), Doc(4), Tree(2), Doc(5), Doc(6))
 
   test("provide all runtime messages in the tree") {
     val root     = leafDocCursor(includeRuntimeMessage = true).map(_.root.target)
@@ -438,9 +427,9 @@ class DocumentTreeAPISpec extends FunSuite
   test("fail if cursor creation fails due to invalid configuration entries") {
     val tree          =
       treeWithSubtree(Root, "sub", "doc", rootElement(p("a")), Some("laika.versioned: [1,2,3]"))
-    val expectedError = TreeConfigErrors(
+    val expectedError = TreeErrors(
       NonEmptyChain(
-        DocumentConfigErrors(
+        DocumentErrors(
           Root / "sub" / "doc",
           NonEmptyChain(
             InvalidType("Boolean", ArrayValue(List(LongValue(1), LongValue(2), LongValue(3))))
@@ -454,6 +443,22 @@ class DocumentTreeAPISpec extends FunSuite
       })
     }
     assertEquals(res, Left(expectedError))
+  }
+
+  test("adjust the path property of documents when appending to a DocumentTree") {
+    val treePath = Root / "tree-1"
+    val tree     = DocumentTree.builder
+      .addDocument(Document(treePath / "doc-1.md", RootElement.empty))
+      .addDocument(Document(treePath / "doc-2.md", RootElement.empty))
+      .build
+    val subTree  = tree.content.head.asInstanceOf[DocumentTree].appendContent(
+      Document(Root / "doc-3.md", RootElement.empty),
+      Document(Root / "doc-4.md", RootElement.empty)
+    )
+    val paths    = subTree.allDocuments.map(_.path)
+    val expected = (1 to 4).map(num => treePath / s"doc-$num.md")
+
+    assertEquals(paths, expected)
   }
 
 }

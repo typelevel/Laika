@@ -16,7 +16,7 @@
 
 package laika.api.builder
 
-import laika.factory.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
+import laika.api.format.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
 
 /** Builder API for Transformer instances.
   *
@@ -25,10 +25,9 @@ import laika.factory.{ MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
   *
   * @tparam FMT the formatter API to use which varies depending on the renderer
   * @tparam PP the type of the post processor
-  *
   * @author Jens Halm
   */
-class TwoPhaseTransformerBuilder[FMT, PP](
+class TwoPhaseTransformerBuilder[FMT, PP] private[api] (
     val markupFormat: MarkupFormat,
     val twoPhaseRenderFormat: TwoPhaseRenderFormat[FMT, PP],
     val config: OperationConfig

@@ -17,12 +17,14 @@
 package laika.parse.code.common
 
 import cats.data.NonEmptyList
+import laika.api.bundle.SyntaxHighlighter
 import laika.ast.CodeSpan
-import laika.bundle.SyntaxHighlighter
 import laika.parse.Parser
-import laika.parse.builders._
+import laika.parse.builders.*
+import laika.parse.code.common.Identifier.IdParser
+import laika.parse.code.common.NumberLiteral.NumericParser
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.implicits._
+import laika.parse.syntax.*
 import laika.parse.text.CharGroup
 import munit.FunSuite
 
@@ -33,7 +35,11 @@ class CommonSyntaxParserSpec extends FunSuite {
   val rule: CodeSpanParser =
     CodeSpanParser.onLineStart(CodeCategory.Markup.Fence)(literal("===").source)
 
-  private def createParser(allowLetterAfterNumber: Boolean = false): Parser[Seq[CodeSpan]] =
+  private def createParser(
+      tweakNumeric: NumericParser => NumericParser = identity(_),
+      tweakId: IdParser => IdParser = identity(_)
+  ): Parser[Seq[CodeSpan]] = {
+
     new SyntaxHighlighter {
       val language: NonEmptyList[String] = NonEmptyList.of("test-lang")
 
@@ -59,22 +65,23 @@ class CommonSyntaxParserSpec extends FunSuite {
           StringLiteral.Substitution.between("${", "}"),
           StringLiteral.Substitution(("$" ~ someOf(CharGroup.alphaNum.add('_'))).source)
         ),
-        Identifier.alphaNum.withIdStartChars('_', '$').withCategoryChooser(
-          Identifier.upperCaseTypeName
-        ).copy(allowDigitBeforeStart = allowLetterAfterNumber),
-        NumberLiteral.binary.withUnderscores.withSuffix(NumericSuffix.long),
-        NumberLiteral.octal.withUnderscores.withSuffix(NumericSuffix.long),
-        NumberLiteral.hexFloat.withUnderscores.withSuffix(NumericSuffix.float),
-        NumberLiteral.hex.withUnderscores.withSuffix(NumericSuffix.long),
-        NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumericSuffix.float).copy(
-          allowFollowingLetter = allowLetterAfterNumber
+        tweakId(
+          Identifier.alphaNum.withIdStartChars('_', '$').withCategoryChooser(
+            Identifier.upperCaseTypeName
+          )
         ),
-        NumberLiteral.decimalInt.withUnderscores.withSuffix(NumericSuffix.long).copy(
-          allowFollowingLetter = allowLetterAfterNumber
-        )
+        NumberLiteral.binary.withUnderscores.withSuffix(NumberLiteral.suffix.long),
+        NumberLiteral.octal.withUnderscores.withSuffix(NumberLiteral.suffix.long),
+        NumberLiteral.hexFloat.withUnderscores.withSuffix(NumberLiteral.suffix.float),
+        NumberLiteral.hex.withUnderscores.withSuffix(NumberLiteral.suffix.long),
+        tweakNumeric(
+          NumberLiteral.decimalFloat.withUnderscores.withSuffix(NumberLiteral.suffix.float)
+        ),
+        tweakNumeric(NumberLiteral.decimalInt.withUnderscores.withSuffix(NumberLiteral.suffix.long))
       )
 
     }.rootParser
+  }
 
   val defaultParser: Parser[Seq[CodeSpan]] = createParser()
 
@@ -226,7 +233,9 @@ class CommonSyntaxParserSpec extends FunSuite {
     "recognize a number immediately followed by a letter if explicitly allowed (e.g. for numbers with unit like in CSS)"
   ) {
     assertEquals(
-      createParser(allowLetterAfterNumber = true).parse(s"one1 123bb three3").toEither,
+      createParser(_.allowLetterAfterEnd, _.allowDigitBeforeStart).parse(
+        s"one1 123bb three3"
+      ).toEither,
       Right(
         Seq(
           CodeSpan("one1", CodeCategory.Identifier),

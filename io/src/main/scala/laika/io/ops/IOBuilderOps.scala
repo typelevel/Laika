@@ -16,14 +16,14 @@
 
 package laika.io.ops
 
-import cats.effect.{ Async, Sync }
-import laika.io.runtime.Batch
+import cats.effect.Async
+import laika.io.internal.runtime.Batch
 
 /** Builder step that allows to choose between sequential and parallel execution and specify the effect type.
   *
   * @author Jens Halm
   */
-abstract class IOBuilderOps[T[_[_]]] {
+private[io] abstract class IOBuilderOps[T[_[_]]] {
 
   /** Creates a builder for sequential execution.
     */

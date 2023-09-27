@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Laika ${laika.version} + Helium Theme" />
+    <meta name="generator" content="Typelevel Laika + Helium Theme" />
     <title>${?laika.site.metadata.title}</title>
     @:for(laika.site.metadata.authors)
       <meta name="author" content="${_}"/>
@@ -18,15 +18,15 @@
     @:for(helium.webFonts)
       <link rel="stylesheet" href="${_}">
     @:@
-    @:linkCSS
-    @:linkJS
+    @:includeCSS
+    @:includeJS
     @:heliumInitVersions
     <script> /* for avoiding page load transitions */ </script>
   </head>
 
   <body>
 
-    <div id="header">
+    <div id="header" class="${helium.site.landingPage.headerStyle}">
       <div id="header-left">
         @:for(helium.site.landingPage.logo) ${_} @:@
         @:for(helium.site.landingPage.title) <h1>${_}</h1> @:@

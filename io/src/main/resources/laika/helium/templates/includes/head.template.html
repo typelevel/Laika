@@ -2,8 +2,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="generator" content="Laika ${laika.version} + Helium Theme" />
-  <title>${cursor.currentDocument.title}</title>
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>${cursor.currentDocument.rawTitle}</title>
   @:for(laika.site.metadata.authors)
   <meta name="author" content="${_}"/>
   @:@
@@ -19,8 +19,8 @@
   @:for(helium.webFonts)
   <link rel="stylesheet" href="${_}">
   @:@
-  @:linkCSS
-  @:linkJS
+  @:includeCSS
+  @:includeJS
   @:heliumInitVersions
   @:heliumInitPreview(container)
   <script> /* for avoiding page load transitions */ </script>

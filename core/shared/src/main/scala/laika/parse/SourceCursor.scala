@@ -71,7 +71,7 @@ trait SourceCursor {
 
   /** The source for the root input, positioned to match the offset of this (potentially nested) source.
     */
-  def root: RootSource
+  def root: SourceCursor
 
   /** The current position in the input string.
     */
@@ -124,7 +124,11 @@ trait SourceFragment extends SourceCursor {
   * For creating a cursor for a fragment of the input, either `BlockSource` or `LineSource` must be used
   * to preserve position tracking in relation to the root input.
   */
-class RootSource(inputRef: InputString, val offset: Int, val nestLevel: Int) extends SourceCursor {
+private[parse] class RootSource(
+    inputRef: InputString,
+    val offset: Int,
+    val nestLevel: Int
+) extends SourceCursor {
 
   type Self = RootSource
 
@@ -147,7 +151,7 @@ class RootSource(inputRef: InputString, val offset: Int, val nestLevel: Int) ext
     else this
   }
 
-  val root: RootSource = this
+  val root: SourceCursor = this
 
   lazy val position: Position =
     if (inputRef.isReverse) reverse.position else new Position(inputRef, offset)
@@ -215,7 +219,7 @@ class LineSource private (
 
   lazy val parent: SourceCursor = parentRef.consume(offset)
 
-  lazy val root: RootSource = parent.root
+  lazy val root: SourceCursor = parent.root
 
   lazy val position: Position = root.position
 
@@ -284,11 +288,6 @@ object LineSource {
   * This type of source cursor solves this issue by providing a view to parsers that looks like a consecutive
   * string of inline markup without the stripped decoration, while maintaining the x- and y-offsets of each line
   * in relation to the root source.
-  *
-  * Such a source will be used in multi-pass parsers, where the root parser might strip some markup decoration
-  * from each line and then pass the result down to the next recursion.
-  * In such a case each line might have a different x-offset from the root input.
-  * The use of this instance ensures that the correct position can still be tracked.
   */
 class BlockSource(
     inputRef: InputString,
@@ -332,7 +331,7 @@ class BlockSource(
     lineSource.consume(lineOffset - lineSource.offset)
   }
 
-  lazy val root: RootSource = activeLine.root
+  lazy val root: SourceCursor = activeLine.root
 
   lazy val position: Position = activeLine.position
 
@@ -385,24 +384,6 @@ object BlockSource {
 
 }
 
-/** Represents a generated source, where an AST node has been created programmatically and cannot be
-  * traced back to the corresponding input source.
-  */
-object GeneratedSource extends SourceFragment {
-  type Self = this.type
-  def input: String                     = ""
-  def offset: Int                       = 0
-  def remaining: Int                    = 0
-  def atEnd: Boolean                    = true
-  def capture(numChars: Int): String    = ""
-  def consume(numChars: Int): this.type = this
-  def root: RootSource                  = new RootSource(InputString.empty, 0, 0)
-  def position: Position                = new Position(InputString.empty, 0)
-  def nestLevel: Int                    = 0
-  def nextNestLevel: this.type          = this
-  def reverse: this.type                = this
-}
-
 /** Companion for creating new `SourceCursor` instances.
   * This type of constructor is only meant to be used for creating a root cursor for the input holding
   * the whole document (e.g. the entire markup document or the full template).
@@ -420,6 +401,35 @@ object SourceCursor {
     */
   def apply(input: String, path: Path): SourceCursor =
     new RootSource(InputString(input, Some(path)), 0, 0)
+
+  /** Represents a generated source, where an AST node has been created programmatically and cannot be
+    * traced back to the corresponding input source.
+    */
+  object Generated extends SourceFragment {
+    type Self = this.type
+
+    def input: String = ""
+
+    def offset: Int = 0
+
+    def remaining: Int = 0
+
+    def atEnd: Boolean = true
+
+    def capture(numChars: Int): String = ""
+
+    def consume(numChars: Int): this.type = this
+
+    def root: SourceCursor = new RootSource(InputString.empty, 0, 0)
+
+    def position: Position = new Position(InputString.empty, 0)
+
+    def nestLevel: Int = 0
+
+    def nextNestLevel: this.type = this
+
+    def reverse: this.type = this
+  }
 
 }
 
