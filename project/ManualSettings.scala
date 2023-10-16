@@ -179,8 +179,7 @@ object ManualSettings {
       ),
       subtitle = Some(text.mainDesc),
       latestReleases = Seq(
-        ReleaseInfo("Latest Pre-Release", "1.0.0-M5"),
-        ReleaseInfo("Latest Stable Release", "0.19.5")
+        ReleaseInfo("Latest Release", "1.0.0")
       ),
       license = Some("Apache 2.0"),
       documentationLinks = Seq(

@@ -53,13 +53,13 @@ The number of public types have been reduced by about a quarter of the API surfa
 
 Past experience showed that classes used for configuration purposes evolve more frequently than most other APIs. For this reason many have been converted to traits with private implementation types. The `apply` methods have been reduced to required parameters only. Optional properties can be set with the common `withXX` pattern. Types which don't have any required properties usually offer an `XX.defaults` or `XX.empty` entry point depending on whether it is pre-populated by the library or not.
 
-### Simplified Formatter APIs - #523
+### Simplified Formatter APIs
 
 [Full PR Description](https://github.com/typelevel/Laika/pull/523)
 
 Concrete formatter types like HTMLFormatter or FOFormatter are private now and their API has been unified under the two traits Formatter and TagFormatter. Several method signatures in TagFormatter have also been simplified for more concise renderer implementations. See the PR for details.
 
-### Removal of all deprecated APIs - #429
+### Removal of all deprecated APIs
 
 [Full PR Description](https://github.com/typelevel/Laika/pull/429)
 

@@ -90,7 +90,7 @@ lazy val docs = project.in(file("docs"))
     Laika / target            := baseDirectory.value / "target",
     mdocIn                    := baseDirectory.value / "src",
     mdocVariables             := Map(
-      "LAIKA_VERSION" -> "1.0.0-M5"
+      "LAIKA_VERSION" -> "1.0.0"
     ),
     mdocExtraArguments        := Seq("--no-link-hygiene"),
     scalacOptions ~= disableUnusedWarningsForMdoc
