@@ -143,11 +143,14 @@
   <p class="header"><a href="#">Migration Guide</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#versions-older-than-0-18-0">Versions older than 0.18.0</a></li>
-    <li class="level1 nav-leaf"><a href="#versions-older-than-0-16-0">Versions older than 0.16.0</a></li>
-    <li class="level1 nav-leaf"><a href="#versions-older-than-0-15-0">Versions older than 0.15.0</a></li>
-    <li class="level1 nav-leaf"><a href="#versions-older-than-0-14-0">Versions older than 0.14.0</a></li>
-    <li class="level1 nav-leaf"><a href="#versions-older-than-0-12-0">Versions older than 0.12.0</a></li>
+    <li class="level1 nav-leaf"><a href="#new-organization-id">New Organization ID</a></li>
+    <li class="level1 nav-leaf"><a href="#changed-behaviour-for-including-css-js">Changed Behaviour for Including CSS/JS</a></li>
+    <li class="level1 nav-node"><a href="#breaking-api-changes">Breaking API Changes</a></li>
+    <li class="level2 nav-leaf"><a href="#new-package-structure">New package structure</a></li>
+    <li class="level2 nav-leaf"><a href="#reduced-public-api-surface">Reduced public API surface</a></li>
+    <li class="level2 nav-leaf"><a href="#many-case-classes-became-regular-classes">Many case classes became regular classes</a></li>
+    <li class="level2 nav-leaf"><a href="#simplified-formatter-apis-523">Simplified Formatter APIs</a></li>
+    <li class="level2 nav-leaf"><a href="#removal-of-all-deprecated-apis-429">Removal of all deprecated APIs</a></li>
   </ul>
 
   <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/07-reference/07-migration-guide.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
@@ -157,115 +160,43 @@
       <main class="content">
 
         <h1 id="migration-guide" class="title">Migration Guide</h1>
-        <p>Laika has not reached the 1.0 status yet and as a consequence, minor API changes can still be expected on the road
-        towards 1.0.</p>
-        <p>Most of the content in this guide is not relevant if you either use the integrated sbt plugin or the library API
-        without any lower-level customizations.</p>
-        <p>The only major change of the top-level library API in 8 years had been the 0.12.0 release, which has very detailed
-        migration instructions below.</p>
+        <p>The upgrade from 0.x to 1.x versions was not a feature release. The primary focus was to adjust the public API surface to allow it to evolve more easily in a way that is binary backwards-compatible.</p>
+        <p>It&#39;s recommended to first update to 0.19.5, if you haven&#39;t done this already, and address all deprecation warnings first. All deprecated APIs had been removed for 1.0.</p>
+        <p>If you are still using versions older than 0.19.x, you might want to check the migration guide for those versions first,
+        as this guide only focuses on the changes from 0.19 to 1.0.</p>
+        <p>For users who only use the library&#39;s configuration APIs the upgrade should be straightforward (in many cases a simple &quot;Organize Imports&quot; to adjust for the new package structure will be sufficient). Users who developed extensions might need further adjustments for some the breaking API changes.</p>
         
-        <h2 id="versions-older-than-0-18-0" class="section"><a class="anchor-link left" href="#versions-older-than-0-18-0"><i class="icofont-laika link">&#xef71;</i></a>Versions older than 0.18.0</h2>
-        <p>Version 0.18 is based on cats-effect 3, and the API changes in that library had to surface in API changes in Laika
-        in some places.
-        If you either use the sbt plugin or just the pure <code>laika-core</code> module, you are not affected.</p>
-        <p>But users of the library API in either <code>laika-io</code> or <code>laika-pdf</code> need to make an easy, minor change:</p>
-        <p>Before:</p>
-        <pre><code class="nohighlight"><span class="keyword">implicit</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">cs</span><span>: </span><span class="type-name">ContextShift</span><span>[</span><span class="type-name">IO</span><span>] = 
-  </span><span class="type-name">IO</span><span>.</span><span class="identifier">contextShift</span><span>(</span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">global</span><span>)
-      
-</span><span class="keyword">val</span><span> </span><span class="identifier">blocker</span><span> = </span><span class="type-name">Blocker</span><span>.</span><span class="identifier">liftExecutionContext</span><span>(
-  </span><span class="type-name">ExecutionContext</span><span>.</span><span class="identifier">fromExecutor</span><span>(</span><span class="type-name">Executors</span><span>.</span><span class="identifier">newCachedThreadPool</span><span>())
-
-)
-    
-</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
-  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
-  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
-  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">io</span><span>(</span><span class="identifier">blocker</span><span>)
-  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
-  .</span><span class="identifier">build</span></code></pre>
-        <p>After:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">_</span><span>
-
-</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
-  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
-  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
-  .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
-  .</span><span class="identifier">build</span></code></pre>
-        <p>The manual creation of <code>ContextShift</code> and <code>Blocker</code> instances is no longer needed,
-        and consequently the <code>.io(blocker)</code> builder step is gone, too.</p>
-        <p>If required, control over the thread pool configuration is still available centrally, e.g. in <code>IOApp</code>.</p>
+        <h2 id="new-organization-id" class="section"><a class="anchor-link left" href="#new-organization-id"><i class="icofont-laika link">&#xef71;</i></a>New Organization ID</h2>
+        <p>The library is now published under the <code>org.typelevel</code> organization</p>
+        <p>All 0.x releases had been published under <code>org.planet42</code> which will no longer be used in the future.</p>
         
-        <h2 id="versions-older-than-0-16-0" class="section"><a class="anchor-link left" href="#versions-older-than-0-16-0"><i class="icofont-laika link">&#xef71;</i></a>Versions older than 0.16.0</h2>
-        <p>The 0.16 release introduced theme support and as a consequence all parsers, renderers and transformers are now
-        provided as a cat-effect <code>Resource</code>.</p>
-        <p>If you are using the sbt plugin, you are not affected by this API change.
-        When using the library API the necessary code changes are quite trivial. Change:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">// build your transformer like before
-</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = ???
-
-</span><span class="identifier">transformer</span><span>
-  .</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;docs&quot;</span><span>)
-  .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
-  .</span><span class="identifier">transform</span></code></pre>
-        <p>to</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{ </span><span class="type-name">IO</span><span>, </span><span class="type-name">Resource</span><span> }
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">api</span><span>.</span><span class="type-name">TreeTransformer</span><span>
-
-</span><span class="comment">// build your transformer like before
-</span><span class="keyword">def</span><span> </span><span class="declaration-name">transformer</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">TreeTransformer</span><span>[</span><span class="type-name">IO</span><span>]] = ???
-
-</span><span class="identifier">transformer</span><span>.</span><span class="identifier">use</span><span> {
-  </span><span class="identifier">_</span><span>.</span><span class="identifier">fromDirectory</span><span>(</span><span class="string-literal">&quot;docs&quot;</span><span>)
-   .</span><span class="identifier">toDirectory</span><span>(</span><span class="string-literal">&quot;target&quot;</span><span>)
-   .</span><span class="identifier">transform</span><span>
-}</span></code></pre>
-        <p>Ensure that you create the transformer only once at application start to avoid unnecessary overhead and memory usage 
-        for repeated use.</p>
-        <p>Finally, the legacy directive syntax which had been deprecated in the 0.12 release, has now been removed. </p>
+        <h2 id="changed-behaviour-for-including-css-js" class="section"><a class="anchor-link left" href="#changed-behaviour-for-including-css-js"><i class="icofont-laika link">&#xef71;</i></a>Changed Behaviour for Including CSS/JS</h2>
+        <p>This is a breaking change the compiler does not help with detecting. If you previously had custom CSS or JavaScript files auto-linked to your pages, you need to adjust your configuration (see the PR for more details).</p>
+        <p>The old default of using a global search path for automatically linking all CSS and JS files from the input sources is no longer active. Users need to explicitly configure at least one search path (via .site.internalCSS or .site.internalJS) for a resource scan to happen.</p>
+        <p>The old behaviour was often unexpected (and users had to search for ways to disable it) and also came with the risk of overlapping search paths where a theme or extension adds their own resources. The new API allows more control in general (e.g. setting a condition per document for whether resources are linked or not).</p>
+        <p>See the <a href="https://github.com/typelevel/Laika/pull/511">corresponding PR</a> for additional details.</p>
         
-        <h2 id="versions-older-than-0-15-0" class="section"><a class="anchor-link left" href="#versions-older-than-0-15-0"><i class="icofont-laika link">&#xef71;</i></a>Versions older than 0.15.0</h2>
-        <p>If you plan to migrate to 0.15 it is recommended to address all deprecation warnings the compiler admits
-        as this is the last release where they&#39;ll be supported.</p>
-        <p>This version introduces namespaces for the built-in substitution variables to avoid name clashes with
-        user-defined variables.
-        If you use them in your markup files or templates you need to adjust them for this release:</p>
-        <ul>
-          <li>
-            <p><code>document.*</code> becomes <code>cursor.currentDocument.*</code></p>
-          </li>
-          <li>
-            <p>All configuration variables are now prefixed with <code>laika</code>, e.g. <code>laika.title</code>, <code>laika.navigationOrder</code>.</p>
-          </li>
-          <li>
-            <p><code>cursor.*</code> and <code>laika.*</code> are the only reserved namespaces, any other prefix can be freely chosen.</p>
-          </li>
-        </ul>
-        <p>If you upgrade from a version older than 0.12.0 it is also recommended to switch to the new directive syntax
-        described below as this is a functional area that unfortunately does not emit any compiler warnings.</p>
+        <h2 id="breaking-api-changes" class="section"><a class="anchor-link left" href="#breaking-api-changes"><i class="icofont-laika link">&#xef71;</i></a>Breaking API Changes</h2>
         
-        <h2 id="versions-older-than-0-14-0" class="section"><a class="anchor-link left" href="#versions-older-than-0-14-0"><i class="icofont-laika link">&#xef71;</i></a>Versions older than 0.14.0</h2>
-        <ul>
-          <li>
-            <p>If you use the document AST: the <code>Path</code> API had been split into <code>Path</code> for absolute paths only and <code>RelativePath</code>
-            for pointing from one document to another.</p>
-          </li>
-          <li>
-            <p>If you developed parser extensions there are new entry points for defining a span or block parser.
-            You can address all deprecation warnings you might get for your parser definitions by following the new
-            guide for <a href="../05-extending-laika/04-writing-parser-extensions.html#writing-parser-extensions">Writing Parser Extensions</a>.</p>
-          </li>
-        </ul>
+        <h3 id="new-package-structure" class="section"><a class="anchor-link left" href="#new-package-structure"><i class="icofont-laika link">&#xef71;</i></a>New package structure</h3>
+        <p><a href="https://github.com/typelevel/Laika/pull/533">Full PR Description</a></p>
+        <p>The public API had been cleaned up, since it had become fragmented after many types had been made private for 1.0. In laika-core the number of top-level packages has been reduced from 14 to 5. Apart from moving a lot of classes to new packages, many ADT type members have also been moved to their companion for better API navigation. In most cases a simple &quot;Organize Imports&quot; should See the PR for details.</p>
         
-        <h2 id="versions-older-than-0-12-0" class="section"><a class="anchor-link left" href="#versions-older-than-0-12-0"><i class="icofont-laika link">&#xef71;</i></a>Versions older than 0.12.0</h2>
-        <p>Versions prior to 0.12 had significantly different APIs as they did not build around the cats-effect APIs.
-        In the unlikely case you still have code for one of those ancient versions, please see the migration
-        guides for earlier versions.</p>
+        <h3 id="reduced-public-api-surface" class="section"><a class="anchor-link left" href="#reduced-public-api-surface"><i class="icofont-laika link">&#xef71;</i></a>Reduced public API surface</h3>
+        <p><a href="https://github.com/typelevel/Laika/pull/452">Full PR Description</a></p>
+        <p>The number of public types have been reduced by about a quarter of the API surface compared to 0.19.x. Like many other changes for 1.0 the main motivation was to more easily evolve the library in a binary backwards-compatible way. The removed APIs were so low-level that very few users should be affected by this change.</p>
+        
+        <h3 id="many-case-classes-became-regular-classes" class="section"><a class="anchor-link left" href="#many-case-classes-became-regular-classes"><i class="icofont-laika link">&#xef71;</i></a>Many case classes became regular classes</h3>
+        <p><a href="https://github.com/typelevel/Laika/pull/482">Full PR Description</a></p>
+        <p>Past experience showed that classes used for configuration purposes evolve more frequently than most other APIs. For this reason many have been converted to traits with private implementation types. The <code>apply</code> methods have been reduced to required parameters only. Optional properties can be set with the common <code>withXX</code> pattern. Types which don&#39;t have any required properties usually offer an <code>XX.defaults</code> or <code>XX.empty</code> entry point depending on whether it is pre-populated by the library or not.</p>
+        
+        <h3 id="simplified-formatter-apis-523" class="section"><a class="anchor-link left" href="#simplified-formatter-apis-523"><i class="icofont-laika link">&#xef71;</i></a>Simplified Formatter APIs</h3>
+        <p><a href="https://github.com/typelevel/Laika/pull/523">Full PR Description</a></p>
+        <p>Concrete formatter types like HTMLFormatter or FOFormatter are private now and their API has been unified under the two traits Formatter and TagFormatter. Several method signatures in TagFormatter have also been simplified for more concise renderer implementations. See the PR for details.</p>
+        
+        <h3 id="removal-of-all-deprecated-apis-429" class="section"><a class="anchor-link left" href="#removal-of-all-deprecated-apis-429"><i class="icofont-laika link">&#xef71;</i></a>Removal of all deprecated APIs</h3>
+        <p><a href="https://github.com/typelevel/Laika/pull/429">Full PR Description</a></p>
+        <p>For a more convenient upgrade, compile against 0.19.5 to see all deprecation warning before migrating.</p>
 
         
 <hr class="footer-rule"/>

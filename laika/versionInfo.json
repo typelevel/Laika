@@ -1,7 +1,7 @@
 {
   "versions": [
-    { "displayValue": "1.x", "pathSegment": "latest", "fallbackLink": "/table-of-content.html", "label": "Dev", "canonical": true },
-    { "displayValue": "0.19", "pathSegment": "0.19", "fallbackLink": "/table-of-content.html", "label": "Stable", "canonical": false },
+    { "displayValue": "1.x", "pathSegment": "latest", "fallbackLink": "/table-of-content.html", "label": "Stable", "canonical": true },
+    { "displayValue": "0.19", "pathSegment": "0.19", "fallbackLink": "/table-of-content.html", "label": "EOL", "canonical": false },
     { "displayValue": "0.18", "pathSegment": "0.18", "fallbackLink": "/table-of-content.html", "label": "EOL", "canonical": false },
     { "displayValue": "0.17", "pathSegment": "0.17", "fallbackLink": "/table-of-content.html", "label": "EOL", "canonical": false }
   ],
