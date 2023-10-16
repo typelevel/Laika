@@ -24,13 +24,16 @@ object ManualSettings {
         case "1.x" => ("latest", true)
         case _     => (version, false)
       }
-      val v                        =
-        Version(version, pathSegment).withFallbackLink("/table-of-content.html").withLabel(label)
+
+      val v =
+        Version(version, pathSegment)
+          .withFallbackLink("/table-of-content.html")
+          .withLabel(label)
       if (canonical) v.setCanonical else v
     }
 
-    val v1      = version("1.x", "Dev")
-    val v019    = version("0.19", "Stable")
+    val v1      = version("1.x", "Stable")
+    val v019    = version("0.19")
     val v018    = version("0.18")
     val v017    = version("0.17")
     val current = v1
