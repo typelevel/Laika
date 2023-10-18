@@ -235,11 +235,10 @@
             <p>The <code>language</code> property holds one or more names for the language that will be used to identify the language
             when syntax like fenced code blocks are used.</p>
             <p>Concretely this means that if you specify <code>python</code> and <code>py</code> as the names for example, 
-            the implementation will be used for any fenced code block that starts with either </p>
-            <pre class="keep-together pdf epub"><code class="```py">
-It&#39;s not tied to Markdown syntax though. 
-reStructuredText has its own way of specifying a code block with language identifier, 
-and the highlighter will be used for those, too.</code></pre>
+            the implementation will be used for any fenced code block that starts with either <code>```python</code> or <code>```py</code>.
+            It&#39;s not tied to Markdown syntax though. 
+            reStructuredText has its own way of specifying a code block with language identifier, 
+            and the highlighter will be used for those, too.</p>
           </li>
           <li>
             <p>The <code>spanParsers</code> property holds the actual parsers.
