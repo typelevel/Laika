@@ -64,7 +64,7 @@ Further Information
 
 
 [Manual]: https://typelevel.org/Laika/
-[API]: https://typelevel.org/Laika/latest/api/laika/api/
+[API]: https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/index.html
 [Issues]: https://github.com/typelevel/Laika/issues
 [Discussions]: https://github.com/typelevel/Laika/discussions
 [Typelevel Discord]: https://discord.gg/XF3CXcMzqD
