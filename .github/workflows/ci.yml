@@ -101,7 +101,7 @@ jobs:
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
       - name: Build manual
-        if: matrix.scala == '2.12' && matrix.project == 'rootJVM'
+        if: matrix.scala == '2.12' && matrix.project == 'rootJVM' && matrix.java == 'temurin@17'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' docs/mdoc docs/laikaSite
 
       - name: sbt scripted tests

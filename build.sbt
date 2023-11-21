@@ -30,7 +30,9 @@ inThisBuild(
       WorkflowStep.Sbt(
         List("docs/mdoc", "docs/laikaSite"),
         name = Some("Build manual"),
-        cond = Some("matrix.scala == '2.12' && matrix.project == 'rootJVM'")
+        cond = Some(
+          "matrix.scala == '2.12' && matrix.project == 'rootJVM' && matrix.java == 'temurin@17'"
+        )
       ),
       WorkflowStep.Sbt(
         List("plugin/scripted"),
