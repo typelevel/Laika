@@ -44,10 +44,13 @@ h1, h2, h3 {
 
 h1 {
   font-size: var(--title-font-size);
+  margin-top: calc(var(--block-spacing) * 3.5);
+  margin-bottom: calc(var(--block-spacing) * 1.2);
 }
 h1.title {
   padding-top: calc(40px + var(--top-bar-height));
   padding-bottom: 10px;
+  margin-top: 0;
   margin-bottom: calc(var(--block-spacing) * 3);
   border-bottom: 1px solid var(--component-border);
 }
