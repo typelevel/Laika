@@ -17,6 +17,9 @@ code {
   white-space: nowrap;
   padding: 0 0.1em;
 }
+a code {
+  color: inherit;
+}
 pre code {
   color: var(--syntax-base5);
   background-color: transparent;
