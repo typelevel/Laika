@@ -68,7 +68,7 @@ import scala.reflect.ClassTag
   * val inputs = InputTree[F]
   *   .addDirectory("/path-to-my/markup-files")
   *   .addDirectory("/path-to-my/images", Root / "images")
-  *   .addClasspathResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
+  *   .addClassLoaderResource("my-templates/default.template.html", DefaultTemplatePath.forHTML)
   *   .addString(generateMyStyles(), Root / "css" / "site.css")
   * }}}
   *
