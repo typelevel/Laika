@@ -232,7 +232,9 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |</div>
          |<p class="header">Some <em>Header</em></p>
          |$teaserHTML
+         |<main>
          |<p>Some <em>markup</em> here.</p>
+         |</main>
          |</body>""".stripMargin
     val imagePath          = Root / "home.png"
     val helium             = Helium.defaults
