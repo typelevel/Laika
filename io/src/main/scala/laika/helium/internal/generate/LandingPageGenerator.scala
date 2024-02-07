@@ -19,7 +19,7 @@ package laika.helium.internal.generate
 import cats.data.Kleisli
 import cats.syntax.all.*
 import cats.effect.Sync
-import laika.api.config.ConfigBuilder
+import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast.Path.Root
 import laika.ast.{ Document, Element, RootElement }
 import laika.config.LaikaKeys
@@ -35,6 +35,11 @@ private[helium] object LandingPageGenerator {
         (d.content, d.fragments, d.config)
     }.getOrElse((RootElement.empty, Map.empty[String, Element], tree.root.config))
 
+    def createConfig(base: Config): Config = base
+      .withValue(LaikaKeys.versioned, false).build
+      .withValue("helium.site.landingPage.hasCustomContent", landingPageContent.content.nonEmpty)
+      .build
+
     val titleDocument = tree.root.titleDocument.fold(
       TitleDocumentConfig.inputName(tree.root.config).map { inputName =>
         Document(
@@ -42,19 +47,14 @@ private[helium] object LandingPageGenerator {
           content = landingPageContent
         )
           .withFragments(fragments)
-          .withConfig(landingPageConfig.withValue(LaikaKeys.versioned, false).build)
+          .withConfig(createConfig(landingPageConfig))
       }
     ) { titleDoc =>
-      val config =
-        landingPageConfig.withFallback(titleDoc.config).withValue(
-          LaikaKeys.versioned,
-          false
-        ).build
       Right(
         titleDoc
           .appendContent(landingPageContent.content)
           .addFragments(fragments)
-          .withConfig(config)
+          .withConfig(createConfig(landingPageConfig.withFallback(titleDoc.config)))
       )
     }
 

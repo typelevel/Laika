@@ -68,7 +68,11 @@
         @:@
       </div>
     @:@
-    ${cursor.currentDocument.content}
+    @:if(helium.site.landingPage.hasCustomContent)
+    <main>
+      ${cursor.currentDocument.content}
+    </main>
+    @:@
 
   </body>
 </html>
