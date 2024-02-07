@@ -160,11 +160,14 @@ their inputs.
 @:callout(warning)
 
 While Laika offers the full API as for user inputs for maximum flexibility and consistency, 
-it is recommended to avoid any file system resources by using `addFile` or `addDirectory`.
+it is recommended to avoid using `addFile` or `addDirectory` to add any file system resources.
 
 This might be acceptable for a library shared in-house where you can rely on a specific project setup,
 but for a public library it is most convenient for users when the theme is just an additional dependency
 and does not require any additional setup.
+
+For this reason the best option is usually to either generate resource in memory and/or load them
+as resources from the JAR, both of which is directly supported by the APIs.
 
 @:@
 
@@ -422,9 +425,8 @@ As a minimum set of documentation it's recommended to include:
   but if you want to focus on fewer or different formats, let your users know.
   
 * Document the compatible Laika versions.
-  Laika is still in the 0.x version range, so some breaking changes are still expected before reaching the 1.0 milestone.
-  But the big rewrite phases are a thing of the past now, so you won't be exposed to massive disruptions.
-  A 1.0 version is expected at some point after the 0.19 release.
+  It will most likely be compatible with all 1.x versions, but there may be exceptions when you build on a feature
+  introduced in a minor 1.x release.
   
 * Document your theme configuration API.
 

@@ -25,11 +25,15 @@ Changed Behaviour for Including CSS/JS
 
 This is a breaking change the compiler does not help with detecting. If you previously had custom CSS or JavaScript files auto-linked to your pages, you need to adjust your configuration (see the PR for more details).
 
-The old default of using a global search path for automatically linking all CSS and JS files from the input sources is no longer active. Users need to explicitly configure at least one search path (via .site.internalCSS or .site.internalJS) for a resource scan to happen.
+The old default of using a global search path for automatically linking all CSS and JS files from the input sources is no longer active. Users need to explicitly configure at least one search path (via `.site.internalCSS` or `.site.internalJS`) for a resource scan to happen.
 
 The old behaviour was often unexpected (and users had to search for ways to disable it) and also came with the risk of overlapping search paths where a theme or extension adds their own resources. The new API allows more control in general (e.g. setting a condition per document for whether resources are linked or not).
 
 See the [corresponding PR](https://github.com/typelevel/Laika/pull/511) for additional details.
+
+When not using the Helium theme, users are required to include their own custom template anyway,
+so the simplest option to migrate might be to just hard-code all file inclusions in the `<head>` section
+of the template or, if more flexibility is required, use some of the templating features described in [Creating Templates].
 
 
 Breaking API Changes

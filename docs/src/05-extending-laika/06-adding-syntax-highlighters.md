@@ -86,8 +86,8 @@ def spanParsers: Seq[CodeSpanParser]
   when syntax like fenced code blocks are used.
   
   Concretely this means that if you specify `python` and `py` as the names for example, 
-  the implementation will be used for any fenced code block that starts with either 
-  ```` ```py ```` or ```` ```python ````.
+  the implementation will be used for any fenced code block that starts with
+  either ```` ```py ```` or ```` ```python ````.
   
   It's not tied to Markdown syntax though. 
   reStructuredText has its own way of specifying a code block with language identifier, 
@@ -180,7 +180,7 @@ val spanParsers: Seq[CodeSpanParser] = Seq(
 
 Here we are defining two types of number literals: hexadecimal and decimal integers.
 
-In both cases we allow the use of underscores as separators (e.g. `1,000,000`).
+In both cases we allow the use of underscores as separators (e.g. `1_000_000`).
 
 We also define which kinds of type indicators we allow as a suffix and again use 
 existing parsers for widely used syntax (`NumericSuffix.long` parses `L` or `l` for example).

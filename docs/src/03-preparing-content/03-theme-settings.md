@@ -1071,7 +1071,7 @@ you can explicitly refer to it in the configuration header of the markup documen
 
 ```laika-html
 {%
-  helium.templates.head = ../my-custom-head.template.html
+  helium.site.templates.head = ../my-custom-head.template.html
 %}
 ```
 
@@ -1080,7 +1080,7 @@ but has to be somewhere within one of the specified input directories,
 as templates are parsed and cached upfront before getting applied to documents.
 
 All HTML templates must have a name with the pattern `<name>.template.html`.
-The configuration key to assign them to has the format `helium.templates.<fragment>`
+The configuration key to assign them to has the format `helium.site.templates.<fragment>`
 where `<fragment>` is again one of `head`, `topNav`, `mainNav`, `pageNav` or `footer`.
 
 Finally, like with all Laika configuration, you can also use different scopes than just the current document.
