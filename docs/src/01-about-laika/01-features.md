@@ -29,7 +29,7 @@ Laika can be used as:
 
 * A library on the JVM with Scala 3, 2.13 or 2.12.
 
-* A library in Scala.js 1.5+ applications with all its features except File/Stream IO, EPUB and PDF output
+* A library in Scala.js 1.13+ applications with all its features except File/Stream IO, EPUB and PDF output
 
 For getting started see the documentation of the [sbt Plugin] or [Library API].
 

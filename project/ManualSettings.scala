@@ -80,10 +80,10 @@ object ManualSettings {
     val logo          = images / "site" / "laika-dog-big@1.5x.png"
     val favicon       = images / "site" / "laika-favicon.png"
     val siteBaseURL   = "https://typelevel.org/Laika/"
-    val apiURL        = "https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/"
-    val srcURL        = "https://github.com/typelevel/Laika"
-    val docsSrcURL    = s"$srcURL/tree/main/docs/src"
-    val chatURL       = "https://discord.gg/XF3CXcMzqD"
+    val apiURL     = "https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/index.html"
+    val srcURL     = "https://github.com/typelevel/Laika"
+    val docsSrcURL = s"$srcURL/tree/main/docs/src"
+    val chatURL    = "https://discord.gg/XF3CXcMzqD"
   }
 
   private object text {
