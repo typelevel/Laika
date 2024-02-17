@@ -17,7 +17,9 @@ import laika.theme.ThemeProvider
 
 object ManualSettings {
 
-  private object versions {
+  object versions {
+
+    val latestRelease = "1.0.1"
 
     private def version(version: String, label: String = "EOL"): Version = {
       val (pathSegment, canonical) = version match {
@@ -179,7 +181,7 @@ object ManualSettings {
       ),
       subtitle = Some(text.mainDesc),
       latestReleases = Seq(
-        ReleaseInfo("Latest Release", "1.0.0")
+        ReleaseInfo("Latest Release", versions.latestRelease)
       ),
       license = Some("Apache 2.0"),
       documentationLinks = Seq(
