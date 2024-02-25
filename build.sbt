@@ -2,6 +2,7 @@ import laika.format.Markdown.GitHubFlavor
 import laika.config.SyntaxHighlighting
 import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
+import com.typesafe.tools.mima.core.{ ProblemFilters, MissingClassProblem }
 import Dependencies._
 
 inThisBuild(
@@ -179,5 +180,14 @@ lazy val plugin = project.in(file("sbt"))
       io / publishLocal,
       pdf / publishLocal,
       preview / publishLocal
-    ).evaluated
+    ).evaluated,
+    mimaBinaryIssueFilters ++= Seq(
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat"),
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$"),
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$AST$"),
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$EPUB$"),
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$HTML$"),
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$PDF$"),
+      ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$XSLFO$")
+    )
   )

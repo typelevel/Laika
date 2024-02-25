@@ -114,6 +114,8 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaConfig = settingKey[LaikaConfig]("Configuration options for all transformations")
 
+    val laikaRenderers = settingKey[Seq[RendererConfig]]("Configurations of all included renderers")
+
     val laikaInputs =
       settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
 
@@ -154,6 +156,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaXSLFO / target         := (Laika / target).value / "fo",
     laikaAST / target           := (Laika / target).value / "ast",
     laikaExtensions             := Nil,
+    laikaRenderers              := Settings.rendererConfigs.value,
     laikaConfig                 := LaikaConfig.defaults,
     laikaPreviewConfig          := LaikaPreviewConfig.defaults,
     laikaTheme                  := Helium.defaults.build,

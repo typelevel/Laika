@@ -25,7 +25,7 @@ import laika.api.config.{ Config, ConfigBuilder }
 import laika.api.format.MarkupFormat
 import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
-import laika.format.{ Markdown, ReStructuredText }
+import laika.format.{ AST, EPUB, HTML, Markdown, PDF, ReStructuredText, XSLFO }
 import laika.io.api.TreeParser
 import laika.io.internal.config.SiteConfig
 import laika.io.syntax.*
@@ -101,6 +101,52 @@ object Settings {
 
   val artifactBaseName: Initialize[String] = setting {
     validated(parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName, name.value))
+  }
+
+  val rendererConfigs: Initialize[Seq[RendererConfig]] = setting {
+
+    val baseConfig   = parserConfig.value.baseConfig
+    val downloadPath =
+      (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
+
+    Seq(
+      TextRendererConfig(
+        "html",
+        HTML,
+        (laikaSite / target).value,
+        includeInSite = true
+      ),
+      TextRendererConfig(
+        "xsl-fo",
+        XSLFO,
+        (laikaXSLFO / target).value,
+        includeInSite = false
+      ),
+      TextRendererConfig(
+        "ast",
+        AST,
+        (laikaAST / target).value,
+        includeInSite = false
+      ),
+      BinaryRendererConfig(
+        "pdf",
+        PDF,
+        downloadPath,
+        artifactBaseName.value,
+        "pdf",
+        includeInSite = laikaIncludePDF.value,
+        supportsSeparations = true
+      ),
+      BinaryRendererConfig(
+        "epub",
+        EPUB,
+        downloadPath,
+        artifactBaseName.value,
+        "epub",
+        includeInSite = laikaIncludeEPUB.value,
+        supportsSeparations = true
+      )
+    )
   }
 
   val apiTargetDirectory: Initialize[File] = setting {
