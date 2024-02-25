@@ -49,11 +49,13 @@ class RenderAPISpec extends FunSuite
   test("use Document's configuration for rewrite rules") {
     case class TestResolver(options: Options = Options.empty) extends BlockResolver {
       type Self = TestResolver
+
       def resolve(cursor: DocumentCursor): Block      = {
         cursor.config
           .get[String]("testKey")
           .fold[Block](e => InvalidBlock(e.message, source), str => Paragraph(str))
       }
+
       def runsIn(phase: RewritePhase): Boolean        = phase.isInstanceOf[RewritePhase.Render]
       def source: SourceFragment                      = SourceCursor.Generated
       def unresolvedMessage: String                   = "unresolved test block"

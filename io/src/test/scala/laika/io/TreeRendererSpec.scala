@@ -529,8 +529,10 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     )
     val inputs   = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
+
     }
     val renderer = Renderer.of(HTML)
       .parallel[IO]
@@ -681,8 +683,10 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     )
     val inputs   = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
+
     }
     val renderer =
       Renderer
@@ -704,16 +708,20 @@ class TreeRendererSpec extends CatsEffectSuite
     val contentRef           =
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     val baseThemeInputs      = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(
           TemplateDocument(DefaultTemplatePath.forEPUB, Results.betweenBrackets(contentRef))
         )
+
     }
     val themeExtensionInputs = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(
           TemplateDocument(DefaultTemplatePath.forEPUB, Results.between(contentRef, "?", "?"))
         )
+
     }
     val theme                = TestThemeBuilder.forInputs(baseThemeInputs).extendWith(
       TestThemeBuilder.forInputs(themeExtensionInputs)
@@ -772,9 +780,11 @@ class TreeRendererSpec extends CatsEffectSuite
     import FORenderer.*
 
     val inputs       = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addStyles(customThemeStyles, FOStyles.defaultPath)
         .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
+
     }
     val renderer     =
       Renderer

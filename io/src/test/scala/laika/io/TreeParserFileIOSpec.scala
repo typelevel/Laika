@@ -232,8 +232,10 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one AST input from a theme") {
     object Builder extends CustomTheme.Builder {
+
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
+
     }
     CustomTheme.run(Builder, ExtraDoc.expected)
   }
@@ -242,12 +244,16 @@ class TreeParserFileIOSpec
     "read a directory from the file system plus one AST input from a theme extension overriding a theme input"
   ) {
     object Builder    extends CustomTheme.Builder {
+
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc99"))))
+
     }
     object ExtBuilder extends CustomTheme.Builder {
+
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
+
     }
     CustomTheme.run(Builder, ExtraDoc.expected, themeExtension = Some(ExtBuilder))
   }
@@ -305,8 +311,10 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one extra template from a string in a theme") {
     object Builder extends CustomTheme.Builder {
+
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addString("Template", ExtraTemplate.path)
+
     }
     CustomTheme.run(Builder, ExtraTemplate.expected)
   }
@@ -330,8 +338,10 @@ class TreeParserFileIOSpec
     "read a directory from the file system plus one extra config document from a string in a theme"
   ) {
     object Builder extends CustomTheme.Builder {
+
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addString("foo = 7", ExtraConfig.path)
+
     }
     CustomTheme.run(Builder, ExtraConfig.expected(), extraCheck = ExtraConfig.checkConfig(_))
   }

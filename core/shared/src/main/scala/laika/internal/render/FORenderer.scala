@@ -68,10 +68,12 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
     }
 
     object WithFallback {
+
       def unapply(value: Element): Option[Element] = value match {
         case f: Fallback => Some(f.fallback)
         case _           => None
       }
+
     }
 
     def renderBlockContainer(con: BlockContainer): String = {

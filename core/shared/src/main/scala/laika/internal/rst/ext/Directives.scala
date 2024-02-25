@@ -348,12 +348,14 @@ private[rst] object Directives {
       ): (DirectiveParserBuilder, DirectivePart[Option[T]]) = {
         val (key, newBuilder) = build(builder)
         val part              = new DirectivePart[Option[T]] {
+
           def apply(parsed: ParsedDirective): Result[Option[T]] =
             parsed.part(key).map(converter(parsed, _)) match {
               case None                => Right(None)
               case Some(Left(error))   => Left(error)
               case Some(Right(result)) => Right(Some(result))
             }
+
         }
         (newBuilder, part)
       }
