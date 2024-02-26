@@ -193,7 +193,7 @@ object Tasks {
     val inputFiles      = collectInputFiles(inputCollection)
 
     val results = configs map { config =>
-      val cacheFormatDir = config.toString.toLowerCase
+      val cacheFormatDir = config.alias.toLowerCase
 
       val fun =
         FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) {
