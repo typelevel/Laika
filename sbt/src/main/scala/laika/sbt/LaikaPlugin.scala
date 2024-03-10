@@ -56,6 +56,8 @@ import sbt.*
   * - `laikaTheme`: configuration for the theme to use for all transformations, if not specified the default
   *   `Helium` theme with all default colors and fonts will be used.
   *
+  * - `laikaTreeProcessors`: functions processing the AST between parsing and rendering (empty by default).
+  *
   * - `laikaRenderers`: contains the configurations for all of Laika's built-in renderers and enables users
   *   to install their own or 3rd-party renderers.
   *
@@ -85,7 +87,7 @@ object LaikaPlugin extends AutoPlugin {
   val requirements     = plugins.JvmPlugin
   override val trigger = noTrigger
 
-  object autoImport extends ExtensionBundles {
+  object autoImport extends ExtensionBundles with TreeProcessors {
 
     // settingKey macro does not accept HK types
     implicit class InputTreeBuilder(val delegate: laika.io.model.InputTreeBuilder[IO])
@@ -123,6 +125,11 @@ object LaikaPlugin extends AutoPlugin {
     val laikaTheme =
       settingKey[ThemeProvider]("Configures the theme to use for all transformations")
 
+    val laikaTreeProcessors =
+      settingKey[Seq[LaikaTreeProcessor]](
+        "Functions processing the AST between parsing and rendering"
+      )
+
     val laikaGenerateAPI =
       taskKey[Seq[String]]("Generates API documentation and moves it to the site's API target")
 
@@ -159,6 +166,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaConfig                 := LaikaConfig.defaults,
     laikaPreviewConfig          := LaikaPreviewConfig.defaults,
     laikaTheme                  := Helium.defaults.build,
+    laikaTreeProcessors         := Nil,
     laikaDescribe               := Tasks.describe.value,
     laikaIncludeAPI             := false,
     laikaIncludeEPUB            := Settings.validated(
