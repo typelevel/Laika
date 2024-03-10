@@ -32,6 +32,7 @@ import cats.data.NonEmptyChain
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
 import laika.api.format.MarkupFormat
+import laika.ast.OutputContext
 import laika.config.{ Selections, Versions }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
@@ -123,25 +124,39 @@ object Tasks {
       tree
     }
 
+    def prepareTree(
+        treeProcessors: Seq[LaikaTreeProcessor],
+        context: OutputContext
+    ) = {
+      val processor = treeProcessors
+        .map(_.delegate.apply(context))
+        .reduceOption(_.andThen(_))
+      processor.fold(IO.pure(tree))(_.run(tree))
+    }
+
     def renderText(config: TextRendererConfig): Set[File] = {
 
       if (config.targetDirectory.exists) cleanTarget(config.targetDirectory, baseConfig)
       else config.targetDirectory.mkdirs()
       val dirPath = FilePath.fromJavaFile(config.targetDirectory)
 
-      Renderer
-        .of(config.format)
-        .withConfig(Settings.parserConfig.value)
-        .parallel[IO]
-        .withTheme(laikaTheme.value)
-        .build
-        .use(
-          _
-            .from(tree)
-            .toDirectory(dirPath)(userConfig.encoding)
-            .render
-        )
-        .unsafeRunSync()
+      val op = prepareTree(laikaTreeProcessors.value, OutputContext(config.format))
+        .flatMap { tree =>
+          Renderer
+            .of(config.format)
+            .withConfig(Settings.parserConfig.value)
+            .parallel[IO]
+            .withTheme(laikaTheme.value)
+            .build
+            .use(
+              _
+                .from(tree)
+                .toDirectory(dirPath)(userConfig.encoding)
+                .render
+            )
+        }
+
+      op.unsafeRunSync()
 
       streams.value.log.info(Logs.outputs(tree.root, config.alias))
       streams.value.log.info(s"Generated ${config.alias} in ${config.targetDirectory}")
@@ -153,28 +168,31 @@ object Tasks {
 
       config.targetDirectory.mkdirs()
 
-      val ops = Renderer
-        .of(config.format)
-        .withConfig(Settings.parserConfig.value)
-        .parallel[IO]
-        .withTheme(laikaTheme.value)
-        .build
-        .use { renderer =>
-          val roots =
-            if (config.supportsSeparations) validated(Selections.createCombinations(tree.root))
-            else NonEmptyChain.one(tree.root -> Selections.Classifiers(Nil))
-          roots.traverse { case (root, classifiers) =>
-            val classifier =
-              if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-            val docName    = config.artifactBaseName + classifier + "." + config.fileSuffix
-            val file       = config.targetDirectory / docName
-            renderer
-              .from(root)
-              .copying(tree.staticDocuments)
-              .toFile(FilePath.fromJavaFile(file))
-              .render
-              .as(file)
-          }
+      val ops = prepareTree(laikaTreeProcessors.value, OutputContext(config.format))
+        .flatMap { tree =>
+          Renderer
+            .of(config.format)
+            .withConfig(Settings.parserConfig.value)
+            .parallel[IO]
+            .withTheme(laikaTheme.value)
+            .build
+            .use { renderer =>
+              val roots =
+                if (config.supportsSeparations) validated(Selections.createCombinations(tree.root))
+                else NonEmptyChain.one(tree.root -> Selections.Classifiers(Nil))
+              roots.traverse { case (root, classifiers) =>
+                val classifier =
+                  if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
+                val docName    = config.artifactBaseName + classifier + "." + config.fileSuffix
+                val file       = config.targetDirectory / docName
+                renderer
+                  .from(root)
+                  .copying(tree.staticDocuments)
+                  .toFile(FilePath.fromJavaFile(file))
+                  .render
+                  .as(file)
+              }
+            }
         }
 
       val res = ops.unsafeRunSync()
