@@ -289,7 +289,10 @@ import laika.format.Markdown
 import laika.config.SyntaxHighlighting
 
 laikaExtensions := Seq(Markdown.GitHubFlavor, SyntaxHighlighting)
-``` 
+```
+
+The `ExtensionBundle` API provides access to all stages of a transformation.
+You can:
 
 - [Overriding Renderers]: adjust the rendered output for specific AST node types.
   
@@ -297,8 +300,8 @@ laikaExtensions := Seq(Markdown.GitHubFlavor, SyntaxHighlighting)
    
 - [Implementing Directives]: install custom directives.
   
-- Or use any other hook in [The ExtensionBundle API]).
- 
+- Or use any other hook in [The ExtensionBundle API].
+
 
 ### Configuring Input and Output
 
