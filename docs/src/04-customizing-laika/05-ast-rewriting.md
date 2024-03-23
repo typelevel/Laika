@@ -123,3 +123,60 @@ val newDoc = doc.rewrite(RewriteRules.forBlocks {
   })
 })
 ```
+
+
+### Effectful AST Transformations
+
+The rewrite rules shown in this chapter so far were all applied to individual nodes within parsed documents,
+and had to be pure functions without any side effects.
+
+There is a related functionality called `TreeProcessor`, which is part of the `laika-io` module 
+and the sbt plugin and offers additional options:
+
+* Adding, removing or replacing entire documents from the AST.
+* Applying rewrite rules to specific documents only.
+* Defining rules which perform side effects.
+
+Our example shows how to add a document to the virtual tree for PDF documents only:
+
+@:select(config)
+
+@:choice(sbt)
+
+```scala mdoc:invisible
+import laika.sbt.LaikaPlugin.autoImport._
+```
+
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.ast._
+import laika.theme.TreeProcessorBuilder
+
+def intro: Document = ??? // e.g. created in-memory
+
+val processor = TreeProcessorBuilder[IO].mapTree { tree =>
+  tree.modifyTree(_.prependContent(intro))
+}
+
+laikaTreeProcessors += LaikaTreeProcessor(processor, OutputContext(PDF))
+```
+
+@:choice(library)
+
+```scala mdoc:compile-only
+import cats.effect.IO
+import laika.api._
+import laika.format._
+import laika.io.syntax._
+
+def intro: Document = ??? // e.g. created in-memory
+
+val transformer = Transformer
+  .from(Markdown)
+  .to(PDF)
+  .parallel[IO]
+  .mapTree(_.modifyTree(_.prependContent(intro)))
+  .build
+```
+
+@:@
