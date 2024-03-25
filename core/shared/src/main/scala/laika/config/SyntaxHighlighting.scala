@@ -61,6 +61,7 @@ case object SyntaxHighlighting extends ExtensionBundle { self =>
       XMLSyntax,
       YAMLSyntax,
       ShellSyntax,
+      DiffSyntax,
       DhallSyntax,
       SQLSyntax,
       EBNFSyntax,
