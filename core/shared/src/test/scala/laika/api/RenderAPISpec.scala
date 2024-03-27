@@ -50,7 +50,7 @@ class RenderAPISpec extends FunSuite
     case class TestResolver(options: Options = Options.empty) extends BlockResolver {
       type Self = TestResolver
 
-      def resolve(cursor: DocumentCursor): Block      = {
+      def resolve(cursor: DocumentCursor): Block = {
         cursor.config
           .get[String]("testKey")
           .fold[Block](e => InvalidBlock(e.message, source), str => Paragraph(str))

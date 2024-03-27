@@ -243,7 +243,7 @@ class TreeParserFileIOSpec
   test(
     "read a directory from the file system plus one AST input from a theme extension overriding a theme input"
   ) {
-    object Builder    extends CustomTheme.Builder {
+    object Builder extends CustomTheme.Builder {
 
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
         input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc99"))))
