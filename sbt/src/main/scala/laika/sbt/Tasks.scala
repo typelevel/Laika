@@ -33,6 +33,7 @@ import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
 import laika.api.format.MarkupFormat
 import laika.config.{ Selections, Versions }
+import laika.io.config.{ BinaryRendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server

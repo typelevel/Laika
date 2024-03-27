@@ -19,6 +19,7 @@ package laika.sbt
 import cats.effect.IO
 import laika.api.bundle.ExtensionBundle
 import laika.helium.Helium
+import laika.io.config.RendererConfig
 import laika.theme.ThemeProvider
 import sbt.Keys.*
 import sbt.*

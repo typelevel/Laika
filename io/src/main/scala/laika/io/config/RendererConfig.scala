@@ -1,13 +1,29 @@
-package laika.sbt
+/*
+ * Copyright 2012-2024 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package laika.io.config
 
 import laika.api.format.{ BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat }
 
 import java.io.File
 
-/** Base trait for the configuration of renderers to be used with
-  * the `laikaGenerate` and `laikaSite` tasks.
+/** Base trait for the configuration of renderers where the execution is not directly triggered by the user.
+  * Examples for such a scenario are the preview server and the sbt plugin
   */
-sealed abstract class RendererConfig private[sbt] {
+sealed abstract class RendererConfig private[config] {
 
   /** The alias that triggers the execution of this renderer when
     * passed to the `laikaGenerate` task in the format `laikaGenerate <alias>`.

@@ -27,6 +27,7 @@ import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
 import laika.format.{ AST, EPUB, HTML, Markdown, PDF, ReStructuredText, XSLFO }
 import laika.io.api.TreeParser
+import laika.io.config.{ BinaryRendererConfig, RendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.io.syntax.*
 import laika.io.model.{ FilePath, InputTree, InputTreeBuilder }
