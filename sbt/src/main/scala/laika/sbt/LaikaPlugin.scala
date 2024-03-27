@@ -154,8 +154,6 @@ object LaikaPlugin extends AutoPlugin {
     laikaInputs                 := Settings.defaultInputs.value,
     Laika / target              := target.value / "docs",
     laikaSite / target          := (Laika / target).value / "site",
-    laikaXSLFO / target         := (Laika / target).value / "fo",
-    laikaAST / target           := (Laika / target).value / "ast",
     laikaExtensions             := Nil,
     laikaRenderers              := Settings.rendererConfigs.value,
     laikaConfig                 := LaikaConfig.defaults,

@@ -128,9 +128,13 @@ object Tasks {
 
     def renderText(config: TextRendererConfig): Set[File] = {
 
-      if (siteTarget.exists) cleanTarget(siteTarget, baseConfig)
-      else siteTarget.mkdirs()
-      val dirPath = FilePath.fromJavaFile(siteTarget)
+      val target =
+        if (config.format == HTML) siteTarget
+        else siteTarget / config.alias
+
+      if (target.exists) cleanTarget(target, baseConfig)
+      else target.mkdirs()
+      val dirPath = FilePath.fromJavaFile(target)
 
       Renderer
         .of(config.format)
@@ -147,9 +151,9 @@ object Tasks {
         .unsafeRunSync()
 
       streams.value.log.info(Logs.outputs(tree.root, config.alias))
-      streams.value.log.info(s"Generated ${config.alias} in $siteTarget")
+      streams.value.log.info(s"Generated ${config.alias} in $target")
 
-      siteTarget.allPaths.get.toSet.filter(_.isFile)
+      target.allPaths.get.toSet.filter(_.isFile)
     }
 
     def renderBinary(config: BinaryRendererConfig): Set[File] = {

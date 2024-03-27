@@ -153,9 +153,7 @@ object Settings {
     */
   val allTargets: Initialize[Set[File]] = setting {
     Set(
-      (laikaSite / target).value,
-      (laikaXSLFO / target).value,
-      (laikaAST / target).value
+      (laikaSite / target).value
     )
   }
 
