@@ -427,7 +427,7 @@ An example for installing a custom `indexFormat` renderer:
 
 ```scala mdoc:compile-only
 import laika.api.format.*
-import laika.sbt.BinaryRendererConfig
+import laika.io.config.BinaryRendererConfig
 
 def indexFormat: TwoPhaseRenderFormat[Formatter, BinaryPostProcessor.Builder] = ???
 
