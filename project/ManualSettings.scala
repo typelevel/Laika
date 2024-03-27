@@ -82,10 +82,11 @@ object ManualSettings {
     val logo          = images / "site" / "laika-dog-big@1.5x.png"
     val favicon       = images / "site" / "laika-favicon.png"
     val siteBaseURL   = "https://typelevel.org/Laika/"
-    val apiURL     = "https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/index.html"
-    val srcURL     = "https://github.com/typelevel/Laika"
-    val docsSrcURL = s"$srcURL/tree/main/docs/src"
-    val chatURL    = "https://discord.gg/XF3CXcMzqD"
+    val apiBaseURL    = "https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/"
+    val apiRootLink   = apiBaseURL + "laika/index.html"
+    val srcURL        = "https://github.com/typelevel/Laika"
+    val docsSrcURL    = s"$srcURL/tree/main/docs/src"
+    val chatURL       = "https://discord.gg/XF3CXcMzqD"
   }
 
   private object text {
@@ -127,7 +128,7 @@ object ManualSettings {
   }
 
   val config: LaikaConfig = LaikaConfig.defaults
-    .withConfigValue(LinkConfig.empty.addApiLinks(ApiLinks(paths.apiURL)))
+    .withConfigValue(LinkConfig.empty.addApiLinks(ApiLinks(paths.apiBaseURL)))
     .withConfigValue(LinkValidation.Global(Seq(Root / "api")))
     .withConfigValue(
       Selections(
@@ -154,7 +155,7 @@ object ManualSettings {
     .site.topNavigationBar(
       navLinks = Seq(
         IconLink.external(paths.srcURL, HeliumIcon.github),
-        IconLink.external(paths.apiURL + "laika/", HeliumIcon.api),
+        IconLink.external(paths.apiRootLink, HeliumIcon.api),
         IconLink.internal(paths.downloads, HeliumIcon.download),
         IconLink.external(paths.chatURL, HeliumIcon.chat)
       ),
@@ -190,7 +191,7 @@ object ManualSettings {
         TextLink.internal(Root / "02-running-laika" / "02-library-api.md", "Library API"),
         TextLink.internal(Root / "table-of-content", "Table of Content"),
         TextLink.internal(paths.downloads, "Download (PDF & EPUB)"),
-        TextLink.internal(Root / "api" / "laika" / "api" / "index.html", "API (Scaladoc)")
+        TextLink.external(paths.apiRootLink, "API (Scaladoc)")
       ),
       projectLinks = Seq(
         TextLink.external(paths.srcURL, "Source on GitHub"),
