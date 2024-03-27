@@ -238,11 +238,15 @@ object Tasks {
       )
       .andThen(applyIf(previewConfig.isVerbose, _.verbose))
 
+    val binaryFormats = laikaRenderers.value
+      .collect { case bin: BinaryRendererConfig => bin }
+
     val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
       .withHost(previewConfig.host)
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
+      .withBinaryRenderers(binaryFormats)
 
     ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withLogger(s => IO(logger.info(s)))
