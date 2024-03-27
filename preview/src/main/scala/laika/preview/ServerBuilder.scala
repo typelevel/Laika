@@ -250,9 +250,9 @@ object ServerConfig {
       artifactBasename: String,
       includeEPUB: Boolean,
       includePDF: Boolean,
-      binaryRenderers: Seq[BinaryRendererConfig],
       isVerbose: Boolean,
-      apiDir: Option[FilePath]
+      apiDir: Option[FilePath],
+      binaryRenderers: Seq[BinaryRendererConfig]
   ) extends ServerConfig {
     override def productPrefix = "ServerConfig"
 
@@ -263,9 +263,9 @@ object ServerConfig {
         newArtifactBasename: String = artifactBasename,
         newIncludeEPUB: Boolean = includeEPUB,
         newIncludePDF: Boolean = includePDF,
-        newBinaryRenderers: Seq[BinaryRendererConfig] = binaryRenderers,
         newVerbose: Boolean = isVerbose,
-        newAPIDir: Option[FilePath] = apiDir
+        newAPIDir: Option[FilePath] = apiDir,
+        newBinaryRenderers: Seq[BinaryRendererConfig] = binaryRenderers
     ): ServerConfig =
       Impl(
         newPort,
@@ -274,9 +274,9 @@ object ServerConfig {
         newArtifactBasename,
         newIncludeEPUB,
         newIncludePDF,
-        newBinaryRenderers,
         newVerbose,
-        newAPIDir
+        newAPIDir,
+        newBinaryRenderers
       )
 
     def withPort(port: Port): ServerConfig = copy(newPort = port)
