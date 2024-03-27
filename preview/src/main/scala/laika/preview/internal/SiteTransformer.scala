@@ -69,7 +69,7 @@ private[preview] class SiteTransformer[F[_]: Async](
     } yield {
 
       val fallbackArtifactBase = downloadPath / artifactBaseName
-      val combinations = for {
+      val combinations         = for {
         renderer <- binaryRenderers
         root     <- (if (renderer.supportsSeparations) roots else unseparated).toList
       } yield (root, renderer)
