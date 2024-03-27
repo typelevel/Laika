@@ -23,13 +23,16 @@ import laika.api.format.{ BinaryPostProcessor, RenderFormat, TwoPhaseRenderForma
   */
 sealed abstract class RendererConfig private[config] {
 
-  /** The alias that triggers the execution of this renderer when
-    * passed to the `laikaGenerate` task in the format `laikaGenerate <alias>`.
+  /** The alias that triggers the execution of this renderer when invoked from a command line.
+    *
+    * In the context of Laika's sbt plugin this would be in the format `laikaGenerate <alias>`.
     */
   def alias: String
 
-  /** Indicates whether this renderer should be executed when the `laikaSite` task is run.
-    * When set to false, the renderer can still get executed by using `laikaGenerate <alias>`.
+  /** Indicates whether this renderer should be executed alongside the HTML renderer when a site is generated.
+    *
+    * In the context of Laika's sbt plugin this means when `true`` the renderer will execute when `laikaSite` is invoked,
+    * and if `false` the renderer can only be invoked explicitly by using `laikaGenerate <alias>`.
     */
   def includeInSite: Boolean
 

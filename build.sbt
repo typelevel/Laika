@@ -2,7 +2,13 @@ import laika.format.Markdown.GitHubFlavor
 import laika.config.SyntaxHighlighting
 import sbt.Keys.crossScalaVersions
 import org.scalajs.linker.interface.ESVersion
-import com.typesafe.tools.mima.core.{ ProblemFilters, MissingClassProblem }
+import com.typesafe.tools.mima.core.{
+  ProblemFilters,
+  MissingClassProblem,
+  ReversedMissingMethodProblem,
+  DirectMissingMethodProblem,
+  MissingTypesProblem
+}
 import Dependencies._
 
 inThisBuild(
@@ -158,7 +164,18 @@ lazy val preview = project.in(file("preview"))
   .dependsOn(core.jvm, io % "compile->compile;test->test", pdf)
   .settings(
     name := "laika-preview",
-    libraryDependencies ++= (http4s :+ munit)
+    libraryDependencies ++= (http4s :+ munit),
+    mimaBinaryIssueFilters ++= Seq(
+      ProblemFilters.exclude[ReversedMissingMethodProblem](
+        "laika.preview.ServerConfig.binaryRenderers"
+      ),
+      ProblemFilters.exclude[ReversedMissingMethodProblem](
+        "laika.preview.ServerConfig.withBinaryRenderers"
+      ),
+      ProblemFilters.exclude[DirectMissingMethodProblem]("laika.preview.ServerConfig#Impl.this"),
+      ProblemFilters.exclude[DirectMissingMethodProblem]("laika.preview.ServerConfig#Impl.apply"),
+      ProblemFilters.exclude[MissingTypesProblem]("laika.preview.ServerConfig$Impl$")
+    )
   )
 
 lazy val plugin = project.in(file("sbt"))
