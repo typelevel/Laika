@@ -86,7 +86,7 @@ object Settings {
         configBuilder = userConfig.configBuilder,
         compactRendering = parser.config.compactRendering
       )
-      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
+      parser.withConfig(mergedConfig).using(laikaExtensions.value *)
     }
 
     createParser(Markdown)
@@ -106,44 +106,37 @@ object Settings {
 
   val rendererConfigs: Initialize[Seq[RendererConfig]] = setting {
 
-    val baseConfig   = parserConfig.value.baseConfig
-    val downloadPath =
-      (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
+    val baseConfig       = parserConfig.value.baseConfig
+    val downloadPath     = validated(SiteConfig.downloadPath(baseConfig))
+    val artifactBasePath = downloadPath / artifactBaseName.value
 
     Seq(
       TextRendererConfig(
         "html",
         HTML,
-        (laikaSite / target).value,
         includeInSite = true
       ),
       TextRendererConfig(
         "xsl-fo",
         XSLFO,
-        (laikaXSLFO / target).value,
         includeInSite = false
       ),
       TextRendererConfig(
         "ast",
         AST,
-        (laikaAST / target).value,
         includeInSite = false
       ),
       BinaryRendererConfig(
         "pdf",
         PDF,
-        downloadPath,
-        artifactBaseName.value,
-        "pdf",
+        laika.io.config.Artifact(artifactBasePath, "pdf"),
         includeInSite = laikaIncludePDF.value,
         supportsSeparations = true
       ),
       BinaryRendererConfig(
         "epub",
         EPUB,
-        downloadPath,
-        artifactBaseName.value,
-        "epub",
+        laika.io.config.Artifact(artifactBasePath, "epub"),
         includeInSite = laikaIncludeEPUB.value,
         supportsSeparations = true
       )

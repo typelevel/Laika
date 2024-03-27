@@ -111,6 +111,8 @@ object Tasks {
     val userConfig = laikaConfig.value
     val baseConfig = Settings.parserConfig.value.baseConfig
 
+    val siteTarget = (laikaSite / target).value
+
     lazy val tree = {
       val apiPath = validated(SiteConfig.apiPath(baseConfig))
       val parser  = Settings.parser.value
@@ -126,9 +128,9 @@ object Tasks {
 
     def renderText(config: TextRendererConfig): Set[File] = {
 
-      if (config.targetDirectory.exists) cleanTarget(config.targetDirectory, baseConfig)
-      else config.targetDirectory.mkdirs()
-      val dirPath = FilePath.fromJavaFile(config.targetDirectory)
+      if (siteTarget.exists) cleanTarget(siteTarget, baseConfig)
+      else siteTarget.mkdirs()
+      val dirPath = FilePath.fromJavaFile(siteTarget)
 
       Renderer
         .of(config.format)
@@ -145,14 +147,15 @@ object Tasks {
         .unsafeRunSync()
 
       streams.value.log.info(Logs.outputs(tree.root, config.alias))
-      streams.value.log.info(s"Generated ${config.alias} in ${config.targetDirectory}")
+      streams.value.log.info(s"Generated ${config.alias} in $siteTarget")
 
-      config.targetDirectory.allPaths.get.toSet.filter(_.isFile)
+      siteTarget.allPaths.get.toSet.filter(_.isFile)
     }
 
     def renderBinary(config: BinaryRendererConfig): Set[File] = {
 
-      config.targetDirectory.mkdirs()
+      val targetDirectory = siteTarget / config.artifact.fullPath.parent.toString
+      targetDirectory.mkdirs()
 
       val ops = Renderer
         .of(config.format)
@@ -165,10 +168,8 @@ object Tasks {
             if (config.supportsSeparations) validated(Selections.createCombinations(tree.root))
             else NonEmptyChain.one(tree.root -> Selections.Classifiers(Nil))
           roots.traverse { case (root, classifiers) =>
-            val classifier =
-              if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-            val docName    = config.artifactBaseName + classifier + "." + config.fileSuffix
-            val file       = config.targetDirectory / docName
+            val artifactPath = config.artifact.withClassifiers(classifiers.value).fullPath
+            val file         = siteTarget / artifactPath.toString
             renderer
               .from(root)
               .copying(tree.staticDocuments)

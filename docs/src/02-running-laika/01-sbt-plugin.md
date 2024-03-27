@@ -426,17 +426,21 @@ and enables users to install their own or 3rd-party renderers.
 An example for installing a custom `indexFormat` renderer:
 
 ```scala mdoc:compile-only
+import laika.ast.Path.Root
 import laika.api.format.*
 import laika.io.config.BinaryRendererConfig
 
 def indexFormat: TwoPhaseRenderFormat[Formatter, BinaryPostProcessor.Builder] = ???
 
+val artifact = laika.io.config.Artifact(
+  basePath = Root / "search",
+  suffix = "dat"
+)
+
 laikaRenderers += BinaryRendererConfig(
   alias = "index",
   format = indexFormat,
-  targetDirectory = (laikaSite / target).value / "search",
-  artifactBaseName = "searchIndex",
-  fileSuffix = "dat",
+  artifact = artifact,
   includeInSite = true,
   supportsSeparations = false
 )

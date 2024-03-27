@@ -18,8 +18,6 @@ package laika.io.config
 
 import laika.api.format.{ BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat }
 
-import java.io.File
-
 /** Base trait for the configuration of renderers where the execution is not directly triggered by the user.
   * Examples for such a scenario are the preview server and the sbt plugin
   */
@@ -35,9 +33,6 @@ sealed abstract class RendererConfig private[config] {
     */
   def includeInSite: Boolean
 
-  /** The target directory the file(s) should be written into.
-    */
-  def targetDirectory: File
 }
 
 /** Represents the configuration for a text renderer (of type `laika.api.format.RenderFormat`)
@@ -60,18 +55,9 @@ sealed abstract class BinaryRendererConfig private extends RendererConfig {
     */
   def format: TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder]
 
-  /** The base name of the output file.
-    *
-    * The full path of the generated file will be
-    * `<targetDirectory>/<artifactBaseName><classifiers>.<fileSuffix>`
-    * where `classifiers` will be empty when `supportsSeparations` is `false`
-    * or the user did not use the `@:select` directive.
+  /** The artifact to be produced by this renderer.
     */
-  def artifactBaseName: String
-
-  /** The file suffix (without dot) for the output file.
-    */
-  def fileSuffix: String
+  def artifact: Artifact
 
   /** Indicates whether multiple different versions of the output with different
     * classifiers in their name should be written in case the user
@@ -89,7 +75,6 @@ object TextRendererConfig {
   private final case class Impl(
       alias: String,
       format: RenderFormat[?],
-      targetDirectory: File,
       includeInSite: Boolean
   ) extends TextRendererConfig {
     override def productPrefix = "TextRendererConfig"
@@ -98,12 +83,10 @@ object TextRendererConfig {
   def apply(
       alias: String,
       format: RenderFormat[?],
-      targetDirectory: File,
       includeInSite: Boolean
   ): TextRendererConfig = Impl(
     alias,
     format,
-    targetDirectory,
     includeInSite
   )
 
@@ -114,9 +97,7 @@ object BinaryRendererConfig {
   private final case class Impl(
       alias: String,
       format: TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder],
-      targetDirectory: File,
-      artifactBaseName: String,
-      fileSuffix: String,
+      artifact: Artifact,
       includeInSite: Boolean,
       supportsSeparations: Boolean
   ) extends BinaryRendererConfig {
@@ -126,17 +107,13 @@ object BinaryRendererConfig {
   def apply(
       alias: String,
       format: TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder],
-      targetDirectory: File,
-      artifactBaseName: String,
-      fileSuffix: String,
+      artifact: Artifact,
       includeInSite: Boolean,
       supportsSeparations: Boolean
   ): BinaryRendererConfig = Impl(
     alias,
     format,
-    targetDirectory,
-    artifactBaseName,
-    fileSuffix,
+    artifact,
     includeInSite,
     supportsSeparations
   )
