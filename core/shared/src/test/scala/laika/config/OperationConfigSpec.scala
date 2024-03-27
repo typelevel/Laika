@@ -41,13 +41,16 @@ class OperationConfigSpec extends FunSuite {
   ): OperationConfig = {
 
     object Parser extends MarkupFormat {
-      val fileSuffixes    = Set("foo")
-      val blockParsers    = new MarkupParsers[BlockParserBuilder] {
+      val fileSuffixes = Set("foo")
+
+      val blockParsers = new MarkupParsers[BlockParserBuilder] {
         val all: Seq[BlockParserBuilder] = Nil
       }
-      val spanParsers     = new MarkupParsers[SpanParserBuilder] {
+
+      val spanParsers = new MarkupParsers[SpanParserBuilder] {
         val all: Seq[SpanParserBuilder] = Nil
       }
+
       lazy val extensions = parserBundles
     }
 

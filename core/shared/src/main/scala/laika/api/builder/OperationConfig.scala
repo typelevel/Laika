@@ -249,8 +249,10 @@ class OperationConfig private[laika] (
     val docTypeMatcher = new ExtensionBundle {
       val description: String           = s"Document Type Matcher for ${parser.description}"
       override val origin: BundleOrigin = BundleOrigin.Parser
+
       override val docTypeMatcher: PartialFunction[Path, DocumentType] =
         DocumentTypeMatcher.forMarkup(parser.fileSuffixes)
+
     }
     copy(bundles = this.bundles ++ parser.extensions :+ docTypeMatcher)
   }

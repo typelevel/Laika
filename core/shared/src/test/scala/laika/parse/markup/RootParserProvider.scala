@@ -36,13 +36,16 @@ object RootParserProvider {
 
     object Parser extends MarkupFormat {
       val fileSuffixes = Set.empty[String]
+
       val blockParsers = new MarkupParsers[BlockParserBuilder] {
         val all: Seq[BlockParserBuilder] = bp
       }
-      val spanParsers  = new MarkupParsers[SpanParserBuilder] {
+
+      val spanParsers = new MarkupParsers[SpanParserBuilder] {
         val all: Seq[SpanParserBuilder] = sp
       }
-      val extensions   = Seq()
+
+      val extensions = Seq()
     }
 
     new RootParserWrapper(Parser, markupExtensions)

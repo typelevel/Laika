@@ -228,8 +228,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with a missing required positional attribute") {
     new RequiredPositionalAttribute with InvalidTemplateParser {
       val input = "aa @:dir bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
+
       run(input, TemplateElement(invalid("@:dir", msg)))
     }
   }
@@ -243,8 +245,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with an optional invalid default int attribute") {
     new OptionalPositionalAttribute with InvalidTemplateParser {
       val input = "aa @:dir(foo) bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
+
       run(input, TemplateElement(invalid("@:dir(foo)", msg)))
     }
   }
@@ -270,8 +274,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with a missing required named attribute") {
     new RequiredNamedAttribute with InvalidTemplateParser {
       val input = "aa @:dir bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required attribute 'name' is missing"
+
       run(input, TemplateElement(invalid("@:dir", msg)))
     }
   }
@@ -285,8 +291,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with an optional invalid named int attribute") {
     new OptionalNamedAttribute with InvalidTemplateParser {
       val input = "aa @:dir { name=foo } bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
+
       run(input, TemplateElement(invalid("@:dir { name=foo }", msg)))
     }
   }
@@ -305,11 +313,13 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
   test("parse a directive with a body") {
     new RequiredBody with TemplateParser {
+
       val body = TemplateSpanSequence(
         TemplateString(" some "),
         TemplateString("value"),
         TemplateString(" text ")
       )
+
       run("aa @:dir some ${ref} text @:@ bb", body)
     }
   }
@@ -340,9 +350,11 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with an invalid separator") {
     new SeparatedBody with InvalidTemplateParser {
       val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
-      val src   = input.slice(3, 36)
+
+      val src = input.slice(3, 36)
       run(input, TemplateElement(invalid(src, msg)))
     }
   }
@@ -350,9 +362,11 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with a separator not meeting the min count requirements") {
     new SeparatedBody with InvalidTemplateParser {
       val input = """aa @:dir aaa @:bar(baz) ccc @:@ bb"""
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
-      val src   = input.slice(3, 31)
+
+      val src = input.slice(3, 31)
       run(input, TemplateElement(invalid(src, msg)))
     }
   }
@@ -360,9 +374,11 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with a separator exceeding the max count constraint") {
     new SeparatedBody with InvalidTemplateParser {
       val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:bar(baz) ddd @:@ bb"""
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
-      val src   = input.drop(3).dropRight(3)
+
+      val src = input.drop(3).dropRight(3)
       run(input, TemplateElement(invalid(src, msg)))
     }
   }
@@ -403,8 +419,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   ) {
     new FullDirectiveSpec with InvalidTemplateParser {
       val input = "aa @:dir { strAttr=str } bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
+
       run(input, TemplateElement(invalid("@:dir { strAttr=str }", msg)))
     }
   }
@@ -425,8 +443,10 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   test("detect a directive with an unknown name") {
     new OptionalNamedAttribute with InvalidTemplateParser {
       val input = "aa @:foo {name=foo} bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'foo': No template directive registered with name: foo"
+
       run(input, TemplateElement(invalid("@:foo {name=foo}", msg)))
     }
   }

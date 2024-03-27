@@ -59,13 +59,16 @@ trait ParserSetup {
   ): MarkupFormat = {
 
     new MarkupFormat {
-      val fileSuffixes    = Set("foo")
-      val blockParsers    = new MarkupParsers[BlockParserBuilder] {
+      val fileSuffixes = Set("foo")
+
+      val blockParsers = new MarkupParsers[BlockParserBuilder] {
         val all: Seq[BlockParserBuilder] = blocks
       }
-      val spanParsers     = new MarkupParsers[SpanParserBuilder] {
+
+      val spanParsers = new MarkupParsers[SpanParserBuilder] {
         val all: Seq[SpanParserBuilder] = spans
       }
+
       lazy val extensions = bundles
     }
 

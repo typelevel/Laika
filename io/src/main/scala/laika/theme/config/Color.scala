@@ -51,6 +51,7 @@ object Color {
   def rgba(red: Int, green: Int, blue: Int, alpha: Float): Color = {
     val display = if (alpha == 1) s"rgb($red,$green,$blue)" else s"rgba($red,$green,$blue,$alpha)"
     new Color(display) {
+
       def validate: Option[String] = {
         def unsignedByte(value: Int): Boolean = value >= 0 && value <= 255
         if (
@@ -71,6 +72,7 @@ object Color {
           ((1 - alpha) * 255 + alpha * blue).toInt
         )
       }
+
     }
   }
 

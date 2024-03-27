@@ -208,168 +208,201 @@ class BlockDirectiveAPISpec extends FunSuite
 
   test("empty directive") {
     new BlockParser with Empty {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("foo"), p("bb"))
     }
   }
 
   test("directive producing a block resolver") {
     new BlockParser with DirectiveProducingResolver {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("foo"), p("bb"))
     }
   }
 
   test("directive with one required default string attribute") {
     new BlockParser with RequiredPositionalAttribute {
+
       val input = """aa
                     |
                     |@:dir(foo)
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("foo"), p("bb"))
     }
   }
 
   test("invalid - directive with a missing positional default attribute") {
     new BlockParser with RequiredPositionalAttribute {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
+
       run(p("aa"), invalid("@:dir", msg), p("bb"))
     }
   }
 
   test("directive with an optional default int attribute") {
     new BlockParser with OptionalPositionalAttribute {
+
       val input = """aa
                     |
                     |@:dir(5)
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("5"), p("bb"))
     }
   }
 
   test("invalid - directive with an optional invalid default int attribute") {
     new BlockParser with OptionalPositionalAttribute {
+
       val input = """aa
                     |
                     |@:dir(foo)
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
+
       run(p("aa"), invalid("@:dir(foo)", msg), p("bb"))
     }
   }
 
   test("directive with a missing optional default int attribute") {
     new BlockParser with OptionalPositionalAttribute {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("<>"), p("bb"))
     }
   }
 
   test("directive with one required named string attribute") {
     new BlockParser with RequiredNamedAttribute {
+
       val input = """aa
                     |
                     |@:dir { name=foo }
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("foo"), p("bb"))
     }
   }
 
   test("directive with a named string attribute value in quotes") {
     new BlockParser with RequiredNamedAttribute {
+
       val input = """aa
                     |
                     |@:dir { name="foo bar" }
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("foo bar"), p("bb"))
     }
   }
 
   test("invalid - directive with a missing required named attribute") {
     new BlockParser with RequiredNamedAttribute {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required attribute 'name' is missing"
+
       run(p("aa"), invalid("@:dir", msg), p("bb"))
     }
   }
 
   test("directive with an optional named int attribute") {
     new BlockParser with OptionalNamedAttribute {
+
       val input = """aa
                     |
                     |@:dir { name=5 }
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("5"), p("bb"))
     }
   }
 
   test("invalid - directive with an optional invalid named int attribute") {
     new BlockParser with OptionalNamedAttribute {
+
       val input = """aa
                     |
                     |@:dir { name=foo }
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
+
       run(p("aa"), invalid("@:dir { name=foo }", msg), p("bb"))
     }
   }
 
   test("directive with a missing optional named int attribute") {
     new BlockParser with OptionalNamedAttribute {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("<>"), p("bb"))
     }
   }
 
   test("directive with the allAttributes combinator") {
     new BlockParser with AllAttributes {
+
       val input = """aa
                     |
                     |@:dir { foo=Planet, bar=42 }
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("Planet 42"), p("bb"))
     }
   }
 
   test("directive with the allAttributes combinator and an additional nested config object") {
     new BlockParser with AllAttributes {
+
       val input = """aa
                     |
                     |@:dir { 
@@ -379,12 +412,14 @@ class BlockDirectiveAPISpec extends FunSuite
                     |}
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("Planet 42"), p("bb"))
     }
   }
 
   test("directive with a body") {
     new BlockParser with Body {
+
       val input = """aa
                     |
                     |@:dir
@@ -394,13 +429,15 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(p(Text("some\nvalue\ntext")))
+
+      val body = BlockSequence(p(Text("some\nvalue\ntext")))
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("directive with a body and trim empty lines at the start and end") {
     new BlockParser with Body {
+
       val input = """aa
                     |
                     |@:dir
@@ -412,13 +449,15 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(p(Text("some\nvalue\ntext")))
+
+      val body = BlockSequence(p(Text("some\nvalue\ntext")))
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("directive with a body and a custom fence") {
     new BlockParser with Body {
+
       val input = """aa
                     |
                     |@:dir +++
@@ -430,13 +469,15 @@ class BlockDirectiveAPISpec extends FunSuite
                     |+++
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(p(Text("some\nvalue\ntext")))
+
+      val body = BlockSequence(p(Text("some\nvalue\ntext")))
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("directive with an empty body") {
     new BlockParser with Body {
+
       val input = """aa
                     |
                     |@:dir
@@ -444,24 +485,28 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
+
       run(p("aa"), BlockSequence.empty, p("bb"))
     }
   }
 
   test("invalid - directive with a missing body") {
     new BlockParser with Body {
+
       val input = """aa
                     |
                     |@:dir
                     |
                     |bb""".stripMargin
-      val msg   = "One or more errors processing directive 'dir': required body is missing"
+
+      val msg = "One or more errors processing directive 'dir': required body is missing"
       run(p("aa"), invalid("@:dir", msg), p("bb"))
     }
   }
 
   test("directive with a separated body") {
     new BlockParser with SeparatedBody {
+
       val input = """aa
                     |
                     |@:dir
@@ -475,13 +520,15 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(p("aaa"), p("foo"), p("bbb"), p("baz"), p("ccc"))
+
+      val body = BlockSequence(p("aaa"), p("foo"), p("bbb"), p("baz"), p("ccc"))
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("invalid - directive with an invalid separator") {
     new BlockParser with SeparatedBody {
+
       val input =
         """aa
           |
@@ -496,15 +543,18 @@ class BlockDirectiveAPISpec extends FunSuite
           |@:@
           |
           |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
-      val src   = input.split("\n").toSeq.slice(2, 11).mkString("\n")
+
+      val src = input.split("\n").toSeq.slice(2, 11).mkString("\n")
       run(p("aa"), invalid(src, msg), p("bb"))
     }
   }
 
   test("invalid - directive with a separator not meeting the min count requirements") {
     new BlockParser with SeparatedBody {
+
       val input = """aa
                     |
                     |@:dir
@@ -515,15 +565,18 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
-      val src   = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
+
+      val src = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
       run(p("aa"), invalid(src, msg), p("bb"))
     }
   }
 
   test("invalid - directive with a separator exceeding the max count constraint") {
     new BlockParser with SeparatedBody {
+
       val input = """aa
                     |
                     |@:dir
@@ -541,28 +594,33 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
-      val src   = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
+
+      val src = input.split("\n").toSeq.drop(2).dropRight(2).mkString("\n")
       run(p("aa"), invalid(src, msg), p("bb"))
     }
   }
 
   test("detect an orphaned separator directive") {
     new BlockParser with SeparatedBody {
+
       val input =
         """aa
           |
           |@:foo
           |
           |bb""".stripMargin
-      val msg   = "Orphaned separator directive with name 'foo'"
+
+      val msg = "Orphaned separator directive with name 'foo'"
       run(p("aa"), invalid("@:foo", msg), p("bb"))
     }
   }
 
   test("full directive spec with all elements present") {
     new FullDirectiveSpec with BlockParser {
+
       val input = """aa
                     |
                     |@:dir(foo, 4) { strAttr=str, intAttr=7 }
@@ -572,16 +630,19 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(
+
+      val body = BlockSequence(
         p("foo:str:11"),
         p(Text("1 value 2"))
       )
+
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("full directive spec with all elements present and attributes on multiple lines") {
     new FullDirectiveSpec with BlockParser {
+
       val input = """aa
                     |
                     |@:dir(foo, 4) {
@@ -594,16 +655,19 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(
+
+      val body = BlockSequence(
         p("foo:str:11"),
         p(Text("1 value 2"))
       )
+
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("full directive spec with all optional elements missing") {
     new FullDirectiveSpec with BlockParser {
+
       val input = """aa
                     |
                     |@:dir(foo, 4)
@@ -613,16 +677,19 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(
+
+      val body = BlockSequence(
         p("foo:..:4"),
         p(Text("1 value 2"))
       )
+
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("full directive spec with a custom fence") {
     new FullDirectiveSpec with BlockParser {
+
       val input = """aa
                     |
                     |@:dir(foo, 4) +++
@@ -632,29 +699,35 @@ class BlockDirectiveAPISpec extends FunSuite
                     |+++
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence(
+
+      val body = BlockSequence(
         p("foo:..:4"),
         p(Text("1 value 2"))
       )
+
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("invalid - full directive spec with positional attributes and the body missing") {
     new FullDirectiveSpec with BlockParser {
+
       val input = """aa
                     |
                     |@:dir { strAttr=str }
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
+
       run(p("aa"), invalid("@:dir { strAttr=str }", msg), p("bb"))
     }
   }
 
   test("directive with a custom body parser") {
     new BlockParser with DirectiveWithCustomBodyParser {
+
       val input = """aa
                     |
                     |@:dir
@@ -662,13 +735,15 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
-      val body  = BlockSequence("e value text")
+
+      val body = BlockSequence("e value text")
       run(p("aa"), body, p("bb"))
     }
   }
 
   test("directive with a required default body and cursor access") {
     new BlockParser with DirectiveWithContextAccess {
+
       val input = """aa
                     |
                     |@:dir
@@ -676,25 +751,30 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("text/"), p("bb"))
     }
   }
 
   test("invalid - directive with an unknown name") {
     new BlockParser with OptionalNamedAttribute {
+
       val input = """aa
                     |
                     |@:foo { name=foo }
                     |
                     |bb""".stripMargin
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'foo': No block directive registered with name: foo"
+
       run(p("aa"), invalid("@:foo { name=foo }", msg), p("bb"))
     }
   }
 
   test("merge options from two nested directives") {
     new BlockParser with RequiredPositionalAttribute {
+
       val input = """aa
                     |
                     |@:style(bar)
@@ -704,6 +784,7 @@ class BlockDirectiveAPISpec extends FunSuite
                     |@:@
                     |
                     |bb""".stripMargin
+
       run(p("aa"), p("foo").withStyle("bar"), p("bb"))
     }
   }

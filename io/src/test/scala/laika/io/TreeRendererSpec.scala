@@ -529,8 +529,10 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     )
     val inputs   = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, template))
+
     }
     val renderer = Renderer.of(HTML)
       .parallel[IO]
@@ -681,8 +683,10 @@ class TreeRendererSpec extends CatsEffectSuite
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
     )
     val inputs   = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(TemplateDocument(DefaultTemplatePath.forEPUB, template))
+
     }
     val renderer =
       Renderer
@@ -701,32 +705,36 @@ class TreeRendererSpec extends CatsEffectSuite
   test(
     "tree with a single document to EPUB.XHTML using a custom template in a theme extension overriding a template in the base theme"
   ) {
-    val contentRef           =
+    val contentRef      =
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
-    val baseThemeInputs      = new TestThemeBuilder.Inputs {
+    val baseThemeInputs = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(
           TemplateDocument(DefaultTemplatePath.forEPUB, Results.betweenBrackets(contentRef))
         )
+
     }
     val themeExtensionInputs = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addTemplate(
           TemplateDocument(DefaultTemplatePath.forEPUB, Results.between(contentRef, "?", "?"))
         )
+
     }
-    val theme                = TestThemeBuilder.forInputs(baseThemeInputs).extendWith(
+    val theme    = TestThemeBuilder.forInputs(baseThemeInputs).extendWith(
       TestThemeBuilder.forInputs(themeExtensionInputs)
     )
-    val renderer             =
+    val renderer =
       Renderer
         .of(EPUB.XHTML)
         .parallel[IO]
         .withTheme(theme)
         .build
-    val expected             = """?<h1 id="title" class="title">Title</h1>
+    val expected = """?<h1 id="title" class="title">Title</h1>
                      |<p>bbb</p>?""".stripMargin
-    val path                 = (Root / "doc").withSuffix("xhtml")
+    val path     = (Root / "doc").withSuffix("xhtml")
     EPUB_XHTMLRenderer
       .render(EPUB_XHTMLRenderer.defaultTree, renderer)
       .assertEquals(Results.rootWithSingleDoc(path, expected, EPUB_XHTMLRenderer.outputContext))
@@ -771,10 +779,12 @@ class TreeRendererSpec extends CatsEffectSuite
   test("tree with two documents to XSL-FO using a custom style sheet in a theme") {
     import FORenderer.*
 
-    val inputs       = new TestThemeBuilder.Inputs {
+    val inputs = new TestThemeBuilder.Inputs {
+
       def build[F[_]: Async] = InputTree[F]
         .addStyles(customThemeStyles, FOStyles.defaultPath)
         .addTemplate(TemplateDocument(DefaultTemplatePath.forFO, TestTheme.foTemplate))
+
     }
     val renderer     =
       Renderer

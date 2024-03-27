@@ -86,6 +86,7 @@ object PDF extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builde
           fopFactory =>
             new BinaryPostProcessor[F] {
               private val renderer = new PDFRenderer(fopFactory, dispatcher)
+
               override def process(
                   result: RenderedTreeRoot[F],
                   output: BinaryOutput[F],
@@ -95,6 +96,7 @@ object PDF extends TwoPhaseRenderFormat[TagFormatter, BinaryPostProcessor.Builde
                   fo <- Async[F].fromEither(FOConcatenation(result, pdfConfig, opConfig))
                   _  <- renderer.render(fo, output, pdfConfig.metadata, result.staticDocuments)
                 } yield ()
+
             }
         }
       }

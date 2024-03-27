@@ -58,9 +58,11 @@ object Settings {
   val parser: Initialize[Resource[IO, TreeParser[IO]]] = setting {
 
     val configFallbacks: ExtensionBundle = new ExtensionBundle {
-      val description     = "Config Defaults from sbt Plugin"
+      val description = "Config Defaults from sbt Plugin"
+
       override def origin =
         BundleOrigin.Library // for lowest precedence, as helium metadata should override this
+
       override def baseConfig: Config = ConfigBuilder.empty
         .withValue(LaikaKeys.metadata.child("title"), name.value)
         .withValue(LaikaKeys.site.metadata.child("title"), name.value)
@@ -73,6 +75,7 @@ object Settings {
           name.value + "-" + version.value.split('.').take(2).mkString(".")
         )
         .build
+
     }
 
     val userConfig                                        = laikaConfig.value

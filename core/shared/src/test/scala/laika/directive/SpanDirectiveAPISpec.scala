@@ -279,8 +279,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with a missing required positional attribute") {
     new SpanParser with RequiredPositionalAttribute {
       val input = "aa @:dir bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required positional attribute at index 0 is missing"
+
       run(Text("aa "), invalid("@:dir", msg), Text(" bb"))
     }
   }
@@ -295,8 +297,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with an optional invalid default int attribute") {
     new SpanParser with OptionalPositionalAttribute {
       val input = "aa @:dir(foo) bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': error converting positional attribute at index 0: not an integer: foo"
+
       run(Text("aa "), invalid("@:dir(foo)", msg), Text(" bb"))
     }
   }
@@ -325,8 +329,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with a missing required named attribute") {
     new SpanParser with RequiredNamedAttribute {
       val input = "aa @:dir bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required attribute 'name' is missing"
+
       run(Text("aa "), invalid("@:dir", msg), Text(" bb"))
     }
   }
@@ -334,11 +340,13 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with an invalid HOCON string attribute (missing closing quote)") {
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name="foo bar } bb"""
-      val msg   =
+
+      val msg =
         s"""One or more errors processing directive 'dir': Multiple invalid fields in HOCON source: 'name': [1.30] failure: Expected closing '"'
            |
            |$input
            |                             ^""".stripMargin
+
       run(Text("aa "), invalid("@:dir { name=\"foo bar } bb", msg))
     }
   }
@@ -348,11 +356,13 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   ) {
     new SpanParser with RequiredNamedAttribute {
       val input = """aa @:dir { name = foo ? bar } bb"""
-      val msg   =
+
+      val msg =
         s"""One or more errors processing directive 'dir': Multiple invalid fields in HOCON source: 'name': [1.23] failure: Illegal character in unquoted string, expected delimiters are one of '#', ',', '\\n', '}'
            |
            |$input
            |                      ^""".stripMargin
+
       run(Text("aa "), invalid("@:dir { name = foo ? bar }", msg), Text(" bb"))
     }
   }
@@ -367,8 +377,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with an optional invalid named int attribute") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:dir { name=foo } bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': error converting attribute 'name': not an integer: foo"
+
       run(Text("aa "), invalid("@:dir { name=foo }", msg), Text(" bb"))
     }
   }
@@ -422,9 +434,11 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with an invalid separator") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:foo bbb @:bar ccc @:@ bb"""
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': One or more errors processing separator directive 'bar': required positional attribute at index 0 is missing"
-      val src   = input.slice(3, 36)
+
+      val src = input.slice(3, 36)
       run(Text("aa "), invalid(src, msg), Text(" bb"))
     }
   }
@@ -432,9 +446,11 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with a separator not meeting the min count requirements") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:bar(baz) ccc @:@ bb"""
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': too few occurrences of separator directive 'foo': expected min: 1, actual: 0"
-      val src   = input.slice(3, 31)
+
+      val src = input.slice(3, 31)
       run(Text("aa "), invalid(src, msg), Text(" bb"))
     }
   }
@@ -442,9 +458,11 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with a separator exceeding the max count constraint") {
     new SpanParser with SeparatedBody {
       val input = """aa @:dir aaa @:foo bbb @:bar(baz) ccc @:bar(baz) ddd @:@ bb"""
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': too many occurrences of separator directive 'bar': expected max: 1, actual: 2"
-      val src   = input.drop(3).dropRight(3)
+
+      val src = input.drop(3).dropRight(3)
       run(Text("aa "), invalid(src, msg), Text(" bb"))
     }
   }
@@ -460,9 +478,11 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("full directive spec with all elements present") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir(foo, 4) { strAttr=str, intAttr=7 } 1 ${ref} 2 @:@ bb"
-      val body  = ss(
+
+      val body = ss(
         Text("foo:str:11 1 value 2 ")
       )
+
       run(Text("aa "), body, Text(" bb"))
     }
   }
@@ -470,9 +490,11 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("full directive spec with all elements present with attributes spanning two lines") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir(foo,4) {\n strAttr=str\nintAttr=7 \n} 1 ${ref} 2 @:@ bb"
-      val body  = ss(
+
+      val body = ss(
         Text("foo:str:11 1 value 2 ")
       )
+
       run(Text("aa "), body, Text(" bb"))
     }
   }
@@ -480,9 +502,11 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("full directive spec with all optional elements missing") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir(foo,4) 1 ${ref} 2 @:@ bb"
-      val body  = ss(
+
+      val body = ss(
         Text("foo:..:4 1 value 2 ")
       )
+
       run(Text("aa "), body, Text(" bb"))
     }
   }
@@ -490,8 +514,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - full directive spec with positional attributes and the body missing") {
     new FullDirectiveSpec with SpanParser {
       val input = "aa @:dir { strAttr=str } bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'dir': required positional attribute at index 0 is missing, required positional attribute at index 1 is missing, required body is missing"
+
       run(Text("aa "), invalid("@:dir { strAttr=str }", msg), Text(" bb"))
     }
   }
@@ -514,8 +540,10 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("invalid - directive with an unknown name") {
     new SpanParser with OptionalNamedAttribute {
       val input = "aa @:foo { name=foo } bb"
-      val msg   =
+
+      val msg =
         "One or more errors processing directive 'foo': No span directive registered with name: foo"
+
       run(Text("aa "), invalid("@:foo { name=foo }", msg), Text(" bb"))
     }
   }
@@ -523,17 +551,20 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
   test("link directive") {
     new LinkParser with LinkDirectiveSetup {
       val input = "aa @:rfc(222) bb"
+
       run(
         Text("aa "),
         SpanLink.external("http://tools.ietf.org/html/rfc222")("RFC 222").withStyles("rfc"),
         Text(" bb")
       )
+
     }
   }
 
   test("link directive inside a native link expression") {
     new LinkParser with LinkDirectiveSetup {
       val input = "aa [RFC-222](@:rfc(222)) bb"
+
       assertEquals(
         parseAsMarkdown(input),
         Right(
@@ -544,12 +575,14 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
           )
         )
       )
+
     }
   }
 
   test("unknown link directive") {
     new LinkParser with LinkDirectiveSetup {
       val input = "aa [RFC-222](@:rfx(222)) bb"
+
       assertEquals(
         parseAsMarkdown(input),
         Right(
@@ -560,12 +593,14 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
           )
         )
       )
+
     }
   }
 
   test("invalid link directive") {
     new LinkParser with LinkDirectiveSetup {
       val input = "aa [RFC-222](@:rfc(foo)) bb"
+
       assertEquals(
         parseAsMarkdown(input),
         Right(
@@ -580,12 +615,14 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
           )
         )
       )
+
     }
   }
 
   test("invalid link directive syntax") {
     new LinkParser with LinkDirectiveSetup {
       val input = "aa [RFC-222](@:rfc!foo) bb"
+
       assertEquals(
         parseAsMarkdown(input),
         Right(
@@ -600,6 +637,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
           )
         )
       )
+
     }
   }
 
