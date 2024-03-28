@@ -26,7 +26,8 @@ import laika.api.builder.OperationConfig
 import laika.api.config.Config.ConfigResult
 import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
 import laika.ast.Path
-import laika.config.{ LaikaKeys, MessageFilters, Selections, TargetFormats }
+import laika.ast.Path.Root
+import laika.config.{ LaikaKeys, MessageFilters, Selections, TargetFormats, Versions }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
 import laika.io.config.{ Artifact, BinaryRendererConfig }
@@ -74,11 +75,18 @@ private[preview] class SiteTransformer[F[_]: Async](
         root     <- (if (renderer.supportsSeparations) roots else unseparated).toList
       } yield (root, renderer)
 
+      val currentVersion = tree.root.config.get[Versions].toOption.map(_.currentVersion)
+
       combinations.map { case ((root, classifiers), rendererSetup) =>
-        val path      =
+        val path        =
           rendererSetup.artifact(fallbackArtifactBase).withClassifiers(classifiers.value).fullPath
-        val finalTree = ParsedTree(root).addStaticDocuments(tree.staticDocuments)
-        (path, StaticResult(renderBinary(rendererSetup.renderer, finalTree)))
+        val isVersioned =
+          currentVersion.isDefined &&
+          tree.root.selectTreeConfig(path.parent).get[Boolean](LaikaKeys.versioned).getOrElse(false)
+        val servedPath  =
+          if (isVersioned) Root / currentVersion.get.pathSegment / path.relative else path
+        val finalTree   = ParsedTree(root).addStaticDocuments(tree.staticDocuments)
+        (servedPath, StaticResult(renderBinary(rendererSetup.renderer, finalTree)))
       }.toMap
     }
   }

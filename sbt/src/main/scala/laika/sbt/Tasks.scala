@@ -32,7 +32,8 @@ import cats.data.NonEmptyChain
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
 import laika.api.format.MarkupFormat
-import laika.config.{ Selections, Versions }
+import laika.ast.Path.Root
+import laika.config.{ LaikaKeys, Selections, Versions }
 import laika.io.config.{ BinaryRendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
@@ -161,6 +162,8 @@ object Tasks {
       val targetDirectory = siteTarget / config.artifact.fullPath.parent.toString
       targetDirectory.mkdirs()
 
+      val currentVersion = tree.root.config.get[Versions].toOption.map(_.currentVersion)
+
       val ops = Renderer
         .of(config.format)
         .withConfig(Settings.parserConfig.value)
@@ -173,7 +176,16 @@ object Tasks {
             else NonEmptyChain.one(tree.root -> Selections.Classifiers(Nil))
           roots.traverse { case (root, classifiers) =>
             val artifactPath = config.artifact.withClassifiers(classifiers.value).fullPath
-            val file         = siteTarget / artifactPath.toString
+            val isVersioned  =
+              currentVersion.isDefined &&
+              tree.root
+                .selectTreeConfig(artifactPath.parent)
+                .get[Boolean](LaikaKeys.versioned)
+                .getOrElse(false)
+            val finalPath    =
+              if (isVersioned) Root / currentVersion.get.pathSegment / artifactPath.relative
+              else artifactPath
+            val file         = siteTarget / finalPath.toString
             renderer
               .from(root)
               .copying(tree.staticDocuments)
