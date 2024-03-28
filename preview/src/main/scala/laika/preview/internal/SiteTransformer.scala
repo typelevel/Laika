@@ -16,6 +16,7 @@
 
 package laika.preview.internal
 
+import cats.data.NonEmptyChain
 import cats.effect.syntax.all.*
 import cats.effect.{ Async, Resource }
 import cats.syntax.all.*
@@ -25,14 +26,16 @@ import laika.api.builder.OperationConfig
 import laika.api.config.Config.ConfigResult
 import laika.api.format.{ BinaryPostProcessor, TwoPhaseRenderFormat }
 import laika.ast.Path
-import laika.config.{ LaikaKeys, MessageFilters, Selections, TargetFormats }
+import laika.ast.Path.Root
+import laika.config.{ LaikaKeys, MessageFilters, Selections, TargetFormats, Versions }
 import laika.format.HTML
 import laika.io.api.{ BinaryTreeRenderer, TreeParser, TreeRenderer }
+import laika.io.config.{ Artifact, BinaryRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.io.internal.errors.ConfigException
 import laika.io.model.*
 import laika.io.syntax.*
-import laika.preview.internal.SiteTransformer.ResultMap
+import laika.preview.internal.SiteTransformer.{ BinaryRendererSetup, ResultMap }
 import laika.theme.Theme
 
 import java.io.ByteArrayOutputStream
@@ -41,7 +44,7 @@ private[preview] class SiteTransformer[F[_]: Async](
     val parser: TreeParser[F],
     htmlRenderer: TreeRenderer[F],
     astRenderer: TreeRenderer[F],
-    binaryRenderers: Seq[(BinaryTreeRenderer[F], String)],
+    binaryRenderers: Seq[BinaryRendererSetup[F]],
     inputs: InputTreeBuilder[F],
     staticFiles: ResultMap[F],
     artifactBasename: String
@@ -59,21 +62,31 @@ private[preview] class SiteTransformer[F[_]: Async](
   }
 
   def transformBinaries(tree: ParsedTree[F]): ConfigResult[ResultMap[F]] = {
+    val unseparated = NonEmptyChain.one((tree.root, Selections.Classifiers(Nil)))
     for {
       roots            <- Selections.createCombinations(tree.root)
       downloadPath     <- SiteConfig.downloadPath(tree.root.config)
       artifactBaseName <- tree.root.config.get[String](LaikaKeys.artifactBaseName, artifactBasename)
     } yield {
-      val combinations = for {
-        root     <- roots.toList
+
+      val fallbackArtifactBase = downloadPath / artifactBaseName
+      val combinations         = for {
         renderer <- binaryRenderers
+        root     <- (if (renderer.supportsSeparations) roots else unseparated).toList
       } yield (root, renderer)
-      combinations.map { case ((root, classifiers), (renderer, suffix)) =>
-        val classifier =
-          if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-        val docName    = artifactBaseName + classifier + "." + suffix
-        val finalTree  = ParsedTree(root).addStaticDocuments(tree.staticDocuments)
-        (downloadPath / docName, StaticResult(renderBinary(renderer, finalTree)))
+
+      val currentVersion = tree.root.config.get[Versions].toOption.map(_.currentVersion)
+
+      combinations.map { case ((root, classifiers), rendererSetup) =>
+        val path        =
+          rendererSetup.artifact(fallbackArtifactBase).withClassifiers(classifiers.value).fullPath
+        val isVersioned =
+          currentVersion.isDefined &&
+          tree.root.selectTreeConfig(path.parent).get[Boolean](LaikaKeys.versioned).getOrElse(false)
+        val servedPath  =
+          if (isVersioned) Root / currentVersion.get.pathSegment / path.relative else path
+        val finalTree   = ParsedTree(root).addStaticDocuments(tree.staticDocuments)
+        (servedPath, StaticResult(renderBinary(rendererSetup.renderer, finalTree)))
       }.toMap
     }
   }
@@ -132,6 +145,12 @@ private[preview] class SiteTransformer[F[_]: Async](
 
 private[preview] object SiteTransformer {
 
+  private[preview] class BinaryRendererSetup[F[_]](
+      val artifact: Path => Artifact,
+      val supportsSeparations: Boolean,
+      val renderer: BinaryTreeRenderer[F]
+  )
+
   type ResultMap[F[_]] = Map[Path, SiteResult[F]]
 
   def htmlRenderer[F[_]: Async](
@@ -145,23 +164,27 @@ private[preview] object SiteTransformer {
       .withTheme(theme)
       .build
 
-  def binaryRenderer[F[_]: Async, FMT](
-      format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
-      config: OperationConfig,
-      theme: Theme[F]
-  ): Resource[F, BinaryTreeRenderer[F]] = {
-    Renderer
+  def binaryRenderer[F[_]: Async](
+      format: TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder],
+      opConfig: OperationConfig,
+      theme: Theme[F],
+      artifact: Path => Artifact,
+      supportsSeparations: Boolean
+  ): Resource[F, BinaryRendererSetup[F]] = {
+    val renderer = Renderer
       .of(format)
-      .withConfig(config)
+      .withConfig(opConfig)
       .parallel[F]
       .withTheme(theme)
       .build
+    renderer.map(new BinaryRendererSetup(artifact, supportsSeparations, _))
   }
 
   def create[F[_]: Async](
       parser: Resource[F, TreeParser[F]],
       inputs: InputTreeBuilder[F],
-      renderFormats: List[TwoPhaseRenderFormat[_, BinaryPostProcessor.Builder]],
+      builtinFormats: List[TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder]],
+      extraFormats: List[BinaryRendererConfig],
       apiDir: Option[FilePath],
       artifactBasename: String
   ): Resource[F, SiteTransformer[F]] = {
@@ -184,18 +207,24 @@ private[preview] object SiteTransformer {
         Resource.eval(StaticFileScanner.collectAPIFiles(config, dir))
       }
 
+    def artifact(format: TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder]): Path => Artifact =
+      path => Artifact(path, format.description.toLowerCase)
+
     for {
       p    <- parser.map(adjustConfig)
       html <- htmlRenderer(p.config, p.theme)
       ast  <- htmlRenderer(p.config.withBundles(Seq(ASTPageTransformer.ASTPathTranslator)), p.theme)
-      bin  <- renderFormats.traverse(f =>
-        binaryRenderer(f, p.config, p.theme).map((_, f.description.toLowerCase))
+      bin1 <- builtinFormats.traverse(fmt =>
+        binaryRenderer(fmt, p.config, p.theme, artifact(fmt), supportsSeparations = true)
+      )
+      bin2 <- extraFormats.traverse(c =>
+        binaryRenderer(c.format, p.config, p.theme, _ => c.artifact, c.supportsSeparations)
       )
       vFiles   <- Resource.eval(StaticFileScanner.collectVersionedFiles(p.config))
       apiFiles <- collectAPIFiles(p.config)
     } yield {
       val allInputs = inputs.merge(asInputTree(apiFiles))
-      new SiteTransformer[F](p, html, ast, bin, allInputs, vFiles, artifactBasename)
+      new SiteTransformer[F](p, html, ast, bin1 ++ bin2, allInputs, vFiles, artifactBasename)
     }
 
   }

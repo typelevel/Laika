@@ -19,6 +19,7 @@ package laika.sbt
 import cats.effect.IO
 import laika.api.bundle.ExtensionBundle
 import laika.helium.Helium
+import laika.io.config.RendererConfig
 import laika.theme.ThemeProvider
 import sbt.Keys.*
 import sbt.*
@@ -41,9 +42,6 @@ import sbt.*
   *
   * - `Laika / excludeFilter`: files in the source directories to be excluded (default `HiddenFileFilter`)
   *
-  * - `laikaArtifactNameBuilder`: function that builds the name for artifacts (EPUB, PDF, ZIP) based on the provided
-  *   context info
-  *
   * - `laikaExtensions`: the main extension hook that allows to add one or more `ExtensionBundle` instances for adding
   *   directives, parser extensions, rewrite rules or custom renderers. See the API of `laika.api.bundle.ExtensionBundle`.
   *
@@ -58,8 +56,11 @@ import sbt.*
   * - `laikaTheme`: configuration for the theme to use for all transformations, if not specified the default
   *   `Helium` theme with all default colors and fonts will be used.
   *
+  * - `laikaRenderers`: contains the configurations for all of Laika's built-in renderers and enables users
+  *   to install their own or 3rd-party renderers.
+  *
   * - `laikaIncludeAPI`, `laikaIncludeEPUB` and `laikaIncludePDF`:
-  *   specifies whether to include scaladoc and/or PDF output in the generated site.
+  *   specifies whether to include scaladoc and/or PDF/EPUB output in the generated site.
   *
   * - `laikaDescribe`: inspects your setup and prints information about your inputs, outputs and installed extensions.
   *
@@ -114,6 +115,8 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaConfig = settingKey[LaikaConfig]("Configuration options for all transformations")
 
+    val laikaRenderers = settingKey[Seq[RendererConfig]]("Configurations of all included renderers")
+
     val laikaInputs =
       settingKey[InputTreeBuilder]("Freely composed input tree, overriding sourceDirectories")
 
@@ -151,9 +154,8 @@ object LaikaPlugin extends AutoPlugin {
     laikaInputs                 := Settings.defaultInputs.value,
     Laika / target              := target.value / "docs",
     laikaSite / target          := (Laika / target).value / "site",
-    laikaXSLFO / target         := (Laika / target).value / "fo",
-    laikaAST / target           := (Laika / target).value / "ast",
     laikaExtensions             := Nil,
+    laikaRenderers              := Settings.rendererConfigs.value,
     laikaConfig                 := LaikaConfig.defaults,
     laikaPreviewConfig          := LaikaPreviewConfig.defaults,
     laikaTheme                  := Helium.defaults.build,
