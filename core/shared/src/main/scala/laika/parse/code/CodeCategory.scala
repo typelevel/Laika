@@ -82,6 +82,18 @@ object CodeCategory {
 
   }
 
+  /** Categories specific to diff highlighting. */
+  object Diff {
+
+    sealed trait DiffCategory extends CodeCategory {
+      override def prefix: String = "diff-"
+    }
+
+    case object Added   extends DiffCategory
+    case object Removed extends DiffCategory
+
+  }
+
   /** Categories for text markup formats. */
   object Markup {
 

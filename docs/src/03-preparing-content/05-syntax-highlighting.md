@@ -71,6 +71,7 @@ Laika currently supports the following languages and formats:
 * SQL
 * Shell/Bash
 * EBNF
+* Diff
 * Alloy
 * Dhall
 * Dart

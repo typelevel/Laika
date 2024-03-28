@@ -118,7 +118,7 @@ is integrated into Laika's test suite.
 ### Supported Standard Directives
 
 Directives are an extension mechanism of reStructuredText and the reference implementation supports a set
-of standard [standard directives][std directives] out of the box.
+of [standard directives][std directives] out of the box.
 
 [std directives]: http://docutils.sourceforge.net/docs/ref/rst/directives.html
 

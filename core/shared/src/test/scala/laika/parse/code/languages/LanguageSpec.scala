@@ -1726,6 +1726,32 @@ class LanguageSpec extends FunSuite {
     assertEquals(parse(input), expected)
   }
 
+  test("Diff") {
+    def added(value: String): CodeSpan   = CodeSpan(value, CodeCategory.Diff.Added)
+    def removed(value: String): CodeSpan = CodeSpan(value, CodeCategory.Diff.Removed)
+
+    val input    =
+      """# Doc
+        |
+        |```diff
+        |+ 1st added line
+        |- 1st removed line
+        |unchanged line
+        |+ 2nd added line
+        |```
+        |""".stripMargin
+    val expected = result(
+      "diff",
+      added("+ 1st added line"),
+      other("\n"),
+      removed("- 1st removed line"),
+      other("\nunchanged line\n"),
+      added("+ 2nd added line")
+    )
+
+    assertEquals(parse(input), expected)
+  }
+
   test("Dhall") {
     val input =
       """# Doc
