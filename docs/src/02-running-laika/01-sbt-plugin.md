@@ -434,7 +434,7 @@ def indexFormat: TwoPhaseRenderFormat[Formatter, BinaryPostProcessor.Builder] = 
 
 val artifact = laika.io.config.Artifact(
   basePath = Root / "search",
-  suffix = "dat"
+  suffix = "idx"
 )
 
 laikaRenderers += BinaryRendererConfig(
