@@ -193,16 +193,16 @@ object Tasks {
                 else NonEmptyChain.one(tree.root -> Selections.Classifiers(Nil))
               roots.traverse { case (root, classifiers) =>
                 val artifactPath = config.artifact.withClassifiers(classifiers.value).fullPath
-                val isVersioned =
+                val isVersioned  =
                   currentVersion.isDefined &&
-                    tree.root
-                      .selectTreeConfig(artifactPath.parent)
-                      .get[Boolean](LaikaKeys.versioned)
-                      .getOrElse(false)
-                val finalPath =
+                  tree.root
+                    .selectTreeConfig(artifactPath.parent)
+                    .get[Boolean](LaikaKeys.versioned)
+                    .getOrElse(false)
+                val finalPath    =
                   if (isVersioned) Root / currentVersion.get.pathSegment / artifactPath.relative
                   else artifactPath
-                val file = siteTarget / finalPath.toString
+                val file         = siteTarget / finalPath.toString
                 renderer
                   .from(root)
                   .copying(tree.staticDocuments)
