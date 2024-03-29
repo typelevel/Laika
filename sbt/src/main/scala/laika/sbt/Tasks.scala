@@ -28,10 +28,13 @@ import sbt.Keys.*
 import sbt.*
 import sbt.util.CacheStore
 import Settings.validated
+import cats.data.NonEmptyChain
 import laika.api.builder.{ OperationConfig, ParserBuilder }
 import laika.api.config.Config
-import laika.api.format.{ BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat }
-import laika.config.{ Selections, Versions }
+import laika.api.format.MarkupFormat
+import laika.ast.Path.Root
+import laika.config.{ LaikaKeys, Selections, Versions }
+import laika.io.config.{ BinaryRendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
@@ -84,18 +87,36 @@ object Tasks {
     */
   val generate: Initialize[InputTask[Set[File]]] = inputTask {
 
-    val formats = spaceDelimited("<format>").parsed.map(OutputFormat.fromString)
+    val aliasMap = Map(
+      "fo"            -> "xsl-fo",
+      "xslfo"         -> "xsl-fo",
+      "formatted-ast" -> "ast"
+    ).withDefault(identity)
+
+    val configMap = laikaRenderers.value.map { config =>
+      config.alias -> config
+    }.toMap
+
+    val formats = spaceDelimited("<format>").parsed
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-    val userConfig       = laikaConfig.value
-    val parser           = Settings.parser.value
-    val baseConfig       = Settings.parserConfig.value.baseConfig
-    val downloadPath     =
-      (laikaSite / target).value / validated(SiteConfig.downloadPath(baseConfig)).relative.toString
-    val artifactBaseName = Settings.artifactBaseName.value
+    val supportedFormats = (configMap.keys ++ aliasMap.keys).toList.sorted
+    val invalid          = formats.diff(supportedFormats)
+    if (invalid.nonEmpty)
+      throw new IllegalArgumentException(
+        s"Unsupported formats ${invalid.mkString(", ")} - supported are ${supportedFormats.mkString(", ")}"
+      )
+
+    val configs = formats.map(aliasMap.apply).map(configMap.apply)
+
+    val userConfig = laikaConfig.value
+    val baseConfig = Settings.parserConfig.value.baseConfig
+
+    val siteTarget = (laikaSite / target).value
 
     lazy val tree = {
       val apiPath = validated(SiteConfig.apiPath(baseConfig))
+      val parser  = Settings.parser.value
       val inputs  = generateAPI.value.foldLeft(laikaInputs.value.delegate) { (inputs, path) =>
         inputs.addProvidedPath(apiPath / path)
       }
@@ -106,17 +127,18 @@ object Tasks {
       tree
     }
 
-    def renderWithFormat[FMT](
-        format: RenderFormat[FMT],
-        targetDir: File,
-        formatDesc: String
-    ): Set[File] = {
+    def renderText(config: TextRendererConfig): Set[File] = {
 
-      if (targetDir.exists) cleanTarget(targetDir, baseConfig)
-      else targetDir.mkdirs()
+      val target =
+        if (config.format == HTML) siteTarget
+        else siteTarget / config.alias
+
+      if (target.exists) cleanTarget(target, baseConfig)
+      else target.mkdirs()
+      val dirPath = FilePath.fromJavaFile(target)
 
       Renderer
-        .of(format)
+        .of(config.format)
         .withConfig(Settings.parserConfig.value)
         .parallel[IO]
         .withTheme(laikaTheme.value)
@@ -124,37 +146,46 @@ object Tasks {
         .use(
           _
             .from(tree)
-            .toDirectory(FilePath.fromJavaFile(targetDir))(userConfig.encoding)
+            .toDirectory(dirPath)(userConfig.encoding)
             .render
         )
         .unsafeRunSync()
 
-      streams.value.log.info(Logs.outputs(tree.root, formatDesc))
-      streams.value.log.info(s"Generated $formatDesc in $targetDir")
+      streams.value.log.info(Logs.outputs(tree.root, config.alias))
+      streams.value.log.info(s"Generated ${config.alias} in $target")
 
-      targetDir.allPaths.get.toSet.filter(_.isFile)
+      target.allPaths.get.toSet.filter(_.isFile)
     }
 
-    def renderWithProcessor[FMT](
-        format: TwoPhaseRenderFormat[FMT, BinaryPostProcessor.Builder],
-        formatDesc: String
-    ): Set[File] = {
+    def renderBinary(config: BinaryRendererConfig): Set[File] = {
 
-      downloadPath.mkdirs()
+      val targetDirectory = siteTarget / config.artifact.fullPath.parent.toString
+      targetDirectory.mkdirs()
+
+      val currentVersion = tree.root.config.get[Versions].toOption.map(_.currentVersion)
 
       val ops = Renderer
-        .of(format)
+        .of(config.format)
         .withConfig(Settings.parserConfig.value)
         .parallel[IO]
         .withTheme(laikaTheme.value)
         .build
         .use { renderer =>
-          val roots = validated(Selections.createCombinations(tree.root))
+          val roots =
+            if (config.supportsSeparations) validated(Selections.createCombinations(tree.root))
+            else NonEmptyChain.one(tree.root -> Selections.Classifiers(Nil))
           roots.traverse { case (root, classifiers) =>
-            val classifier =
-              if (classifiers.value.isEmpty) "" else "-" + classifiers.value.mkString("-")
-            val docName    = artifactBaseName + classifier + "." + formatDesc.toLowerCase
-            val file       = downloadPath / docName
+            val artifactPath = config.artifact.withClassifiers(classifiers.value).fullPath
+            val isVersioned  =
+              currentVersion.isDefined &&
+              tree.root
+                .selectTreeConfig(artifactPath.parent)
+                .get[Boolean](LaikaKeys.versioned)
+                .getOrElse(false)
+            val finalPath    =
+              if (isVersioned) Root / currentVersion.get.pathSegment / artifactPath.relative
+              else artifactPath
+            val file         = siteTarget / finalPath.toString
             renderer
               .from(root)
               .copying(tree.staticDocuments)
@@ -167,7 +198,7 @@ object Tasks {
       val res = ops.unsafeRunSync()
 
       res.toList.foreach { f =>
-        streams.value.log.info(s"Generated $formatDesc in $f")
+        streams.value.log.info(s"Generated ${config.alias} in $f")
       }
 
       res.toList.toSet
@@ -179,20 +210,15 @@ object Tasks {
     streams.value.log.info(Logs.inputs(inputCollection))
     val inputFiles      = collectInputFiles(inputCollection)
 
-    val results = formats map { format =>
-      val cacheFormatDir = format.toString.toLowerCase
+    val results = configs map { config =>
+      val cacheFormatDir = config.alias.toLowerCase
 
       val fun =
         FileFunction.cached(cacheDir / cacheFormatDir, FilesInfo.lastModified, FilesInfo.exists) {
           _ =>
-            format match {
-              case OutputFormat.HTML  => renderWithFormat(HTML, (laikaSite / target).value, "HTML")
-              case OutputFormat.AST   =>
-                renderWithFormat(AST, (laikaAST / target).value, "Formatted AST")
-              case OutputFormat.XSLFO =>
-                renderWithFormat(XSLFO, (laikaXSLFO / target).value, "XSL-FO")
-              case OutputFormat.EPUB  => renderWithProcessor(EPUB, "EPUB")
-              case OutputFormat.PDF   => renderWithProcessor(PDF, "PDF")
+            config match {
+              case c: TextRendererConfig   => renderText(c)
+              case c: BinaryRendererConfig => renderBinary(c)
             }
         }
       fun(inputFiles)
@@ -224,11 +250,15 @@ object Tasks {
       )
       .andThen(applyIf(previewConfig.isVerbose, _.verbose))
 
+    val binaryFormats = laikaRenderers.value
+      .collect { case bin: BinaryRendererConfig => bin }
+
     val config = ServerConfig.defaults
       .withArtifactBasename(name.value)
       .withHost(previewConfig.host)
       .withPort(previewConfig.port)
       .withPollInterval(previewConfig.pollInterval)
+      .withBinaryRenderers(binaryFormats)
 
     ServerBuilder[IO](Settings.parser.value, laikaInputs.value.delegate)
       .withLogger(s => IO(logger.info(s)))
@@ -267,9 +297,8 @@ object Tasks {
     * and `laikaIncludePDF` settings respectively.
     */
   val site: Initialize[Task[Set[File]]] = taskDyn {
-    val epub = if (laikaIncludeEPUB.value) " epub" else ""
-    val pdf  = if (laikaIncludePDF.value) " pdf" else ""
-    generate.toTask(" html" + epub + pdf)
+    val formats = laikaRenderers.value.filter(_.includeInSite).map(_.alias)
+    generate.toTask(formats.mkString(" ", " ", ""))
   }
 
   val mappings: Initialize[Task[Seq[(File, String)]]] = task {
@@ -288,14 +317,14 @@ object Tasks {
 
     def createParser(format: MarkupFormat): ParserBuilder = {
       val parser = MarkupParser.of(format)
-      parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value: _*)
+      parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value *)
     }
 
     val transformer = Transformer
       .from(Markdown)
       .to(HTML)
       .withConfig(mergedConfig(createParser(Markdown).config))
-      .using(laikaExtensions.value: _*)
+      .using(laikaExtensions.value *)
       .parallel[IO]
       .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))
@@ -375,32 +404,5 @@ object Tasks {
   private def collectInputFiles(inputs: InputTree[IO]): Set[File] =
     inputs.textInputs.flatMap(_.sourceFile.map(_.toJavaFile)).toSet ++
       inputs.binaryInputs.flatMap(_.sourceFile.map(_.toJavaFile))
-
-  /** Enumeration of output formats supported by the plugin.
-    */
-  private sealed trait OutputFormat
-
-  private object OutputFormat {
-
-    case object HTML extends OutputFormat
-
-    case object EPUB extends OutputFormat
-
-    case object PDF extends OutputFormat
-
-    case object XSLFO extends OutputFormat
-
-    case object AST extends OutputFormat
-
-    def fromString(name: String): OutputFormat = name.toLowerCase match {
-      case "html"                    => HTML
-      case "epub"                    => EPUB
-      case "pdf"                     => PDF
-      case "fo" | "xslfo" | "xsl-fo" => XSLFO
-      case "formatted-ast" | "ast"   => AST
-      case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
-    }
-
-  }
 
 }

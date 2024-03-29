@@ -25,8 +25,9 @@ import laika.api.config.{ Config, ConfigBuilder }
 import laika.api.format.MarkupFormat
 import laika.api.config.Config.ConfigResult
 import laika.config.LaikaKeys
-import laika.format.{ Markdown, ReStructuredText }
+import laika.format.{ AST, EPUB, HTML, Markdown, PDF, ReStructuredText, XSLFO }
 import laika.io.api.TreeParser
+import laika.io.config.{ BinaryRendererConfig, RendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.io.syntax.*
 import laika.io.model.{ FilePath, InputTree, InputTreeBuilder }
@@ -88,7 +89,7 @@ object Settings {
         configBuilder = userConfig.configBuilder,
         compactRendering = parser.config.compactRendering
       )
-      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
+      parser.withConfig(mergedConfig).using(laikaExtensions.value *)
     }
 
     createParser(Markdown)
@@ -106,6 +107,45 @@ object Settings {
     validated(parserConfig.value.baseConfig.get[String](LaikaKeys.artifactBaseName, name.value))
   }
 
+  val rendererConfigs: Initialize[Seq[RendererConfig]] = setting {
+
+    val baseConfig       = parserConfig.value.baseConfig
+    val downloadPath     = validated(SiteConfig.downloadPath(baseConfig))
+    val artifactBasePath = downloadPath / artifactBaseName.value
+
+    Seq(
+      TextRendererConfig(
+        "html",
+        HTML,
+        includeInSite = true
+      ),
+      TextRendererConfig(
+        "xsl-fo",
+        XSLFO,
+        includeInSite = false
+      ),
+      TextRendererConfig(
+        "ast",
+        AST,
+        includeInSite = false
+      ),
+      BinaryRendererConfig(
+        "pdf",
+        PDF,
+        laika.io.config.Artifact(artifactBasePath, "pdf"),
+        includeInSite = laikaIncludePDF.value,
+        supportsSeparations = true
+      ),
+      BinaryRendererConfig(
+        "epub",
+        EPUB,
+        laika.io.config.Artifact(artifactBasePath, "epub"),
+        includeInSite = laikaIncludeEPUB.value,
+        supportsSeparations = true
+      )
+    )
+  }
+
   val apiTargetDirectory: Initialize[File] = setting {
     (laikaSite / target).value / validated(
       SiteConfig.apiPath(Settings.parserConfig.value.baseConfig)
@@ -116,9 +156,7 @@ object Settings {
     */
   val allTargets: Initialize[Set[File]] = setting {
     Set(
-      (laikaSite / target).value,
-      (laikaXSLFO / target).value,
-      (laikaAST / target).value
+      (laikaSite / target).value
     )
   }
 

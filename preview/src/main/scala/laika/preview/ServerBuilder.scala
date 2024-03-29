@@ -16,7 +16,6 @@
 
 package laika.preview
 
-import java.io.{ PrintWriter, StringWriter }
 import cats.data.{ Kleisli, OptionT }
 import cats.effect.*
 import cats.syntax.all.*
@@ -27,6 +26,7 @@ import laika.ast
 import laika.ast.DocumentType
 import laika.format.{ EPUB, PDF }
 import laika.io.api.TreeParser
+import laika.io.config.BinaryRendererConfig
 import laika.io.model.{ FilePath, InputTreeBuilder }
 import laika.preview.ServerBuilder.Logger
 import laika.preview.internal.{
@@ -37,11 +37,12 @@ import laika.preview.internal.{
   SourceChangeWatcher
 }
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{ HttpApp, HttpRoutes, Request, Response }
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits.*
 import org.http4s.server.{ Router, Server }
-import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.{ HttpApp, HttpRoutes, Request, Response }
 
+import java.io.{ PrintWriter, StringWriter }
 import scala.concurrent.duration.*
 
 /** Configures and instantiates a resource for a preview server.
@@ -111,15 +112,26 @@ class ServerBuilder[F[_]: Async] private (
       .withHttpApp(httpApp)
       .build
 
-  private def binaryRenderFormats =
-    List(EPUB).filter(_ => config.includeEPUB) ++
-      List(PDF).filter(_ => config.includePDF)
+  private val builtinRenderConfig =
+    List((EPUB, config.includeEPUB), (PDF, config.includePDF))
+
+  private val builtinRenderFormats = builtinRenderConfig
+    .filter { case (format, included) =>
+      included && !config.binaryRenderers.exists(_.format == format)
+    }
+    .map(_._1)
+
+  private val extraRenderFormats = {
+    val exclude = builtinRenderConfig.filterNot(_._2).map(_._1)
+    config.binaryRenderers.filterNot(exclude.contains).toList
+  }
 
   private[preview] def buildRoutes: Resource[F, HttpApp[F]] = for {
     transf <- SiteTransformer.create(
       parser,
       inputs,
-      binaryRenderFormats,
+      builtinRenderFormats,
+      extraRenderFormats,
       config.apiDir,
       config.artifactBasename
     )
@@ -178,6 +190,9 @@ sealed abstract class ServerConfig private {
   /** Indicates whether PDF downloads should be included on a download page (default false). */
   def includePDF: Boolean
 
+  /** Additional binary renderers to execute alongside the built-in ones (EPUB, PDF). */
+  def binaryRenderers: Seq[BinaryRendererConfig]
+
   /** Indicates whether each served page and each detected file change should be logged (default false). */
   def isVerbose: Boolean
 
@@ -203,6 +218,10 @@ sealed abstract class ServerConfig private {
   /** Indicates that PDF downloads should be included on the download page.
     */
   def withPDFDownloads: ServerConfig
+
+  /** Adds binary renderers to execute alongside the built-in ones (EPUB, PDF).
+    */
+  def withBinaryRenderers(renderConfigs: Seq[BinaryRendererConfig]): ServerConfig
 
   /** Specifies the base name for PDF and EPUB artifacts linked by the generated site (default "docs").
     * Additional classifiers might be added to the base name (apart from the file suffix), depending on configuration.
@@ -232,7 +251,8 @@ object ServerConfig {
       includeEPUB: Boolean,
       includePDF: Boolean,
       isVerbose: Boolean,
-      apiDir: Option[FilePath]
+      apiDir: Option[FilePath],
+      binaryRenderers: Seq[BinaryRendererConfig]
   ) extends ServerConfig {
     override def productPrefix = "ServerConfig"
 
@@ -244,7 +264,8 @@ object ServerConfig {
         newIncludeEPUB: Boolean = includeEPUB,
         newIncludePDF: Boolean = includePDF,
         newVerbose: Boolean = isVerbose,
-        newAPIDir: Option[FilePath] = apiDir
+        newAPIDir: Option[FilePath] = apiDir,
+        newBinaryRenderers: Seq[BinaryRendererConfig] = binaryRenderers
     ): ServerConfig =
       Impl(
         newPort,
@@ -254,7 +275,8 @@ object ServerConfig {
         newIncludeEPUB,
         newIncludePDF,
         newVerbose,
-        newAPIDir
+        newAPIDir,
+        newBinaryRenderers
       )
 
     def withPort(port: Port): ServerConfig = copy(newPort = port)
@@ -266,6 +288,9 @@ object ServerConfig {
     def withEPUBDownloads: ServerConfig = copy(newIncludeEPUB = true)
 
     def withPDFDownloads: ServerConfig = copy(newIncludePDF = true)
+
+    def withBinaryRenderers(renderConfigs: Seq[BinaryRendererConfig]): ServerConfig =
+      copy(newBinaryRenderers = renderConfigs)
 
     def withArtifactBasename(name: String): ServerConfig = copy(newArtifactBasename = name)
 
@@ -290,6 +315,7 @@ object ServerConfig {
     defaultArtifactBasename,
     includeEPUB = false,
     includePDF = false,
+    binaryRenderers = Nil,
     isVerbose = false,
     apiDir = None
   )
