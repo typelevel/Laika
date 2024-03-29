@@ -1,0 +1,5 @@
+# test site creation with an additional source directory
+> laikaSite
+$ must-mirror target/docs/site/hello3.html expected3.html
+$ must-mirror target/docs/site/hello2.html expected2.html
+$ absent target/docs/site/hello1.html
