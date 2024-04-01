@@ -159,6 +159,7 @@
     <li class="level2 nav-leaf"><a href="#freely-composing-inputs">Freely Composing Inputs</a></li>
     <li class="level2 nav-leaf"><a href="#settings-for-the-laikasite-task">Settings for the laikaSite task</a></li>
     <li class="level2 nav-leaf"><a href="#laikapreviewconfig-setting">laikaPreviewConfig setting</a></li>
+    <li class="level2 nav-leaf"><a href="#installing-additional-renderers">Installing Additional Renderers</a></li>
     <li class="level2 nav-leaf"><a href="#inspecting-laika-s-configuration">Inspecting Laika&#39;s Configuration</a></li>
   </ul>
 
@@ -180,7 +181,7 @@
         <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
         supporting that sbt version.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;1.0.1&quot;</span><span>)</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.typelevel&quot;</span><span> % </span><span class="string-literal">&quot;laika-sbt&quot;</span><span> % </span><span class="string-literal">&quot;1.1.0&quot;</span><span>)</span></code></pre>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">LaikaPlugin</span><span>)</span></code></pre>
         
@@ -370,6 +371,8 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">SyntaxHighlighting</span><span>
 
 </span><span class="identifier">laikaExtensions</span><span> := </span><span class="type-name">Seq</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>, </span><span class="type-name">SyntaxHighlighting</span><span>)</span></code></pre>
+        <p>The <code>ExtensionBundle</code> API provides access to all stages of a transformation.
+        You can:</p>
         <ul>
           <li>
             <p><a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a>: adjust the rendered output for specific AST node types.</p>
@@ -381,7 +384,7 @@
             <p><a href="../05-extending-laika/03-implementing-directives.html#implementing-directives">Implementing Directives</a>: install custom directives.</p>
           </li>
           <li>
-            <p>Or use any other hook in <a href="../05-extending-laika/01-overview.html#the-extensionbundle-api">The ExtensionBundle API</a>).</p>
+            <p>Or use any other hook in <a href="../05-extending-laika/01-overview.html#the-extensionbundle-api">The ExtensionBundle API</a>.</p>
           </li>
         </ul>
         
@@ -494,6 +497,32 @@
     .</span><span class="identifier">verbose</span></code></pre>
         <p>By default, the port is 4242, the poll interval is 3 seconds.
         With the <code>verbose</code> options the console will log all pages served.</p>
+        
+        <h3 id="installing-additional-renderers" class="section"><a class="anchor-link left" href="#installing-additional-renderers"><i class="icofont-laika link">&#xef71;</i></a>Installing Additional Renderers</h3>
+        <p>The <code>laikaRenderers</code> setting holds the configurations for all of Laika&#39;s built-in renderers 
+        and enables users to install their own or 3rd-party renderers.</p>
+        <p>An example for installing a custom <code>indexFormat</code> renderer:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">Path</span><span>.</span><span class="type-name">Root</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">format</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">BinaryRendererConfig</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">indexFormat</span><span>: </span><span class="type-name">TwoPhaseRenderFormat</span><span>[</span><span class="type-name">Formatter</span><span>, </span><span class="type-name">BinaryPostProcessor</span><span>.</span><span class="type-name">Builder</span><span>] = ???
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">artifact</span><span> = </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">Artifact</span><span>(
+  </span><span class="identifier">basePath</span><span> = </span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;search&quot;</span><span>,
+  </span><span class="identifier">suffix</span><span> = </span><span class="string-literal">&quot;idx&quot;</span><span>
+)
+
+</span><span class="identifier">laikaRenderers</span><span> += </span><span class="type-name">BinaryRendererConfig</span><span>(
+  </span><span class="identifier">alias</span><span> = </span><span class="string-literal">&quot;index&quot;</span><span>,
+  </span><span class="identifier">format</span><span> = </span><span class="identifier">indexFormat</span><span>,
+  </span><span class="identifier">artifact</span><span> = </span><span class="identifier">artifact</span><span>,
+  </span><span class="identifier">includeInSite</span><span> = </span><span class="boolean-literal">true</span><span>,
+  </span><span class="identifier">supportsSeparations</span><span> = </span><span class="boolean-literal">false</span><span>
+)</span></code></pre>
+        <p>With the configuration above, the search index can be generated by calling <code>laikaGenerate index</code>
+        (or together with other formats in one transformation - e.g. <code>laikaGenerate html index</code>).</p>
+        <p>When the <code>includeInSite</code> property is true, the index will also be generated when calling <code>laikaSite</code>. </p>
         
         <h3 id="inspecting-laika-s-configuration" class="section"><a class="anchor-link left" href="#inspecting-laika-s-configuration"><i class="icofont-laika link">&#xef71;</i></a>Inspecting Laika&#39;s Configuration</h3>
         <p>Run <code>show laikaDescribe</code> to get a formatted summary of the active configuration,

@@ -148,6 +148,7 @@
     <li class="level2 nav-leaf"><a href="#using-the-sbt-plugin">Using the sbt Plugin</a></li>
     <li class="level2 nav-leaf"><a href="#using-the-transformer-api">Using the Transformer API</a></li>
     <li class="level2 nav-leaf"><a href="#working-with-the-tree-model">Working with the Tree Model</a></li>
+    <li class="level1 nav-leaf"><a href="#effectful-ast-transformations">Effectful AST Transformations</a></li>
   </ul>
 
   <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/04-customizing-laika/05-ast-rewriting.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
@@ -248,6 +249,52 @@
     </span><span class="keyword">case</span><span> </span><span class="type-name">Emphasized</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>) =&gt; </span><span class="type-name">RewriteAction</span><span>.</span><span class="type-name">Replace</span><span>(</span><span class="type-name">Strong</span><span>(</span><span class="identifier">content</span><span>, </span><span class="identifier">opts</span><span>))
   })
 })</span></code></pre>
+        
+        <h2 id="effectful-ast-transformations" class="section"><a class="anchor-link left" href="#effectful-ast-transformations"><i class="icofont-laika link">&#xef71;</i></a>Effectful AST Transformations</h2>
+        <p>The rewrite rules shown in this chapter so far were all applied to individual nodes within parsed documents,
+        and had to be pure functions without any side effects.</p>
+        <p>There is a related functionality called <code>TreeProcessor</code>, which is part of the <code>laika-io</code> module 
+        and the sbt plugin and offers additional options:</p>
+        <ul>
+          <li>Adding, removing or replacing entire documents from the AST.</li>
+          <li>Applying rewrite rules to specific documents only.</li>
+          <li>Defining rules which perform side effects.</li>
+        </ul>
+        <p>Our example shows how to add a document to the virtual tree for PDF documents only:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">theme</span><span>.</span><span class="type-name">TreeProcessorBuilder</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">intro</span><span>: </span><span class="type-name">Document</span><span> = ??? </span><span class="comment">// e.g. created in-memory
+</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">processor</span><span> = </span><span class="type-name">TreeProcessorBuilder</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">mapTree</span><span> { </span><span class="identifier">tree</span><span> =&gt;
+  </span><span class="identifier">tree</span><span>.</span><span class="identifier">modifyTree</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">prependContent</span><span>(</span><span class="identifier">intro</span><span>))
+}
+
+</span><span class="identifier">laikaTreeProcessors</span><span> += </span><span class="type-name">LaikaTreeProcessor</span><span>(</span><span class="identifier">processor</span><span>, </span><span class="type-name">OutputContext</span><span>(</span><span class="type-name">PDF</span><span>))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">intro</span><span>: </span><span class="type-name">Document</span><span> = ??? </span><span class="comment">// e.g. created in-memory
+</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">PDF</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">mapTree</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">modifyTree</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">prependContent</span><span>(</span><span class="identifier">intro</span><span>)))
+  .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
 
         
 <hr class="footer-rule"/>
