@@ -125,7 +125,8 @@ val newDoc = doc.rewrite(RewriteRules.forBlocks {
 ```
 
 
-### Effectful AST Transformations
+Effectful AST Transformations
+-----------------------------
 
 The rewrite rules shown in this chapter so far were all applied to individual nodes within parsed documents,
 and had to be pure functions without any side effects.
