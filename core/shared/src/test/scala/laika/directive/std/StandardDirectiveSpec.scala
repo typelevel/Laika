@@ -34,10 +34,14 @@ class StandardDirectiveSpec extends FunSuite
     assertEquals(parse(input).map(_.content.content), Right(expectedContent))
   }
 
-  def runFragment(input: String, expectedFragment: Block)(implicit loc: munit.Location): Unit = {
-    val res = parse(input)
+  def runFragment(input: String, expectedFragment: Block, secondFragment: Option[Block] = None)(
+      implicit loc: munit.Location
+  ): Unit = {
+    val res             = parse(input)
+    val optionalElement = secondFragment.fold(Map.empty[String, Block])(elem => Map("bar" -> elem))
+    val expectedMap     = Map("foo" -> expectedFragment) ++ optionalElement
     assertEquals(res.map(_.content.content), Right(Seq(p("aa"), p("bb"))))
-    assertEquals(res.map(_.fragments), Right(Map("foo" -> expectedFragment)))
+    assertEquals(res.map(_.fragments), Right(expectedMap))
   }
 
   def runTemplate(input: String, config: String, expectedContent: TemplateSpan*)(implicit
@@ -87,6 +91,31 @@ class StandardDirectiveSpec extends FunSuite
                   |bb""".stripMargin
     val expectedFragment = BlockSequence(List(p("Line 1"), p("Line 2")), Styles("foo"))
     runFragment(input, expectedFragment)
+  }
+
+  test("two fragment directives with the same name") {
+    val input            =
+      """aa
+        |
+        |@:fragment(foo)
+        |Foo 1
+        |@:@
+        |
+        |@:fragment(bar)
+        |Bar
+        |@:@
+        |
+        |@:fragment(foo)
+        |Foo 2
+        |@:@
+        |
+        |bb""".stripMargin
+    val expectedFragment = BlockSequence(
+      p("Foo 1").withStyles("foo"),
+      p("Foo 2").withStyles("foo")
+    )
+    val secondFragment   = p("Bar").withStyles("bar")
+    runFragment(input, expectedFragment, Some(secondFragment))
   }
 
   test("pageBreak directive") {
