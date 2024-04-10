@@ -20,6 +20,8 @@ import cats.data.NonEmptySet
 import laika.api.config.{ ConfigEncoder, ConfigValue }
 import laika.parse.SourceFragment
 
+import scala.runtime.AbstractFunction3
+
 /** The root element of a document tree.
   */
 case class RootElement(content: Seq[Block], options: Options = Options.empty) extends Block
@@ -123,7 +125,7 @@ case class DocumentFragment(name: String, root: Element, options: Options = Opti
   def withOptions(options: Options): DocumentFragment = copy(options = options)
 }
 
-object DocumentFragment {
+object DocumentFragment extends AbstractFunction3[String, Element, Options, DocumentFragment] {
 
   import laika.internal.collection.TransitionalCollectionOps.*
 
