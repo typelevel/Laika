@@ -143,6 +143,8 @@ object DocumentFragment extends AbstractFunction3[String, Element, Options, Docu
 
   /** Collects all fragment elements the specified root contains and assembles
     * them into a map with the fragment name serving as the key.
+    * In case the root contains multiple fragments with the same name
+    * they will be concatenated into a single fragment.
     */
   def collect(root: RootElement): Map[String, Element] = {
     root
