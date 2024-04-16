@@ -84,8 +84,9 @@ private[laika] object DocumentParser {
       configProvider: ConfigProvider
   ): DocumentInput => Either[ParserError, UnresolvedDocument] =
     create(rootParser, configProvider.markupConfigHeader) { (path, config, root) =>
-      val fragments = root.collect { case f: DocumentFragment => (f.name, f.root) }.toMap
-      UnresolvedDocument(Document(path, root).withFragments(fragments), config)
+      val doc = Document(path, root)
+        .withFragments(DocumentFragment.collect(root))
+      UnresolvedDocument(doc, config)
     }
 
   /** Combines the specified parsers for the root element and for (optional) configuration

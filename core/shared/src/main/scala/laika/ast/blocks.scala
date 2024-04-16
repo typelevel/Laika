@@ -20,6 +20,8 @@ import cats.data.NonEmptySet
 import laika.api.config.{ ConfigEncoder, ConfigValue }
 import laika.parse.SourceFragment
 
+import scala.runtime.AbstractFunction3
+
 /** The root element of a document tree.
   */
 case class RootElement(content: Seq[Block], options: Options = Options.empty) extends Block
@@ -121,6 +123,36 @@ case class DocumentFragment(name: String, root: Element, options: Options = Opti
     extends Block {
   type Self = DocumentFragment
   def withOptions(options: Options): DocumentFragment = copy(options = options)
+}
+
+object DocumentFragment extends AbstractFunction3[String, Element, Options, DocumentFragment] {
+
+  import laika.internal.collection.TransitionalCollectionOps.*
+
+  private def combine(fragments: List[DocumentFragment]): Element = fragments match {
+    case List(oneElem) => oneElem.root
+    case multiple      =>
+      multiple.map(_.root).reduceLeft[Element] {
+        case (s1: Span, s2: Span)   => SpanSequence(s1, s2)
+        case (b: Block, s: Span)    => BlockSequence(b, SpanSequence(s))
+        case (s: Span, b: Block)    => BlockSequence(SpanSequence(s), b)
+        case (b1: Block, b2: Block) => BlockSequence(b1, b2)
+        case (e1, e2) => TemplateSpanSequence(TemplateElement(e1), TemplateElement(e2))
+      }
+  }
+
+  /** Collects all fragment elements the specified root contains and assembles
+    * them into a map with the fragment name serving as the key.
+    * In case the root contains multiple fragments with the same name
+    * they will be concatenated into a single fragment.
+    */
+  def collect(root: RootElement): Map[String, Element] = {
+    root
+      .collect { case f: DocumentFragment => f }
+      .groupBy(_.name)
+      .mapValuesStrict(combine)
+  }
+
 }
 
 /** An element that only gets rendered for a specific output format.

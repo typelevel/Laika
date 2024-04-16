@@ -347,9 +347,7 @@ class DocumentCursor private (
       case block                             => block
     }
 
-    val newFragments = rewrittenRoot.content.collect { case DocumentFragment(name, content, _) =>
-      (name, content)
-    }.toMap
+    val newFragments = DocumentFragment.collect(rewrittenRoot)
 
     target.withContent(
       content = rewrittenRoot.withContent(
