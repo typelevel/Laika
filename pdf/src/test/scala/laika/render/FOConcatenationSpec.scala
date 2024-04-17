@@ -66,4 +66,31 @@ class FOConcatenationSpec extends FunSuite with TestSourceBuilders {
     assertEquals(FOConcatenation(result, BookConfig.empty, config), Right(expected))
   }
 
+  test("collect fragments from all documents") {
+    val template            = TestTheme.foTemplateWithFragment("foo")
+    def fragment(num: Int)  = Map("foo" -> Paragraph(s"fragment $num"))
+    val input               = DocumentTree.builder
+      .addDocument(Document(Root / "doc-1", RootElement.empty).withFragments(fragment(1)))
+      .addDocument(Document(Root / "doc-2", RootElement.empty).withFragments(fragment(2)))
+      .buildRoot
+      .addStyles(Map("fo" -> TestTheme.foStyles))
+    val resultWithFragments = new RenderedTreeRoot[IO](
+      tree = result.tree,
+      input = input,
+      outputContext = OutputContext(XSLFO),
+      pathTranslator = PathTranslator.noOp
+    ).withDefaultTemplate(template)
+    val actual   = FOConcatenation(resultWithFragments, BookConfig.empty, OperationConfig.default)
+    val expected =
+      """<fo:block font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify">fragment 1</fo:block>
+        |<fo:block font-family="serif" font-size="10pt" line-height="1.5" space-after="3mm" text-align="justify">fragment 2</fo:block><fo:bookmark-tree>
+        |  <fo:bookmark internal-destination="_doc">
+        |    <fo:bookmark-title>doc</fo:bookmark-title>
+        |  </fo:bookmark>
+        |</fo:bookmark-tree><fo:wrapper font-size="10pt">
+        |content
+        |</fo:wrapper>""".stripMargin
+    assertEquals(actual, Right(expected))
+  }
+
 }

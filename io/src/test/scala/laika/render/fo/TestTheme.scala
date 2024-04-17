@@ -44,6 +44,20 @@ object TestTheme {
     TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
   )
 
+  def foTemplateWithFragment(fragmentName: String): TemplateRoot = TemplateRoot(
+    TemplateContextReference(
+      CursorKeys.fragment(fragmentName),
+      required = true,
+      SourceCursor.Generated
+    ),
+    TemplateContextReference(
+      CursorKeys.fragment("bookmarks"),
+      required = false,
+      SourceCursor.Generated
+    ),
+    TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
+  )
+
   lazy val htmlTemplate = TemplateRoot.fallback
 
   val fontPaths = Seq(

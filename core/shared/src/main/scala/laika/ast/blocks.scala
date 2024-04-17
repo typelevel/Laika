@@ -153,6 +153,18 @@ object DocumentFragment extends AbstractFunction3[String, Element, Options, Docu
       .mapValuesStrict(combine)
   }
 
+  /** Collects the fragment elements from all documents the specified root contains
+    * and assembles them into a map with the fragment name serving as the key.
+    * In case the root contains multiple fragments with the same name
+    * they will be concatenated into a single fragment.
+    */
+  def collect(root: DocumentTreeRoot): Map[String, Element] = {
+    root.allDocuments.toList
+      .flatMap { _.fragments.map(f => DocumentFragment(f._1, f._2)) }
+      .groupBy(_.name)
+      .mapValuesStrict(combine)
+  }
+
 }
 
 /** An element that only gets rendered for a specific output format.
