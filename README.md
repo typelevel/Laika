@@ -13,7 +13,7 @@ The sbt plugin is published for sbt 1.x.
 Open Source under the Apache 2.0 License.
 
 
-Version 1.0
+Version 1.x
 -----------
 
 1.x artefacts are now published under the `org.typelevel` organization as opposed to 0.x releases which were published under `org.planet42`.
