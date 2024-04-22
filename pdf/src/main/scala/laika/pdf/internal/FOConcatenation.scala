@@ -62,8 +62,10 @@ private[laika] object FOConcatenation {
     def applyTemplate(foString: String, template: TemplateDocument): Either[Throwable, String] = {
       val finalConfig     = ensureAbsoluteCoverImagePath
       val virtualPath     = Path.Root / "merged.fo"
+      val fragments       = DocumentFragment.collect(result.input)
       val finalDoc        = Document(virtualPath, RootElement(ContentWrapper(foString)))
-        .withFragments(PDFNavigation.generateBookmarks(result, config.navigationDepth))
+        .withFragments(fragments)
+        .addFragments(PDFNavigation.generateBookmarks(result, config.navigationDepth))
         .withConfig(finalConfig)
       val renderer        = Renderer.of(XSLFO).withConfig(opConfig).build
       val templateApplied = for {
