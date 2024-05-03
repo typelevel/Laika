@@ -63,9 +63,9 @@ def disableUnusedWarningsForMdoc(options: Seq[String]): Seq[String] =
 val munit = "org.scalameta" %% "munit" % versions.munit % "test"
 val jTidy = "net.sf.jtidy"   % "jtidy" % versions.jTidy % "test"
 
-val catsEffect = "org.typelevel" %% "cats-effect"         % versions.catsEffect
-val fs2IO      = "co.fs2"        %% "fs2-io"              % versions.fs2
-val munitCE3   = "org.typelevel" %% "munit-cats-effect-3" % versions.munitCE3 % "test"
+val catsEffect = "org.typelevel" %% "cats-effect"       % versions.catsEffect
+val fs2IO      = "co.fs2"        %% "fs2-io"            % versions.fs2
+val munitCE    = "org.typelevel" %% "munit-cats-effect" % versions.munitCE % "test"
 
 val fop = "org.apache.xmlgraphics" % "fop" % versions.fop
 
@@ -124,7 +124,7 @@ lazy val api = project
       )
   )
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("core"))
@@ -144,12 +144,15 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       _.withModuleKind(ModuleKind.CommonJSModule).withESFeatures(_.withESVersion(ESVersion.ES2018))
     }
   )
+  .nativeSettings(
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % versions.scalaJavaTime
+  )
 
 lazy val io = project.in(file("io"))
   .dependsOn(core.jvm % "compile->compile;test->test")
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3),
+    libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE),
     Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
 
