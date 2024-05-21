@@ -37,7 +37,7 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
     def isIncluded(level: Int): Boolean = depth.forall(_ >= level)
 
     def header(level: Int, title: Int, style: String = "section"): Header =
-      Header(level, List(Text(s"Title $title")), Id(s"title$title") + Styles(style))
+      Header(level, List(Text(s"Title $title")), Id(s"title-$title") + Styles(style))
 
     def tree(content: RootElement): DocumentTree = {
       val autonumberConfig = ConfigParser

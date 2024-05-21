@@ -111,4 +111,18 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     runRootWithoutTitles(rootElem, expected)
   }
 
+  test(
+    "decorated headers - respect explicitly assigned ids"
+  ) {
+    val rootElem = RootElement(
+      DecoratedHeader(Underline('#'), List(Text("Title")), SourceCursor.Generated).withId(
+        "explicit"
+      )
+    )
+    val expected = RootElement(
+      Section(Header(1, List(Text("Title")), Id("explicit") + Style.section), Nil)
+    )
+    runRootWithoutTitles(rootElem, expected)
+  }
+
 }

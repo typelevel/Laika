@@ -126,7 +126,7 @@ private[link] class DocumentTargets(document: Document, slugBuilder: String => S
         linkDefinitionResolver(selector, ld.target, ld.title)
 
       case h @ DecoratedHeader(deco, _, _, _) =>
-        val selector    = TargetIdSelector(slugBuilder(h.extractText))
+        val selector    = TargetIdSelector(slugBuilder(h.options.id.getOrElse(h.extractText)))
         val level       = levels.levelFor(deco)
         val finalHeader = TargetReplacer.lift { case DecoratedHeader(_, content, _, opt) =>
           Header(level, content, opt + Id(selector.id))
@@ -140,7 +140,7 @@ private[link] class DocumentTargets(document: Document, slugBuilder: String => S
         )
 
       case h @ Header(level, _, _) =>
-        val selector = TargetIdSelector(slugBuilder(h.extractText))
+        val selector = TargetIdSelector(slugBuilder(h.options.id.getOrElse(h.extractText)))
         TargetResolver.create(
           selector,
           internalResolver(selector),

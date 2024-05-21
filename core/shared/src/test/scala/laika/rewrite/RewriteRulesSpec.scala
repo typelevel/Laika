@@ -621,6 +621,12 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     runRoot(rootElem, expected)
   }
 
+  test("header ids - respect explicitly assigned ids") {
+    val rootElem = RootElement(Header(1, List(Text("Header"))).withId("explicit"))
+    val expected = RootElement(Title(List(Text("Header")), Id("explicit") + Style.title))
+    runRoot(rootElem, expected)
+  }
+
   test("duplicate ids - append auto-increment numbers") {
     val header   = Header(1, "Header")
     val rootElem = RootElement(header, header)
