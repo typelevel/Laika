@@ -152,8 +152,10 @@ private[laika] class LinkResolver(root: DocumentTreeRoot, slugBuilder: String =>
           case FootnoteLabel.Autosymbol          => replaceBlock(f, AutosymbolSelector)
         }
       case c: Citation           => replaceBlock(c, TargetIdSelector(slugBuilder(c.label)))
-      case h: DecoratedHeader    => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
-      case h: Header             => replaceBlock(h, TargetIdSelector(slugBuilder(h.extractText)))
+      case h: DecoratedHeader    =>
+        replaceBlock(h, TargetIdSelector(slugBuilder(h.options.id.getOrElse(h.extractText))))
+      case h: Header             =>
+        replaceBlock(h, TargetIdSelector(slugBuilder(h.options.id.getOrElse(h.extractText))))
 
       case d: BlockDirectives.DirectiveInstance if d.directive.exists(_.name == "fragment") =>
         RewriteAction.Replace(d.resolve(cursor))
