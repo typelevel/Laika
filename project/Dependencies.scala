@@ -12,7 +12,7 @@ object Dependencies {
     val http4s     = "0.23.26"
 
     val munit    = "0.7.29"
-    val munitCE3 = "1.0.7"
+    val munitCE3 = "2.0.0"
     val jTidy    = "r938"
     val fop      = "2.9"
   }
