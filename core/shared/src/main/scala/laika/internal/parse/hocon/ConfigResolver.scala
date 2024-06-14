@@ -85,8 +85,8 @@ private[laika] object ConfigResolver {
         }
 
         def resolveValue(key: Key)(value: ConfigBuilderValue): Option[ConfigValue] = value match {
-          case o: ObjectBuilderValue   => Some(resolveObject(o, key))
-          case a: ArrayBuilderValue    =>
+          case o: ObjectBuilderValue => Some(resolveObject(o, key))
+          case a: ArrayBuilderValue  =>
             Some(ArrayValue(a.values.flatMap(resolveValue(key)))) // TODO - adjust path?
           case r: ResolvedBuilderValue => Some(r.value)
           case s: ValidStringValue     => Some(StringValue(s.value))

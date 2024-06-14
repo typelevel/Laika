@@ -178,7 +178,7 @@ private[laika] object BlockParsers {
         elems += paragraph
         parse(parser, rest)
       case Success(x, rest) => elems += x; parse(defaultBlock, rest)
-      case _                => Success(elems.toList, in)
+      case _ => Success(elems.toList, in)
     }
 
     parse(defaultBlock, in)

@@ -98,7 +98,7 @@ private[helium] object DownloadPageGenerator {
         val blocks = Title(pageConfig.title).withOptions(Style.title) +: pageConfig.description.map(
           Paragraph(_)
         ).toSeq ++: downloads
-        val doc    = Document(Root / "downloads.gen", RootElement(blocks))
+        val doc                   = Document(Root / "downloads.gen", RootElement(blocks))
           .modifyConfig(_.withValue("helium.markupEditLinks", false))
         tree.modifyTree(_.prependContent(doc))
       }

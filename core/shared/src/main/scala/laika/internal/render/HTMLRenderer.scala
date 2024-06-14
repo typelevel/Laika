@@ -314,7 +314,7 @@ private[laika] class HTMLRenderer(format: String)
               case s: Length                     => (None, Some(s"$styleName:${s.displayValue}"))
             }
             .getOrElse((None, None))
-        val (widthAttr, wStyle)  = sizeAttr(width, "width")
+        val (widthAttr, wStyle) = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")
         val styleAttr            = (wStyle ++ hStyle).reduceLeftOption((a, b) => s"$a;$b")
         val allAttr              = fmt.optAttributes(

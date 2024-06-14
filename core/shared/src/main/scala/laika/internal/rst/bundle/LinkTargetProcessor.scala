@@ -55,7 +55,7 @@ private[laika] object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
       case (buffer, InternalLinkTarget(Id(id)) :: elem :: _ :: Nil) if !elem.hasId =>
         buffer += elem.withId(id)
 
-      case (buffer, _ :: _ :: Nil)   =>
+      case (buffer, _ :: _ :: Nil) =>
         buffer // only happens for empty results (with just the 2 mocks)
       case (buffer, _ :: other :: _) => buffer += other
       case (buffer, _)               => buffer

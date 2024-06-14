@@ -686,17 +686,17 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       val title  = SpanSequence("Title " + titleNum)
       NavigationItem(title, children, target, options = Style.level(level))
     }
-    val navList     = NavigationList(
+    val navList = NavigationList(
       Seq(
         link(1, 2, Seq(link(2, 3))),
         link(1, 4, Seq(link(2, 5)))
       )
     )
-    val level1Props =
+    val level1Props                                                                          =
       """color="#931813" font-family="serif" font-size="22pt" font-weight="bold" keep-with-next="always" line-height="1.5" margin-left="0mm" space-after="0mm" space-before="15mm" text-align="justify" text-align-last="center" text-transform="uppercase""""
-    val level2Props =
+    val level2Props                                                                          =
       """color="#931813" font-family="serif" font-size="17pt" keep-with-previous="always" line-height="1.5" margin-left="4mm" space-after="0mm" space-before="7mm" text-align="justify" text-align-last="justify""""
-    val leader      =
+    val leader                                                                               =
       """<fo:leader leader-pattern="dots" padding-left="2mm" padding-right="2mm"></fo:leader>"""
 
     val fo =
