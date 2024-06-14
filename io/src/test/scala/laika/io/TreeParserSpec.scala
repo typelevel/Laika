@@ -511,7 +511,7 @@ class TreeParserSpec
       Root / "main2.template.html" -> Contents.directive
     )
     val template = TemplateRoot(TemplateString("aa "), TemplateString("bar"), TemplateString(" bb"))
-    val result   = Seq(template, template)
+    val result    = Seq(template, template)
     parsedTemplates(inputs, BundleProvider.forTemplateDirective(directive)).assertEquals(result)
   }
 

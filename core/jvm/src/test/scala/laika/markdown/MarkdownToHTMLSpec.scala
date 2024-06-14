@@ -73,8 +73,8 @@ class MarkdownToHTMLSpec extends FunSuite {
           fmt.indentedElement("blockquote", qb)
         case (fmt, h @ Header(_, _, Id(_)))                  =>
           fmt.child(h.clearOptions) // Markdown classic does not generate header ids
-        case (fmt, t @ Title(_, Id("unordered")))            => fmt.child(Header(2, t.content))
-        case (fmt, t @ Title(_, Id(_)))                      => fmt.child(t.clearOptions)
+        case (fmt, t @ Title(_, Id("unordered"))) => fmt.child(Header(2, t.content))
+        case (fmt, t @ Title(_, Id(_)))           => fmt.child(t.clearOptions)
       }
       .withMessageFilters(
         MessageFilters.custom(failOn = MessageFilter.None, render = MessageFilter.None)

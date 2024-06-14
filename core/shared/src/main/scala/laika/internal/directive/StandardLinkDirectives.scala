@@ -58,9 +58,10 @@ private[laika] object StandardLinkDirectives {
   lazy val api: LinkDirectives.Directive = LinkDirectives.eval("api") { (linkId, cursor) =>
     linkConfig(cursor)
       .flatMap { linkConfig =>
-        val matching = linkConfig.apiLinks.toList.filter(l =>
-          linkId.startsWith(l.packagePrefix)
-        ).maximumByOption(_.packagePrefix.length)
+        val matching =
+          linkConfig.apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(
+            _.packagePrefix.length
+          )
         matching.orElse(linkConfig.apiLinks.find(_.packagePrefix == "*")).fold[Either[
           String,
           SpanLink
