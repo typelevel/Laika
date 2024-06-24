@@ -109,7 +109,7 @@ private[helium] case class LandingPage(
     latestReleases: Seq[ReleaseInfo] = Nil,
     license: Option[String] = None,
     titleLinks: Seq[ThemeLink] = Nil,
-    documentationLinks: Seq[TextLink] = Nil,
+    linkPanel: Option[LinkPanel] = None,
     projectLinks: Seq[ThemeLinkSpan] = Nil,
     teasers: Seq[Teaser] = Nil
 ) {

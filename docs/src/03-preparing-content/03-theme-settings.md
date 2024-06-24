@@ -849,10 +849,11 @@ Helium.defaults
         IconLink.external("https://twitter.com/abcdefg/", HeliumIcon.twitter)
       )
     ),
-    documentationLinks = Seq(
+    linkPanel = Some(LinkPanel(
+      "Documentation",
       TextLink.internal(Root / "doc-1.md", "Doc 1"),
       TextLink.internal(Root / "doc-2.md", "Doc 2")
-    ),
+    )),
     projectLinks = Seq(
       TextLink.internal(Root / "doc-1.md", "Text Link"),
       ButtonLink.external("http://somewhere.com/", "Button Label"),

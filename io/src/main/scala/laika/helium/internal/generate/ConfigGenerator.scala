@@ -43,6 +43,13 @@ private[laika] object ConfigGenerator {
       .build
   }
 
+  implicit val linkPanelEncoder: ConfigEncoder[LinkPanel] = ConfigEncoder[LinkPanel] { panel =>
+    ConfigEncoder.ObjectBuilder.empty
+      .withValue("title", panel.title)
+      .withValue("links", panel.links)
+      .build
+  }
+
   private def buildTeaserRows(teasers: Seq[Teaser]): Seq[ObjectValue] = if (teasers.isEmpty) Nil
   else
     BalancedGroups.create(teasers.toVector, Math.ceil(teasers.size.toDouble / 3).toInt).map { row =>
@@ -78,7 +85,7 @@ private[laika] object ConfigGenerator {
         .withValue("latestReleases", landingPage.latestReleases)
         .withValue("license", landingPage.license)
         .withValue("titleLinks", titleLinks)
-        .withValue("documentationLinks", landingPage.documentationLinks)
+        .withValue("linkPanel", landingPage.linkPanel)
         .withValue("projectLinks", landingPage.projectLinks)
         .withValue("teaserRows", buildTeaserRows(landingPage.teasers))
         .withValue("headerStyle", headerStyle)
