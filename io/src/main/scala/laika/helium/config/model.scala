@@ -87,6 +87,20 @@ object Favicon {
 
 }
 
+/** Represents link panel to be displayed on the top right side of the landing page.
+  *
+  * @param title the title shown at the top of the panel
+  * @param links the links to render inside the panel
+  */
+case class LinkPanel(title: String, links: Seq[TextLink])
+
+object LinkPanel {
+
+  def apply(title: String, link: TextLink, links: TextLink*): LinkPanel =
+    apply(title, link +: links)
+
+}
+
 /** Represents release info to be displayed on the landing page.
   *
   * This is specific for sites that serve as documentation for software projects.

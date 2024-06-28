@@ -138,7 +138,7 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
          |<p>License</p>
          |<p class="large">MIT</p>
          |<div id="docs">
-         |<p>Documentation</p>
+         |<p>Project Info</p>
          |<ul>
          |<li><a class="text-link" href="doc-1.html">Doc 1</a></li>
          |<li><a class="text-link" href="doc-2.html">Doc 2</a></li>
@@ -172,9 +172,12 @@ class HeliumLandingPageSpec extends CatsEffectSuite with InputBuilder with Resul
             IconLink.external("https://twitter.com/abcdefg/", HeliumIcon.twitter)
           )
         ),
-        documentationLinks = Seq(
-          TextLink.internal(Root / "doc-1.md", "Doc 1"),
-          TextLink.internal(Root / "doc-2.md", "Doc 2")
+        linkPanel = Some(
+          LinkPanel(
+            "Project Info",
+            TextLink.internal(Root / "doc-1.md", "Doc 1"),
+            TextLink.internal(Root / "doc-2.md", "Doc 2")
+          )
         ),
         projectLinks = Seq(
           TextLink.internal(Root / "doc-1.md", "Text Link"),

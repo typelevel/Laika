@@ -726,6 +726,32 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
+  @deprecated("use new method overload", "1.2.0")
+  def landingPage(
+      logo: Option[Image],
+      title: Option[String],
+      subtitle: Option[String],
+      latestReleases: Seq[ReleaseInfo],
+      license: Option[String],
+      titleLinks: Seq[ThemeLink],
+      documentationLinks: Seq[TextLink],
+      projectLinks: Seq[ThemeLinkSpan],
+      teasers: Seq[Teaser]
+  ): Helium = {
+    landingPage(
+      logo,
+      title,
+      subtitle,
+      latestReleases,
+      license,
+      titleLinks,
+      documentationLinks,
+      projectLinks,
+      teasers,
+      None
+    )
+  }
+
   /** Adds a dedicated landing page to the site that is tailored for software documentation sites.
     * By default no landing page will be included and the site will render the homepage (if present)
     * with the same default template as the main content pages.
@@ -741,15 +767,19 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
     * style content right on the start page.
     * It can also be used to list adopters, provide a feature overview or links to presentations or videos.
     *
-    * @param logo                a logo to be placed on the left hand side of the header
-    * @param title               a title to be placed right under the logo
-    * @param subtitle            a subtitle to be place right under the title
-    * @param latestReleases      a set of release versions to display on the right side of the header
-    * @param license             the license info to render right under the release info
-    * @param titleLinks          a row of links to render beneath the subtitle on the left side of the header
-    * @param documentationLinks  a set of documentation links to render in a dedicated panel on the right side of the header
-    * @param projectLinks        a set of project links to render at the bottom of the right side of the header
-    * @param teasers             a set of teasers containing of headline and description to render below the header
+    * The parameter `documentationLinks` .
+    *
+    * @param logo               a logo to be placed on the left hand side of the header
+    * @param title              a title to be placed right under the logo
+    * @param subtitle           a subtitle to be place right under the title
+    * @param latestReleases     a set of release versions to display on the right side of the header
+    * @param license            the license info to render right under the release info
+    * @param titleLinks         a row of links to render beneath the subtitle on the left side of the header
+    * @param linkPanel          a set of documentation links to render in a dedicated panel on the right side of the header
+    * @param projectLinks       a set of project links to render at the bottom of the right side of the header
+    * @param teasers            a set of teasers containing of headline and description to render below the header
+    * @param documentationLinks deprecated and only kept for binary compatibility - use the new `linkPanel` parameter
+    *                           which also allows to specify a panel title
     */
   def landingPage(
       logo: Option[Image] = None,
@@ -760,19 +790,29 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       titleLinks: Seq[ThemeLink] = Nil,
       documentationLinks: Seq[TextLink] = Nil,
       projectLinks: Seq[ThemeLinkSpan] = Nil,
-      teasers: Seq[Teaser] = Nil
+      teasers: Seq[Teaser] = Nil,
+      linkPanel: Option[LinkPanel] = None
   ): Helium = {
-    val page       = LandingPage(
+
+    val panel = linkPanel match {
+      case Some(panel) => Some(panel)
+      case None        =>
+        if (documentationLinks.isEmpty) None
+        else Some(LinkPanel("Documentation", documentationLinks))
+    }
+
+    val page = LandingPage(
       logo,
       title,
       subtitle,
       latestReleases,
       license,
       titleLinks,
-      documentationLinks,
+      panel,
       projectLinks,
       teasers
     )
+
     val newContent = currentContent.copy(landingPage = Some(page))
     copyWith(helium.siteSettings.copy(content = newContent))
   }

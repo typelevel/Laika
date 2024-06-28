@@ -42,11 +42,11 @@
           <p>License</p>
           <p class="large">${_}</p>
         @:@
-        @:if(helium.site.landingPage.documentationLinks)
+        @:for(helium.site.landingPage.linkPanel)
           <div id="docs">
-            <p>Documentation</p>
+            <p>${helium.site.landingPage.linkPanel.title}</p>
             <ul>
-              @:for(helium.site.landingPage.documentationLinks)
+              @:for(helium.site.landingPage.linkPanel.links)
                 <li>${_}</li>
               @:@
             </ul>
