@@ -105,7 +105,7 @@ private[laika] class LinkValidator(
       case TargetFormats.None => InvalidTarget(s"$invalidRefMsg as it is excluded from rendering")
       case TargetFormats.Selected(selectedFormats) =>
         (cursor.target.targetFormats, outputFormat) match {
-          case (TargetFormats.None, _)                               =>
+          case (TargetFormats.None, _) =>
             ValidTarget // to be validated at point of inclusion by a directive like @:include
           case (_, Some(output)) if selectedFormats.contains(output) => ValidTarget
           case (_, Some(output))                                     =>

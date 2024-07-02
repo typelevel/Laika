@@ -100,7 +100,7 @@ private[link] class DocumentTargets(document: Document, slugBuilder: String => S
 
       case f: FootnoteDefinition =>
         val (docId, displayId, selector) = f.label match {
-          case FootnoteLabel.Autosymbol          =>
+          case FootnoteLabel.Autosymbol =>
             (
               s"__fns-${symbolNumbers.next()}",
               symbols.next(),
