@@ -4,6 +4,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.helium.config.*
 import laika.parse.{ SourceCursor, SourceFragment }
+import laika.theme.config.{ IncludeCSSConfig, IncludeJSConfig }
 
 private[helium] sealed trait CommonLayout {
   def defaultBlockSpacing: Length
@@ -21,8 +22,8 @@ private[helium] case class WebLayout(
 
 private[helium] case class WebContent(
     favIcons: Seq[Favicon] = Nil,
-    styleIncludes: StyleIncludes = StyleIncludes.empty,
-    scriptIncludes: ScriptIncludes = ScriptIncludes.empty,
+    styleIncludes: IncludeCSSConfig = IncludeCSSConfig.empty,
+    scriptIncludes: IncludeJSConfig = IncludeJSConfig.empty,
     topNavigationBar: TopNavigationBar = TopNavigationBar.default,
     mainNavigation: MainNavigation = MainNavigation(),
     pageNavigation: PageNavigation = PageNavigation(),
