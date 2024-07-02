@@ -1,7 +1,13 @@
 package laika.helium.internal.config
 
 import laika.config.{ CoverImage, Versions }
-import laika.theme.config.{ BookConfig, DocumentMetadata, FontDefinition }
+import laika.theme.config.{
+  BookConfig,
+  DocumentMetadata,
+  FontDefinition,
+  IncludeCSSConfig,
+  IncludeJSConfig
+}
 
 private[helium] trait CommonSettings {
   def themeFonts: ThemeFonts
@@ -45,8 +51,8 @@ private[helium] case class EPUBSettings(
     fontSizes: FontSizes,
     colors: ColorSet,
     darkMode: Option[ColorSet],
-    styleIncludes: StyleIncludes = StyleIncludes.empty,
-    scriptIncludes: ScriptIncludes = ScriptIncludes.empty,
+    styleIncludes: IncludeCSSConfig = IncludeCSSConfig.empty,
+    scriptIncludes: IncludeJSConfig = IncludeJSConfig.empty,
     layout: EPUBLayout,
     coverImages: Seq[CoverImage]
 ) extends DarkModeSupport {

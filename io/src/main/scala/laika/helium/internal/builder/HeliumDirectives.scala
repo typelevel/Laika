@@ -21,6 +21,7 @@ import laika.api.bundle.{ PathTranslator, TemplateDirectives }
 import laika.ast.{ TemplateSpanSequence, TemplateString }
 import laika.config.{ LaikaKeys, Versions }
 import laika.helium.Helium
+import laika.theme.config.IncludeDirective
 
 /** @author Jens Halm
   */
@@ -68,11 +69,11 @@ private[helium] object HeliumDirectives {
     Seq(
       initVersions,
       initPreview,
-      HeliumHeadDirectives.includeCSS(
+      IncludeDirective.forCSS(
         helium.siteSettings.content.styleIncludes,
         helium.epubSettings.styleIncludes
       ),
-      HeliumHeadDirectives.includeJS(
+      IncludeDirective.forJS(
         helium.siteSettings.content.scriptIncludes,
         helium.epubSettings.scriptIncludes
       )

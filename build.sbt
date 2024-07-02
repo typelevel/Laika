@@ -150,7 +150,8 @@ lazy val io = project.in(file("io"))
   .settings(
     name := "laika-io",
     libraryDependencies ++= Seq(catsEffect, fs2IO, munit, munitCE3),
-    Test / scalacOptions ~= disableMissingInterpolatorWarning
+    Test / scalacOptions ~= disableMissingInterpolatorWarning,
+    mimaBinaryIssueFilters ++= MimaFilters.includeRefactoring
   )
 
 lazy val pdf = project.in(file("pdf"))
