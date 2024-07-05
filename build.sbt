@@ -50,6 +50,9 @@ inThisBuild(
   )
 )
 
+def inferOverrideFor2_13(version: String): Seq[String] =
+  if (version.startsWith("2.13")) Seq("-Xsource-features:infer-override") else Nil
+
 def disableMissingInterpolatorWarning(options: Seq[String]): Seq[String] =
   options.map { opt =>
     if (opt.startsWith("-Xlint")) opt + ",-missing-interpolator" else opt
@@ -134,6 +137,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       "org.scalameta" %%% "munit"     % versions.munit % "test",
       "org.typelevel" %%% "cats-core" % versions.catsCore
     ),
+    scalacOptions ++= inferOverrideFor2_13(scalaVersion.value),
     Test / scalacOptions ~= disableMissingInterpolatorWarning
   )
   .jvmSettings(
