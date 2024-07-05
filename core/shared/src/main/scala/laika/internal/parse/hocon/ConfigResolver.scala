@@ -296,7 +296,7 @@ private[laika] object ConfigResolver {
       obj.values.groupBy(_.key.getOrElse(Key.root)).mapValuesStrict(_.map(_.value)).toSeq.map {
         case (key, values) =>
           val merged = values.reduce(mergeValues(key)) match {
-            case obj: ObjectBuilderValue => mergeObjects(obj)
+            case obv: ObjectBuilderValue => mergeObjects(obv)
             case other                   => other
           }
           BuilderField(key, merged)
@@ -373,8 +373,8 @@ private[laika] object ConfigResolver {
             extract(field + "." + index, arrValue)
           }
           if (nested.isEmpty) wrap(failure) else nested
-        case InvalidBuilderValue(obj: ObjectBuilderValue, failure)   =>
-          val nested = extractErrors(obj)
+        case InvalidBuilderValue(obv: ObjectBuilderValue, failure)   =>
+          val nested = extractErrors(obv)
           if (nested.isEmpty) wrap(failure) else nested
         case InvalidBuilderValue(_, failure)                         => wrap(failure)
         case incl: IncludeBuilderValue                               =>
