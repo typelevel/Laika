@@ -26,6 +26,8 @@ import laika.theme.config.{
   Color,
   DocumentMetadata,
   FontDefinition,
+  IncludeCSSConfig,
+  IncludeJSConfig,
   ScriptAttributes,
   StyleAttributes
 }
@@ -445,12 +447,12 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
 
   }
 
-  private def withStyleIncludes(newValue: StyleIncludes): Helium = {
+  private def withStyleIncludes(newValue: IncludeCSSConfig): Helium = {
     val newContent = currentContent.copy(styleIncludes = newValue)
     copyWith(helium.siteSettings.copy(content = newContent))
   }
 
-  private def withScriptIncludes(newValue: ScriptIncludes): Helium = {
+  private def withScriptIncludes(newValue: IncludeJSConfig): Helium = {
     val newContent = currentContent.copy(scriptIncludes = newValue)
     copyWith(helium.siteSettings.copy(content = newContent))
   }
@@ -464,8 +466,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       attributes: StyleAttributes = StyleAttributes.defaults,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude    = ExternalCSS(url, attributes, condition)
-    val styleIncludes = currentContent.styleIncludes.add(newInclude)
+    val styleIncludes = currentContent.styleIncludes.externalCSS(url, attributes, condition)
     withStyleIncludes(styleIncludes)
   }
 
@@ -481,8 +482,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       attributes: StyleAttributes = StyleAttributes.defaults,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude    = InternalCSS(searchPath, attributes, condition)
-    val styleIncludes = currentContent.styleIncludes.add(newInclude)
+    val styleIncludes = currentContent.styleIncludes.internalCSS(searchPath, attributes, condition)
     withStyleIncludes(styleIncludes)
   }
 
@@ -494,8 +494,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       content: String,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude    = InlineCSS(content, condition)
-    val styleIncludes = currentContent.styleIncludes.add(newInclude)
+    val styleIncludes = currentContent.styleIncludes.inlineCSS(content, condition)
     withStyleIncludes(styleIncludes)
   }
 
@@ -508,8 +507,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       attributes: ScriptAttributes = ScriptAttributes.defaults,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude     = ExternalJS(url, attributes, condition)
-    val scriptIncludes = currentContent.scriptIncludes.add(newInclude)
+    val scriptIncludes = currentContent.scriptIncludes.externalJS(url, attributes, condition)
     withScriptIncludes(scriptIncludes)
   }
 
@@ -525,8 +523,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       attributes: ScriptAttributes = ScriptAttributes.defaults,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude     = InternalJS(searchPath, attributes, condition)
-    val scriptIncludes = currentContent.scriptIncludes.add(newInclude)
+    val scriptIncludes = currentContent.scriptIncludes.internalJS(searchPath, attributes, condition)
     withScriptIncludes(scriptIncludes)
   }
 
@@ -539,8 +536,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
       isModule: Boolean = false,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude     = InlineJS(content, isModule, condition)
-    val scriptIncludes = currentContent.scriptIncludes.add(newInclude)
+    val scriptIncludes = currentContent.scriptIncludes.inlineJS(content, isModule, condition)
     withScriptIncludes(scriptIncludes)
   }
 
@@ -976,10 +972,10 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
     copyWith(helium.epubSettings.copy(layout = newLayout))
   }
 
-  private def withStyleIncludes(newValue: StyleIncludes): Helium =
+  private def withStyleIncludes(newValue: IncludeCSSConfig): Helium =
     copyWith(helium.epubSettings.copy(styleIncludes = newValue))
 
-  private def withScriptIncludes(newValue: ScriptIncludes): Helium =
+  private def withScriptIncludes(newValue: IncludeJSConfig): Helium =
     copyWith(helium.epubSettings.copy(scriptIncludes = newValue))
 
   /** Auto-links CSS documents from the specified path, which may point to a single CSS document
@@ -994,8 +990,8 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
       attributes: StyleAttributes = StyleAttributes.defaults,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude    = InternalCSS(searchPath, attributes, condition)
-    val styleIncludes = helium.epubSettings.styleIncludes.add(newInclude)
+    val styleIncludes =
+      helium.epubSettings.styleIncludes.internalCSS(searchPath, attributes, condition)
     withStyleIncludes(styleIncludes)
   }
 
@@ -1007,8 +1003,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
       content: String,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude    = InlineCSS(content, condition)
-    val styleIncludes = helium.epubSettings.styleIncludes.add(newInclude)
+    val styleIncludes = helium.epubSettings.styleIncludes.inlineCSS(content, condition)
     withStyleIncludes(styleIncludes)
   }
 
@@ -1024,8 +1019,8 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
       attributes: ScriptAttributes = ScriptAttributes.defaults,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude     = InternalJS(searchPath, attributes, condition)
-    val scriptIncludes = helium.epubSettings.scriptIncludes.add(newInclude)
+    val scriptIncludes =
+      helium.epubSettings.scriptIncludes.internalJS(searchPath, attributes, condition)
     withScriptIncludes(scriptIncludes)
   }
 
@@ -1038,8 +1033,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
       isModule: Boolean = false,
       condition: Document => Boolean = _ => true
   ): Helium = {
-    val newInclude     = InlineJS(content, isModule, condition)
-    val scriptIncludes = helium.epubSettings.scriptIncludes.add(newInclude)
+    val scriptIncludes = helium.epubSettings.scriptIncludes.inlineJS(content, isModule, condition)
     withScriptIncludes(scriptIncludes)
   }
 

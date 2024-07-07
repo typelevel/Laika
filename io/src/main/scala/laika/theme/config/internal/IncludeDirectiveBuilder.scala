@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package laika.helium.internal.builder
+package laika.theme.config.internal
 
 import cats.syntax.all.*
 import laika.api.bundle.TemplateDirectives
-import laika.ast.Path.Root
 import laika.ast.*
-import laika.helium.internal.config.{ InlineCSS, InlineJS, ScriptIncludes, StyleIncludes }
+import laika.ast.Path.Root
 import laika.theme.config.{ CrossOrigin, ScriptAttributes, StyleAttributes }
 
-private[helium] object HeliumHeadDirectives {
+private[config] object IncludeDirectiveBuilder {
 
   private type Attributes = Seq[(String, String)]
 
@@ -165,7 +164,7 @@ private[helium] object HeliumHeadDirectives {
       epubIncludes: StyleIncludes
   ): TemplateDirectives.Directive =
     TemplateDirectives.create("includeCSS") {
-      import TemplateDirectives.dsl._
+      import TemplateDirectives.dsl.*
 
       val templateStart = """<link rel="stylesheet" type="text/css" href=""""
       val templateEnd   = " />"
@@ -194,7 +193,7 @@ private[helium] object HeliumHeadDirectives {
       epubIncludes: ScriptIncludes
   ): TemplateDirectives.Directive =
     TemplateDirectives.create("includeJS") {
-      import TemplateDirectives.dsl._
+      import TemplateDirectives.dsl.*
 
       val templateStart = """<script src=""""
       val templateEnd   = "></script>"
