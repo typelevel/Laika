@@ -928,10 +928,11 @@ mermaid.initialize({
         </span><span class="type-name">IconLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;https://twitter.com/abcdefg/&quot;</span><span>, </span><span class="type-name">HeliumIcon</span><span>.</span><span class="identifier">twitter</span><span>)
       )
     ),
-    </span><span class="identifier">documentationLinks</span><span> = </span><span class="type-name">Seq</span><span>(
+    </span><span class="identifier">linkPanel</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="type-name">LinkPanel</span><span>(
+      </span><span class="string-literal">&quot;Documentation&quot;</span><span>,
       </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-1.md&quot;</span><span>, </span><span class="string-literal">&quot;Doc 1&quot;</span><span>),
       </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-2.md&quot;</span><span>, </span><span class="string-literal">&quot;Doc 2&quot;</span><span>)
-    ),
+    )),
     </span><span class="identifier">projectLinks</span><span> = </span><span class="type-name">Seq</span><span>(
       </span><span class="type-name">TextLink</span><span>.</span><span class="identifier">internal</span><span>(</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;doc-1.md&quot;</span><span>, </span><span class="string-literal">&quot;Text Link&quot;</span><span>),
       </span><span class="type-name">ButtonLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">&quot;http://somewhere.com/&quot;</span><span>, </span><span class="string-literal">&quot;Button Label&quot;</span><span>),
