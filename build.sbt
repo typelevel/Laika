@@ -13,7 +13,7 @@ import Dependencies._
 
 inThisBuild(
   Seq(
-    tlBaseVersion        := "1.1",
+    tlBaseVersion        := "1.2",
     homepage             := Some(new URL("https://typelevel.org/Laika/")),
     organization         := "org.typelevel",
     organizationHomepage := Some(new URL("http://typelevel.org")),
