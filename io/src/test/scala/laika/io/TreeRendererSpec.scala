@@ -22,12 +22,14 @@ import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.api.Renderer
 import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
+import laika.api.config.Origin.TreeScope
 import laika.api.config.{ Config, ConfigBuilder, Origin }
 import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.api.format.{ Formatter, TagFormatter }
 import laika.ast
 import laika.ast.Path.Root
 import laika.ast.*
+import laika.ast.sample.SampleTrees.sixDocuments.paths
 import laika.ast.sample.{
   BuilderKey,
   ParagraphCompanionShortcuts,
@@ -387,9 +389,10 @@ class TreeRendererSpec extends CatsEffectSuite
         )
       )
 
-    val input = SampleTrees.sixDocuments
+    val input = SampleTrees.sixDocuments.builder
       .docContent(invalidLink _)
-      .build.tree
+      .buildRoot
+      .tree
 
     val invalidDocuments = input.allDocuments.map { doc =>
       val msg         = s"unresolved link reference: link${doc.path.name.last}"
@@ -911,9 +914,9 @@ class TreeRendererSpec extends CatsEffectSuite
     import ASTRenderer.*
 
     val input = addPosition(
-      SampleTrees.sixDocuments
-        .doc6.config(SampleConfig.targetFormats("zzz"))
-        .build
+      SampleTrees.sixDocuments.builder
+        .docConfig(paths.tree2_doc6, SampleConfig.targetFormats("zzz"))
+        .buildRoot
         .tree
     )
 
@@ -969,13 +972,17 @@ class TreeRendererSpec extends CatsEffectSuite
   }
 
   test("render tree while excluding all unversioned documents, based on configuration") {
+    import SampleTrees.sixDocuments.*
+
     val versions = Versions.forCurrentVersion(Version("0.4.x", "0.4")).withRenderUnversioned(false)
-    val input    = SampleTrees.sixDocuments
-      .root.config(_.withValue(versions))
-      .tree1.config(SampleConfig.versioned(true))
-      .tree2.config(SampleConfig.versioned(true))
-      .build
+
+    val input = builder
+      .treeConfig(Root, _.withValue(versions))
+      .treeConfig(paths.tree1, SampleConfig.versioned(true))
+      .treeConfig(paths.tree2, SampleConfig.versioned(true))
+      .buildRoot
       .tree
+
     val finalInput = input.appendContent(HTMLRenderer.fontConfigTree)
 
     val staticDocs = Seq(
@@ -1095,7 +1102,7 @@ class TreeRendererSpec extends CatsEffectSuite
   object FileSystemTest {
     import cats.syntax.all.*
 
-    val input: DocumentTreeRoot = SampleTrees.sixDocuments.build
+    val input: DocumentTreeRoot = SampleTrees.sixDocuments.builder.buildRoot
 
     def readFiles(base: String): IO[List[String]] = {
       List(
@@ -1146,12 +1153,20 @@ class TreeRendererSpec extends CatsEffectSuite
       scannerRoot.fold(versions)(versions.withVersionScanner(_))
     }
 
-    def versionedInput(scannerRoot: Option[String] = None): DocumentTreeRoot =
-      SampleTrees.sixDocuments
-        .root.config(_.withValue(versions(scannerRoot)))
-        .tree1.config(SampleConfig.versioned(true))
-        .tree2.config(SampleConfig.versioned(true))
-        .build
+    def versionedTree(path: Path): Config = {
+      val builder = ConfigBuilder.withOrigin(Origin(TreeScope, path))
+      SampleConfig.versioned(true)(builder).build
+    }
+
+    def versionedInput(scannerRoot: Option[String] = None): DocumentTreeRoot = {
+      import SampleTrees.sixDocuments.*
+
+      builder
+        .treeConfig(Root, _.withValue(versions(scannerRoot)))
+        .treeConfig(paths.tree1, SampleConfig.versioned(true))
+        .treeConfig(paths.tree2, SampleConfig.versioned(true))
+        .buildRoot
+    }
 
     val expectedVersionInfo: String =
       """{
@@ -1234,12 +1249,14 @@ class TreeRendererSpec extends CatsEffectSuite
       }.void
 
     def writeExistingVersionedFiles(root: DocumentTreeRoot, dir: FilePath): IO[Unit] = {
-      val paths          = root.tree.allDocuments.map(_.path.withSuffix("html").toString)
+      val paths          = root.tree.allDocuments.map(_.path.withSuffix("html"))
       val versionedPaths =
-        paths.map("0.1" + _) ++ paths.drop(1).map("0.2" + _) ++ paths.dropRight(1).map("0.3" + _)
+        paths.map("0.1" + _) ++
+          paths.filterNot(_.basename.endsWith("-1")).map("0.2" + _) ++
+          paths.filterNot(_.basename.endsWith("-6")).map("0.3" + _)
 
       versionedPaths.toList.traverse { path =>
-        writeFile(dir / path, "<html></html>")
+        writeFile(dir / path.toString, "<html></html>")
       }.void
     }
 

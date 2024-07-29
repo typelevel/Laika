@@ -29,6 +29,8 @@ class PathTranslatorSpec extends FunSuite {
 
   private val rootCursor = {
 
+    import SampleTrees.sixDocuments.*
+
     val versions = Versions.forCurrentVersion(Version("0.42", "0.42"))
 
     val doc2: Seq[Block] = Seq(
@@ -36,17 +38,29 @@ class PathTranslatorSpec extends FunSuite {
       Paragraph("text")
     )
 
-    SampleTrees.sixDocuments
-      .root.config(_.withValue(versions).withValue(LaikaKeys.siteBaseURL, "http://external.com/"))
-      .root.config(SampleConfig.versioned(true))
-      .doc1.config(SampleConfig.versioned(false))
-      .doc2.config(SampleConfig.versioned(false))
-      .static1.config(SampleConfig.versioned(false))
-      .staticDoc(Root / "static-1" / "doc-7.txt")
-      .staticDoc(Root / "static-2" / "doc-8.txt")
+    val static1 = Root / "static-1"
+    val static2 = Root / "static-2"
+
+    val root = SampleTrees.sixDocuments.builder
+      .treeConfig(
+        Root,
+        _.withValue(versions).withValue(LaikaKeys.siteBaseURL, "http://external.com/")
+      )
+      .treeConfig(Root, SampleConfig.versioned(true))
+      .docConfig(paths.doc1, SampleConfig.versioned(false))
+      .docConfig(paths.doc2, SampleConfig.versioned(false))
+      .treeConfig(static1, SampleConfig.versioned(false))
       .docContent(doc2)
       .suffix("md")
-      .buildCursor
+      .buildRoot
+      .addStaticDocuments(
+        Seq(
+          StaticDocument(static1 / "doc-7.txt"),
+          StaticDocument(static2 / "doc-8.txt")
+        )
+      )
+
+    RootCursor(root)
       .getOrElse(fail("unable to create cursor"))
   }
 

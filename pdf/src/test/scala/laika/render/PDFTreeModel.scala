@@ -17,38 +17,45 @@
 package laika.render
 
 import laika.ast.*
-import laika.ast.sample.{ BuilderKey, SampleConfig, SampleSixDocuments, SampleTrees }
+import laika.ast.Path.Root
+import laika.ast.sample.SampleTrees.SampleTreeBuilder
+import laika.ast.sample.{ BuilderKey, SampleConfig, SampleTrees }
 import laika.format.PDF
 
 trait PDFTreeModel {
 
-  def content(key: BuilderKey): Seq[Block] = Seq(
+  private def content(key: BuilderKey): Seq[Block] = Seq(
     Title(Seq(Text(s"Title ${key.num} & More")), Id(s"title-${key.num}") + Style.title),
     Paragraph(s"Text ${key.num}")
   )
 
-  def titleDocContent(num: Int): Seq[Block] = Seq(
+  private def titleDocContent(num: Int): Seq[Block] = Seq(
     Title(Seq(Text(s"Title Doc $num")), Id(s"title-$num") + Style.title),
     Paragraph(s"Text $num")
   )
 
-  def treeSetup(useTitleDocuments: Boolean): SampleSixDocuments => SampleSixDocuments =
+  private def treeSetup(useTitleDocuments: Boolean): SampleTreeBuilder => SampleTreeBuilder = {
+    import SampleTrees.sixDocuments.*
+
     if (!useTitleDocuments)
       _
-        .tree1.config(SampleConfig.title("Tree 1 & More"))
-        .tree2.config(SampleConfig.title("Tree 2 & More"))
+        .treeConfig(paths.tree1, SampleConfig.title("Tree 1 & More"))
+        .treeConfig(paths.tree2, SampleConfig.title("Tree 2 & More"))
     else
-      _.tree1.titleDoc.content(titleDocContent(2))
-        .tree2.titleDoc.content(titleDocContent(3))
+      _
+        .docContent(paths.tree1_titleDoc, titleDocContent(2))
+        .docContent(paths.tree2_titleDoc, titleDocContent(3))
+  }
 
   private val navConfigKey = PDF.configKey.child("navigationDepth")
 
   def createTree(navigationDepth: Int = 23, useTitleDocuments: Boolean = false): DocumentTree =
     SampleTrees.sixDocuments
-      .root.config(_.withValue(navConfigKey, navigationDepth))
+      .builder
+      .treeConfig(Root, _.withValue(navConfigKey, navigationDepth))
       .docContent(content _)
       .apply(treeSetup(useTitleDocuments))
-      .build
+      .buildRoot
       .tree
 
 }

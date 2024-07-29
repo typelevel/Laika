@@ -199,10 +199,10 @@ class TreeParserSpec
       Root / "tree-2" / "doc-5.md" -> Contents.name,
       Root / "tree-2" / "doc-6.md" -> Contents.name
     )
-    val expected = SampleTrees.sixDocuments
+    val expected = SampleTrees.sixDocuments.builder
       .docContent(defaultContent)
       .suffix("md")
-      .build
+      .buildRoot
     parsedTree(inputs).assertEquals(expected)
   }
 
@@ -414,6 +414,8 @@ class TreeParserSpec
   }
 
   test("tree with all available file types and multiple markup formats") {
+    import SampleTrees.sixDocuments.*
+
     val inputs = Seq(
       Root / "doc-1.md"                       -> Contents.link,
       Root / "doc-2.rst"                      -> Contents.link,
@@ -430,16 +432,25 @@ class TreeParserSpec
     val rstResult  =
       Seq(p(Text("[link]("), SpanLink.external("http://foo.com")("http://foo.com"), Text(")")))
 
+    def template(treePath: Path, baseName: String): TemplateDocument = TemplateDocument(
+      treePath / (baseName + ".template.html"),
+      TemplateRoot(TemplateString("foo"))
+    )
+
     val expected = SampleTrees.sixDocuments
-      .staticDoc(Root / "static-1" / "omg.js", "html", "epub", "xhtml")
+      .builder
       .docContent(defaultContent)
+      .docContent(paths.doc1, linkResult)
+      .docContent(paths.doc2, rstResult)
       .suffix("md")
-      .doc1.content(linkResult)
-      .doc2.content(rstResult)
-      .doc2.suffix("rst")
-      .root.template("mainA.template.html", TemplateString("foo"))
-      .tree1.template("mainB.template.html", TemplateString("foo"))
-      .build
+      .suffix(paths.doc2, "rst")
+      .builder
+      .addTemplate(template(Root, "mainA"))
+      .addTemplate(template(paths.tree1, "mainB"))
+      .buildRoot
+      .addStaticDocuments(
+        Seq(StaticDocument(Root / "static-1" / "omg.js", "html", "epub", "xhtml"))
+      )
     mixedParsedTree(inputs).assertEquals(expected)
   }
 

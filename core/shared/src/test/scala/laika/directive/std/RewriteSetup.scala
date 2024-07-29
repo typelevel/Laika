@@ -16,26 +16,30 @@
 
 package laika.directive.std
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import laika.api.builder.OperationConfig
-import laika.ast.sample.{ BuilderKey, SampleConfig, SampleContent, SampleSixDocuments, SampleTrees }
+import laika.ast.sample.{ BuilderKey, SampleConfig, SampleContent, SampleTrees }
 import laika.ast.*
 import munit.Assertions
 import Path.Root
 import laika.api.config.ConfigBuilder
+import laika.ast.sample.SampleTrees.SampleTreeBuilder
 import laika.format.HTML
 
 object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Assertions {
 
+  import laika.ast.sample.SampleTrees.sixDocuments.*
+
   private def targetFormats(
       includeTargetFormatConfig: Boolean
-  ): SampleSixDocuments => SampleSixDocuments =
+  ): SampleTreeBuilder => SampleTreeBuilder = {
     if (!includeTargetFormatConfig) identity
     else
       _
-        .doc2.config(SampleConfig.targetFormats())
-        .doc3.config(SampleConfig.targetFormats("html", "txt"))
-        .doc4.config(SampleConfig.targetFormats("epub", "pdf"))
+        .docConfig(paths.doc2, SampleConfig.targetFormats())
+        .docConfig(paths.tree1_doc3, SampleConfig.targetFormats("html", "txt"))
+        .docConfig(paths.tree1_doc4, SampleConfig.targetFormats("epub", "pdf"))
+  }
 
   def buildTree(
       template: Option[(String, Seq[TemplateSpan])] = None,
@@ -46,27 +50,26 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
       docUnderTestIsTitle: Boolean = false
   ): DocumentTree = {
 
-    def templateF = template.fold[SampleSixDocuments => SampleSixDocuments](identity) {
-      case (name, spans) => _.root.template(name, spans)
-    }
-    val titleDocs: SampleSixDocuments => SampleSixDocuments =
-      if (hasTitleDocs) _.titleDocuments(includeRoot = false) else identity // TODO - cleanup
+    val titleDocPaths = if (hasTitleDocs) List(paths.tree1, paths.tree2) else Nil
+    val targetPath    = if (docUnderTestIsTitle) paths.tree2_titleDoc else paths.tree2_doc6
+    val docContent    = docUnderTest.getOrElse(SampleContent.fourSections(BuilderKey.Doc(6)))
 
-    val docContent = docUnderTest.getOrElse(SampleContent.fourSections(BuilderKey.Doc(6)))
-    val docContentF: SampleSixDocuments => SampleSixDocuments =
-      if (docUnderTestIsTitle)
-        _.tree2.titleDoc.content(docContent).tree2.titleDoc.config(docConfigUnderTest)
-      else _.doc6.content(docContent).doc6.config(docConfigUnderTest)
-
-    SampleTrees.sixDocuments
+    val builder = SampleTrees.sixDocuments.builder
+      .titleDocuments(titleDocPaths *)
       .docContent(SampleContent.fourSections)
-      .apply(docContentF)
-      .tree1.config(SampleConfig.title("Tree 1"))
-      .tree2.config(SampleConfig.title("Tree 2")) // TODO - generalize
-      .apply(titleDocs)
-      .apply(templateF)
+      .docContent(targetPath, docContent)
+      .docConfig(targetPath, docConfigUnderTest)
+      .treeConfig(paths.tree1, SampleConfig.title("Tree 1"))
+      .treeConfig(paths.tree2, SampleConfig.title("Tree 2"))
       .apply(targetFormats(includeTargetFormatConfig))
-      .build
+      .builder
+
+    val builderWithTemplates = template.fold(builder) { case (name, spans) =>
+      builder.addTemplate(TemplateDocument(Root / name, TemplateRoot(spans)))
+    }
+
+    builderWithTemplates
+      .buildRoot
       .tree
   }
 
