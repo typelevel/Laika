@@ -23,7 +23,7 @@ import laika.api.config.{ ConfigValue, Field }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
 import laika.ast.*
-import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees }
+import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.CellType.BodyCell
 import laika.config.LaikaKeys
 import laika.api.config.ConfigValue.{ ObjectValue, StringValue }
@@ -621,12 +621,11 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
   test("include rewriter replaces the node with the corresponding document") {
     val ref  =
       TemplateContextReference(CursorKeys.documentContent, required = true, SourceCursor.Generated)
-    val tree = SampleTrees.twoDocuments
-      .doc1.content(Include("doc-2", SourceCursor.Generated))
-      .doc2.content(p("text"))
-      .root.template(DefaultTemplatePath.forHTML.name, ref)
+    val tree = DocumentTree.builder
+      .addDocument(Document(Root / "doc-1", RootElement(Include("doc-2", SourceCursor.Generated))))
+      .addDocument(Document(Root / "doc-2", RootElement(p("text"))))
+      .addTemplate(TemplateDocument(DefaultTemplatePath.forHTML, TemplateRoot(ref)))
       .build
-      .tree
 
     val result = for {
       rewrittenTree <- tree.rewrite(

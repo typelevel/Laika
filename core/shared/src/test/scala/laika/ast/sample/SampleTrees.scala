@@ -16,373 +16,175 @@
 
 package laika.ast.sample
 
-import laika.api.config.{ Config, ConfigBuilder, Origin }
+import laika.api.config.{ ConfigBuilder, Origin }
 import laika.ast.Path.Root
-import laika.ast.*
-import laika.api.config.ConfigError.TreeErrors
+import laika.ast.{ Path, * }
+import laika.api.config.Origin.{ DocumentScope, TreeScope }
 import laika.config.{ LaikaKeys, LinkValidation }
 
 object SampleTrees {
 
-  def twoDocuments: SampleTwoDocuments = new SampleTwoDocuments(
-    SampleRoot(0, 2, 0)
-  )
+  object sixDocuments {
 
-  def sixDocuments: SampleSixDocuments = new SampleSixDocuments(
-    SampleRoot(2, 6, 2)
-  )
+    object paths {
+
+      val doc1: Path           = Root / "doc-1"
+      val doc2: Path           = Root / "doc-2"
+      val tree1: Path          = Root / "tree-1"
+      val tree2: Path          = Root / "tree-2"
+      val tree1_titleDoc: Path = tree1 / "README"
+      val tree2_titleDoc: Path = tree2 / "README"
+      val tree1_doc3: Path     = tree1 / "doc-3"
+      val tree1_doc4: Path     = tree1 / "doc-4"
+      val tree2_doc5: Path     = tree2 / "doc-5"
+      val tree2_doc6: Path     = tree2 / "doc-6"
+
+      val allDocuments: Seq[Path] = Seq(doc1, doc2, tree1_doc3, tree1_doc4, tree2_doc5, tree2_doc6)
+
+    }
+
+    val builder = new SampleTreeBuilder(
+      paths.allDocuments.map(p => (p, DocumentBuilder(p))).toMap
+    )
+
+  }
+
+  private trait BuilderPart {
+    def applyTo(builder: DocumentTreeBuilder): DocumentTreeBuilder
+  }
+
+  private case class DocumentBuilder(
+      path: Path,
+      content: BuilderKey => Seq[Block] = SampleContent.text,
+      configF: Seq[ConfigBuilder => ConfigBuilder] = Nil
+  ) extends BuilderPart {
+
+    def applyTo(builder: DocumentTreeBuilder): DocumentTreeBuilder = {
+      val builderKey       =
+        if (path.basename == "README") BuilderKey.TitleDoc(path.parent.basename.last.toString.toInt)
+        else BuilderKey.Doc(path.basename.last.toString.toInt)
+      val configBuilder    = ConfigBuilder.withOrigin(Origin(DocumentScope, path))
+      val processedBuilder = configF.foldLeft(configBuilder) { case (acc, builderF) =>
+        builderF(acc)
+      }
+      val doc              = Document(path, RootElement(content(builderKey))).withConfig(
+        processedBuilder.build
+      )
+      builder.addDocument(doc)
+    }
+
+  }
+
+  private case class TreeConfigBuilder(path: Path, builderF: ConfigBuilder => ConfigBuilder)
+      extends BuilderPart {
+
+    def applyTo(builder: DocumentTreeBuilder): DocumentTreeBuilder = {
+      val configBuilder =
+        ConfigBuilder.withOrigin(Origin(TreeScope, path / "directory.conf"))
+      val config        = builderF(configBuilder).build
+      builder.addConfig(config)
+    }
+
+  }
+
+  class SampleTreeBuilder private[SampleTrees] (
+      docBuilders: Map[Path, DocumentBuilder],
+      treeConfigs: Map[Path, TreeConfigBuilder] = Map.empty
+  ) {
+
+    private def modifyDocBuilder(
+        path: Path
+    )(f: DocumentBuilder => DocumentBuilder): SampleTreeBuilder = {
+      val builder    = docBuilders.getOrElse(path, DocumentBuilder(path))
+      val newBuilder = f(builder)
+      val newMap     = docBuilders + ((path, newBuilder))
+      new SampleTreeBuilder(newMap, treeConfigs)
+    }
+
+    private def modifyAllDocBuilders(f: DocumentBuilder => DocumentBuilder): SampleTreeBuilder = {
+      import laika.internal.collection.TransitionalCollectionOps.*
+      val newMap = docBuilders.mapValuesStrict(f)
+      new SampleTreeBuilder(newMap, treeConfigs)
+    }
+
+    def docContent(blocks: Seq[Block]): SampleTreeBuilder = docContent(_ => blocks)
+
+    def docContent(f: BuilderKey => Seq[Block]): SampleTreeBuilder =
+      modifyAllDocBuilders { builder =>
+        builder.copy(content = f)
+      }
+
+    def docContent(path: Path, content: Seq[Block]): SampleTreeBuilder =
+      modifyDocBuilder(path) { builder =>
+        builder.copy(content = _ => content)
+      }
+
+    def docConfig(path: Path, f: ConfigBuilder => ConfigBuilder): SampleTreeBuilder =
+      modifyDocBuilder(path) { builder =>
+        builder.copy(configF = builder.configF :+ f)
+      }
+
+    def titleDocuments(treePaths: Path*): SampleTreeBuilder = treePaths.foldLeft(this) {
+      case (acc, path) =>
+        acc.docContent(
+          path / "README",
+          Seq(Paragraph(s"Text " + path.basename.last.toString.toInt))
+        )
+    }
+
+    def treeConfig(path: Path, f: ConfigBuilder => ConfigBuilder): SampleTreeBuilder = {
+      val builder = treeConfigs.get(path) match {
+        case Some(builder) => builder.copy(builderF = builder.builderF.andThen(f))
+        case None          => TreeConfigBuilder(path, f)
+      }
+      val newMap  = treeConfigs + ((builder.path, builder))
+      new SampleTreeBuilder(docBuilders, newMap)
+    }
+
+    def suffix(value: String): SampleTreeBuilder =
+      modifyAllDocBuilders { builder =>
+        builder.copy(path = builder.path.withSuffix(value))
+      }
+
+    def suffix(path: Path, value: String): SampleTreeBuilder =
+      modifyDocBuilder(path) { builder =>
+        builder.copy(path = builder.path.withSuffix(value))
+      }
+
+    def apply(f: SampleTreeBuilder => SampleTreeBuilder): SampleTreeBuilder = f(this)
+
+    def builder: DocumentTreeBuilder = {
+
+      val allParts = docBuilders.values.toList.sortBy(_.path.toString) ++
+        treeConfigs.values.toList.sortBy(_.path.toString)
+
+      allParts.foldLeft(DocumentTree.builder) { case (acc, part) => part.applyTo(acc) }
+
+    }
+
+    def buildRoot: DocumentTreeRoot = builder.buildRoot
+
+  }
 
 }
 
 sealed trait BuilderKey {
   def num: Int
-  def defaultTitle: String
-  def prefix: String
 }
 
 object BuilderKey {
 
-  case class Doc(num: Int) extends BuilderKey {
-    val defaultTitle = "Title " + num // TODO - should be Doc
-    val prefix       = "doc"
-  }
-
-  case class Tree(num: Int) extends BuilderKey {
-    val defaultTitle = "Tree " + num
-    val prefix       = "tree"
-  }
-
-  case class StaticTree(num: Int) extends BuilderKey {
-    val defaultTitle = "Static " + num
-    val prefix       = "static"
-  }
-
-}
-
-trait SampleOps { self =>
-
-  type RootApi <: SampleOps
-
-  protected def sampleRoot: SampleRoot
-
-  private[sample] def copyWith(root: SampleRoot): RootApi
-
-  private[sample] def addStaticConfig(
-      key: BuilderKey,
-      f: ConfigBuilder => ConfigBuilder
-  ): RootApi = {
-    val target = sampleRoot.staticConfigs(key.num - 1)
-    copyWith(
-      sampleRoot.copy(staticConfigs =
-        sampleRoot.staticConfigs.updated(key.num - 1, target.copy(config = target.config + f))
-      )
-    )
-  }
-
-  private[sample] def addDocumentConfig(
-      key: BuilderKey,
-      f: ConfigBuilder => ConfigBuilder
-  ): RootApi =
-    updateDocument(key, target => target.copy(config = target.config + f))
-
-  private[sample] def setDocumentContent(key: BuilderKey, f: BuilderKey => Seq[Block]): RootApi =
-    updateDocument(key, target => target.copy(content = Some(f)))
-
-  private[sample] def setDocumentSuffix(key: BuilderKey, value: String): RootApi =
-    updateDocument(key, target => target.copy(suffix = Some(value)))
-
-  private[sample] def updateDocument(
-      key: BuilderKey,
-      f: SampleDocument => SampleDocument
-  ): RootApi = {
-    key match {
-      case _: BuilderKey.Doc =>
-        val target = sampleRoot.docBuilders(key.num - 1)
-        copyWith(
-          sampleRoot.copy(docBuilders = sampleRoot.docBuilders.updated(key.num - 1, f(target)))
-        )
-
-      case _: BuilderKey.Tree       =>
-        val tree   = sampleRoot.treeBuilders(key.num)
-        val target =
-          tree.titleDoc.getOrElse(SampleDocument(key, SampleConfigBuilder(Origin.DocumentScope)))
-        copyWith(
-          sampleRoot.copy(treeBuilders =
-            sampleRoot.treeBuilders.updated(key.num, tree.copy(titleDoc = Some(f(target))))
-          )
-        )
-      case _: BuilderKey.StaticTree => copyWith(sampleRoot)
-    }
-  }
-
-  private[sample] def addTreeConfig(key: BuilderKey, f: ConfigBuilder => ConfigBuilder): RootApi =
-    updateTree(key, target => target.copy(config = target.config + f))
-
-  private[sample] def addTemplate(
-      key: BuilderKey,
-      name: String,
-      spans: Seq[TemplateSpan]
-  ): RootApi = {
-    updateTree(
-      key,
-      target => {
-        val doc = TemplateDocument(target.path / name, TemplateRoot(spans))
-        target.copy(templates = doc +: target.templates)
-      }
-    )
-  }
-
-  private def updateTree(key: BuilderKey, f: SampleTree => SampleTree): RootApi = {
-    val target = sampleRoot.treeBuilders(key.num)
-    copyWith(sampleRoot.copy(treeBuilders = sampleRoot.treeBuilders.updated(key.num, f(target))))
-  }
-
-}
-
-trait SampleRootOps extends SampleOps { self =>
-
-  trait KeyedSampleOps {
-    protected def key: BuilderKey
-    type RootApi = self.RootApi
-    protected def sampleRoot                                = self.sampleRoot
-    private[sample] def copyWith(root: SampleRoot): RootApi = self.copyWith(root)
-  }
-
-  abstract class DocOps(protected val key: BuilderKey) extends KeyedSampleOps {
-
-    def config(f: ConfigBuilder => ConfigBuilder): RootApi = addDocumentConfig(key, f)
-
-    def content(f: BuilderKey => Seq[Block]): RootApi  = setDocumentContent(key, f)
-    def content(blocks: Seq[Block]): RootApi           = setDocumentContent(key, _ => blocks)
-    def content(block: Block, blocks: Block*): RootApi = content(block +: blocks)
-    def suffix(value: String): RootApi                 = setDocumentSuffix(key, value)
-
-  }
-
-  abstract class TreeOps(num: Int) extends KeyedSampleOps {
-    protected def key: BuilderKey                                 = BuilderKey.Tree(num)
-    def config(f: ConfigBuilder => ConfigBuilder): RootApi        = addTreeConfig(key, f)
-    def template(name: String, spans: Seq[TemplateSpan]): RootApi = addTemplate(key, name, spans)
-
-    def template(name: String, span: TemplateSpan, spans: TemplateSpan*): RootApi =
-      template(name, span +: spans)
-
-  }
-
-  abstract class StaticOps(num: Int) extends KeyedSampleOps {
-    protected def key: BuilderKey                          = BuilderKey.Tree(num)
-    def config(f: ConfigBuilder => ConfigBuilder): RootApi = addStaticConfig(key, f)
-  }
-
-  def suffix(value: String): RootApi = copyWith(sampleRoot.copy(suffix = Some(value)))
-
-  def docContent(f: BuilderKey => Seq[Block]): RootApi = copyWith(
-    sampleRoot.copy(defaultContent = f)
-  )
-
-  def docContent(blocks: Seq[Block]): RootApi = copyWith(
-    sampleRoot.copy(defaultContent = _ => blocks)
-  )
-
-  def docContent(block: Block, blocks: Block*): RootApi = docContent(block +: blocks)
-
-  def staticDoc(path: Path): RootApi =
-    copyWith(
-      sampleRoot.copy(
-        staticDocuments = sampleRoot.staticDocuments :+ StaticDocument(path)
-      )
-    )
-
-  def staticDoc(path: Path, format: String, formats: String*): RootApi =
-    copyWith(
-      sampleRoot.copy(
-        staticDocuments = sampleRoot.staticDocuments :+ StaticDocument(path, format, formats: _*)
-      )
-    )
-
-  protected def buildTree(treeNum: Int, docNum: Int, parentConfig: Config): DocumentTree = {
-    val docs = Seq(sampleRoot.docBuilders(docNum), sampleRoot.docBuilders(docNum + 1))
-    sampleRoot.treeBuilders(treeNum).build(docs, parentConfig, sampleRoot)
-  }
-
-  protected def buildStaticTree(treeNum: Int, parentConfig: Config): DocumentTree = {
-    sampleRoot.staticConfigs(treeNum - 1).build(Nil, parentConfig, sampleRoot)
-  }
-
-  def titleDocuments(includeRoot: Boolean = true): RootApi = {
-    val keys = sampleRoot.treeBuilders
-      .map(_.key)
-      .drop(if (includeRoot) 0 else 1)
-
-    keys.foldLeft(copyWith(sampleRoot)) { case (api, key) =>
-      api.updateDocument(key, identity).asInstanceOf[RootApi]
-    }
-  }
-
-}
-
-class SampleTwoDocuments(protected val sampleRoot: SampleRoot) extends SampleRootOps { self =>
-
-  type RootApi = SampleTwoDocuments
-
-  object root extends TreeOps(0)
-  object doc1 extends DocOps(BuilderKey.Doc(1))
-  object doc2 extends DocOps(BuilderKey.Doc(2))
-
-  def apply(f: SampleTwoDocuments => SampleTwoDocuments): RootApi = f(this)
-  private[sample] def copyWith(root: SampleRoot): RootApi         = new SampleTwoDocuments(root)
-
-  def build: DocumentTreeRoot = DocumentTreeRoot(
-    buildTree(0, 0, Config.empty)
-  ).addStaticDocuments(sampleRoot.staticDocuments)
-
-  def buildCursor: Either[TreeErrors, RootCursor] = RootCursor(build)
-}
-
-class SampleSixDocuments(protected val sampleRoot: SampleRoot) extends SampleRootOps { self =>
-
-  import BuilderKey.*
-
-  type RootApi = SampleSixDocuments
-
-  object root extends TreeOps(0) {
-    object titleDoc extends DocOps(Tree(0))
-  }
-
-  object tree1 extends TreeOps(1) {
-    object titleDoc extends DocOps(Tree(1))
-  }
-
-  object tree2 extends TreeOps(2) {
-    object titleDoc extends DocOps(Tree(2))
-  }
-
-  object doc1 extends DocOps(Doc(1))
-  object doc2 extends DocOps(Doc(2))
-  object doc3 extends DocOps(Doc(3))
-  object doc4 extends DocOps(Doc(4))
-  object doc5 extends DocOps(Doc(5))
-  object doc6 extends DocOps(Doc(6))
-
-  object static1 extends StaticOps(1)
-  object static2 extends StaticOps(2)
-
-  def apply(f: SampleSixDocuments => SampleSixDocuments): RootApi = f(this)
-  private[sample] def copyWith(root: SampleRoot): RootApi         = new SampleSixDocuments(root)
-
-  def build: DocumentTreeRoot = {
-    val tree = buildTree(0, 0, Config.empty)
-    DocumentTreeRoot(
-      tree.appendContent(
-        Seq(
-          buildTree(1, 2, tree.config),
-          buildTree(2, 4, tree.config),
-          buildStaticTree(1, tree.config),
-          buildStaticTree(2, tree.config)
-        )
-      )
-    )
-      .addStaticDocuments(sampleRoot.staticDocuments)
-  }
-
-  def buildCursor: Either[TreeErrors, RootCursor] = RootCursor(build)
-}
-
-private[sample] case class SampleRoot(
-    treeBuilders: IndexedSeq[SampleTree],
-    docBuilders: IndexedSeq[SampleDocument],
-    defaultContent: BuilderKey => Seq[Block],
-    suffix: Option[String] = None,
-    staticDocuments: Seq[StaticDocument] = Nil,
-    staticConfigs: Seq[SampleTree] = Nil
-) {}
-
-private[sample] object SampleRoot {
-
-  def apply(
-      numTrees: Int,
-      numDocs: Int,
-      numStatic: Int
-  ): SampleRoot =
-    new SampleRoot(
-      (0 to numTrees).map(num =>
-        SampleTree(BuilderKey.Tree(num), SampleConfigBuilder(Origin.TreeScope))
-      ).toVector,
-      (1 to numDocs).map(num =>
-        SampleDocument(BuilderKey.Doc(num), SampleConfigBuilder(Origin.DocumentScope))
-      ).toVector,
-      SampleContent.text,
-      staticConfigs = (1 to numStatic).map(num =>
-        SampleTree(BuilderKey.StaticTree(num), SampleConfigBuilder(Origin.TreeScope))
-      )
-    )
-
-}
-
-private[sample] case class SampleTree(
-    key: BuilderKey,
-    config: SampleConfigBuilder,
-    templates: Seq[TemplateDocument] = Nil,
-    titleDoc: Option[SampleDocument] = None
-) {
-
-  val path = if (key.num == 0) Root else Root / s"${key.prefix}-${key.num}"
-
-  def build(content: Seq[SampleDocument], parentConfig: Config, root: SampleRoot): DocumentTree = {
-    val conf    = config.build(parentConfig, path)
-    val context = TreeNodeContext(
-      localPath = Some(path.name),
-      localConfig = conf
-    )
-    new DocumentTree(
-      context,
-      content.map(_.build(path, conf, root)),
-      titleDocument = titleDoc.map(_.build(path, conf, root)),
-      templates = templates
-    )
-  }
-
-}
-
-private[sample] case class SampleDocument(
-    key: BuilderKey,
-    config: SampleConfigBuilder,
-    content: Option[BuilderKey => Seq[Block]] = None,
-    suffix: Option[String] = None
-) {
-
-  def build(treePath: Path, parentConfig: Config, root: SampleRoot): Document = {
-    val suffixString = suffix.orElse(root.suffix).fold("")("." + _)
-    val localName    = key match {
-      case _: BuilderKey.Tree       => "README"
-      case _: BuilderKey.Doc        => "doc-" + key.num
-      case _: BuilderKey.StaticTree => "static-" + key.num
-    }
-    val path         = treePath / (localName + suffixString)
-    Document(
-      path,
-      RootElement(content.getOrElse(root.defaultContent)(key))
-    ).withConfig(config.build(parentConfig, path))
-  }
-
-}
-
-private[sample] case class SampleConfigBuilder(
-    scope: Origin.Scope,
-    builders: Seq[ConfigBuilder => ConfigBuilder] = Nil
-) {
-
-  def + (builder: ConfigBuilder => ConfigBuilder): SampleConfigBuilder =
-    copy(builders = builder +: builders)
-
-  def build(parentConfig: Config, path: Path): Config = {
-    val configBuilder = ConfigBuilder.withFallback(parentConfig, Origin(scope, path))
-    builders.foldLeft(configBuilder) { case (builder, f) => f(builder) }.build
-  }
+  case class Doc(num: Int)      extends BuilderKey
+  case class TitleDoc(num: Int) extends BuilderKey
 
 }
 
 object SampleContent {
+
+  def titleFor(key: BuilderKey): String = key match {
+    case BuilderKey.Doc(num)      => "Doc " + num
+    case BuilderKey.TitleDoc(num) => "Tree " + num
+  }
 
   private def header(level: Int, pos: Int, style: String = "section") =
     Header(level, List(Text("Section " + pos)), Styles(style))
@@ -392,11 +194,10 @@ object SampleContent {
 
   val empty: BuilderKey => Seq[Block] = _ => Nil
   val text: BuilderKey => Seq[Block]  = key => Seq(Paragraph(s"Text ${key.num}"))
-  val title: BuilderKey => Seq[Block] = key => Seq(Title(key.defaultTitle))
 
   val fourHeaders: BuilderKey => Seq[Block] = key =>
     Seq(
-      Header(1, List(Text(key.defaultTitle)), Style.title),
+      Header(1, List(Text(titleFor(key))), Style.title),
       header(1, 1),
       header(2, 2),
       header(1, 3),
@@ -405,7 +206,7 @@ object SampleContent {
 
   val fourSections: BuilderKey => Seq[Block] = key =>
     Seq(
-      Title(List(Text(key.defaultTitle)), Id("title") + Style.title),
+      Title(List(Text(titleFor(key))), Id("title") + Style.title),
       section(1, 1, Seq(section(2, 2))),
       section(1, 3, Seq(section(2, 4)))
     )

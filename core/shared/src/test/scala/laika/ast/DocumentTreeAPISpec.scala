@@ -27,6 +27,7 @@ import laika.ast.sample.{
   BuilderKey,
   MunitDocumentTreeAssertions,
   ParagraphCompanionShortcuts,
+  SampleContent,
   SampleTrees,
   TestSourceBuilders
 }
@@ -79,6 +80,8 @@ class DocumentTreeAPISpec extends FunSuite
       contextRef: Option[String] = None,
       includeRuntimeMessage: Boolean = false
   ): DocumentTreeRoot = {
+    import SampleTrees.sixDocuments.*
+
     val refNode                                 = contextRef.fold(Seq.empty[Span])(ref =>
       Seq(MarkupContextReference(Key.parse(ref), required = false, SourceCursor.Generated))
     )
@@ -87,17 +90,17 @@ class DocumentTreeAPISpec extends FunSuite
         if (includeRuntimeMessage)
           Seq(
             InvalidSpan(
-              s"Message ${key.defaultTitle}",
-              generatedSource(s"Message ${key.defaultTitle}")
+              s"Message ${SampleContent.titleFor(key)}",
+              generatedSource(s"Message ${SampleContent.titleFor(key)}")
             )
           )
         else Nil
       Seq(Paragraph(refNode ++ msgNode))
     }
-    SampleTrees.sixDocuments
-      .titleDocuments(includeRoot = false)
+    builder
+      .titleDocuments(paths.tree1, paths.tree2)
       .docContent(targetRoot _)
-      .build
+      .buildRoot
   }
 
   def leafDocCursor(
@@ -400,12 +403,12 @@ class DocumentTreeAPISpec extends FunSuite
   }
 
   import BuilderKey.*
-  private val keys = Seq(Doc(1), Doc(2), Tree(1), Doc(3), Doc(4), Tree(2), Doc(5), Doc(6))
+  private val keys = Seq(Doc(1), Doc(2), TitleDoc(1), Doc(3), Doc(4), TitleDoc(2), Doc(5), Doc(6))
 
   test("provide all runtime messages in the tree") {
     val root     = leafDocCursor(includeRuntimeMessage = true).map(_.root.target)
     val expected = keys.map { key =>
-      RuntimeMessage(MessageLevel.Error, s"Message ${key.defaultTitle}")
+      RuntimeMessage(MessageLevel.Error, s"Message ${SampleContent.titleFor(key)}")
     }
     assertEquals(
       root.map(_.tree.runtimeMessages(MessageFilter.Warning)),
@@ -416,7 +419,10 @@ class DocumentTreeAPISpec extends FunSuite
   test("provide all invalid spans in the tree") {
     val root     = leafDocCursor(includeRuntimeMessage = true).map(_.root.target)
     val expected = keys.map { key =>
-      InvalidSpan(s"Message ${key.defaultTitle}", generatedSource(s"Message ${key.defaultTitle}"))
+      InvalidSpan(
+        s"Message ${SampleContent.titleFor(key)}",
+        generatedSource(s"Message ${SampleContent.titleFor(key)}")
+      )
     }
     assertEquals(
       root.map(_.tree.invalidElements(MessageFilter.Warning)),

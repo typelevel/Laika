@@ -22,11 +22,12 @@ import laika.ast.sample.{
   BuilderKey,
   ParagraphCompanionShortcuts,
   SampleContent,
+  SampleTrees,
   TestSourceBuilders
 }
-import laika.ast._
+import laika.ast.*
 import munit.FunSuite
-import RewriteSetup._
+import RewriteSetup.*
 import laika.config.{ LaikaKeys, TargetFormats }
 
 class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
@@ -34,7 +35,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
   object NavModel {
 
-    private val refPath: Path = Root / "tree-2" / "doc-6"
+    private val refPath: Path = SampleTrees.sixDocuments.paths.tree2_doc6
 
     def styles(level: Int)(implicit options: NavOptions): Options =
       Style.level(level) + options.itemStyles
@@ -60,7 +61,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     def docList(path: Path, doc: Int, level: Int, title: Option[String] = None)(implicit
         options: NavOptions
     ): NavigationItem = NavigationItem(
-      SpanSequence(title.getOrElse(s"Title $doc")),
+      SpanSequence(title.getOrElse(s"Doc $doc")),
       if (level == options.maxLevels || options.excludeSections) Nil
       else
         Seq(
@@ -82,7 +83,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
       val titleDocPath    = Root / s"tree-$tree" / "README"
       val titleDocRefPath = if (selfLink) titleDocPath else refPath
-      val title           = if (selfLink) "Title 6" else s"Tree $tree"
+      val title           = if (selfLink) "Doc 6" else s"Tree $tree"
 
       val children =
         if (level == options.maxLevels) Nil
@@ -143,7 +144,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
     def blockResult(items: NavigationItem*)(implicit options: NavOptions): RootElement =
       RootElement(
-        Title("Title 6").withOptions(Id("title-6") + Style.title),
+        Title("Doc 6").withOptions(Id("doc-6") + Style.title),
         p("aaa"),
         NavigationList(items, options.itemStyles),
         p("bbb")
@@ -495,7 +496,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
   test("block nav - two manual entries") {
 
     val input =
-      """Title 6
+      """Doc 6
         |=======
         |
         |aaa
@@ -515,7 +516,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
   test("block nav - entry generated from a document referred to with a relative path") {
 
     val input =
-      """Title 6
+      """Doc 6
         |=======
         |
         |aaa
@@ -555,7 +556,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     implicit val options: NavOptions = NavOptions(maxLevels = 1, itemStyles = Style.breadcrumb)
 
     val input =
-      """Title 6
+      """Doc 6
         |=======
         |
         |aaa
@@ -573,7 +574,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
       NavOptions(maxLevels = 1, itemStyles = Style.breadcrumb, hasTitleDocs = true)
 
     val input =
-      """Title 6
+      """Doc 6
         |=======
         |
         |aaa

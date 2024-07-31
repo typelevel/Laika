@@ -23,6 +23,7 @@ import laika.ast.{
   /,
   Document,
   DocumentTree,
+  DocumentTreeBuilder,
   DocumentTreeRoot,
   Paragraph,
   Path,
@@ -33,7 +34,7 @@ import laika.ast.{
 }
 import laika.ast.Path.Root
 import laika.ast.RelativePath.CurrentTree
-import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleSixDocuments, SampleTrees }
+import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleContent, SampleTrees }
 import laika.bundle.BundleProvider
 import Origin.TreeScope
 import laika.io.api.TreeParser
@@ -53,10 +54,10 @@ class TreeParserFileIOSpec
   test("parse a directory using the fromDirectory method") {
     val dirname: String = getClass.getResource("/trees/a/").getFile
 
-    val expected = SampleTrees.sixDocuments
-      .docContent(key => Seq(p("Doc" + key.num)))
+    val expected = SampleTrees.sixDocuments.builder
+      .docContent(key => Seq(p(SampleContent.titleFor(key))))
       .suffix("md")
-      .build
+      .buildRoot
 
     defaultParser.use(_.fromDirectory(dirname).parse).map(_.root).assertEquals(expected)
   }
@@ -65,7 +66,7 @@ class TreeParserFileIOSpec
     val dirname: String = getClass.getResource("/trees/c/").getFile
 
     def doc(num: Int, path: Path = Root) =
-      Document(path / s"doc-$num.md", RootElement(p(s"Doc$num äöü")))
+      Document(path / s"doc-$num.md", RootElement(p(s"Doc $num äöü")))
 
     val treeResult = DocumentTree.builder.addDocument(doc(1)).buildRoot
     defaultParser.use(_.fromDirectory(dirname).parse).map(_.root).assertEquals(treeResult)
@@ -74,10 +75,10 @@ class TreeParserFileIOSpec
   test("read a directory using a custom document type matcher") {
     val dirname: String = getClass.getResource("/trees/a/").getFile
 
-    val baseTree = SampleTrees.sixDocuments
-      .docContent(key => Seq(p("Doc" + key.num)))
+    val baseTree = SampleTrees.sixDocuments.builder
+      .docContent(key => Seq(p(SampleContent.titleFor(key))))
       .suffix("md")
-      .build
+      .buildRoot
 
     val expected = baseTree.modifyTree(_.removeContent(_.name == "doc-1.md"))
 
@@ -93,10 +94,10 @@ class TreeParserFileIOSpec
   test("read a directory using a custom exclude filter") {
     val dirname: String = getClass.getResource("/trees/a/").getFile
 
-    val baseTree = SampleTrees.sixDocuments
-      .docContent(key => Seq(p("Doc" + key.num)))
+    val baseTree = SampleTrees.sixDocuments.builder
+      .docContent(key => Seq(p(SampleContent.titleFor(key))))
       .suffix("md")
-      .build
+      .buildRoot
 
     val expected =
       baseTree.modifyTree(_.removeContent(p => p.name == "doc-1.md" || p.name == "tree-1"))
@@ -113,17 +114,11 @@ class TreeParserFileIOSpec
 
     val dirname: String = getClass.getResource("/trees/a/").getFile
 
-    def expected(
-        customizeSample: SampleSixDocuments => SampleSixDocuments = identity,
-        customizeTree: DocumentTreeRoot => DocumentTreeRoot = identity
-    ): DocumentTreeRoot =
-      customizeTree(
-        SampleTrees.sixDocuments
-          .docContent(key => Seq(p("Doc" + key.num)))
-          .suffix("md")
-          .apply(customizeSample)
-          .build
-      )
+    def resultBuilder: DocumentTreeBuilder =
+      SampleTrees.sixDocuments.builder
+        .docContent(key => Seq(p(SampleContent.titleFor(key))))
+        .suffix("md")
+        .builder
 
     protected def runWith(
         parser: Resource[IO, TreeParser[IO]],
@@ -187,26 +182,18 @@ class TreeParserFileIOSpec
   }
 
   object ExtraDoc extends CustomInputSetup {
-    val path: Path         = Root / "tree-2" / "doc-7.md"
-    val extraDoc: Document = Document(path, RootElement(p("Doc7")))
-
-    def customizeTree(sample: DocumentTreeRoot): DocumentTreeRoot = sample.modifyTree(
-      _.modifyContent {
-        case tree: DocumentTree if tree.path.name == "tree-2" => tree.appendContent(extraDoc)
-        case other                                            => other
-      }
-    )
-
-    lazy val expected: DocumentTreeRoot = expected(customizeTree = customizeTree)
+    val path: Path                      = Root / "tree-2" / "doc-7.md"
+    val extraDoc: Document              = Document(path, RootElement(p("Doc 7")))
+    lazy val expected: DocumentTreeRoot = resultBuilder.addDocument(extraDoc).buildRoot
   }
 
   object ExtraTemplate extends CustomInputSetup {
     val path: Path = Root / "tree-2" / "tmpl.template.html"
 
-    lazy val expected: DocumentTreeRoot = expected(
-      customizeSample = _.tree2.template(path.name, TemplateString("Template"))
-    )
+    val template: TemplateDocument =
+      TemplateDocument(path, TemplateRoot(TemplateString("Template")))
 
+    lazy val expected: DocumentTreeRoot = resultBuilder.addTemplate(template).buildRoot
   }
 
   object ExtraConfig extends CustomInputSetup {
@@ -225,7 +212,7 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one AST input") {
     CustomInput.run(
-      _.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7")))),
+      _.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc 7")))),
       ExtraDoc.expected
     )
   }
@@ -234,7 +221,7 @@ class TreeParserFileIOSpec
     object Builder extends CustomTheme.Builder {
 
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
-        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
+        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc 7"))))
 
     }
     CustomTheme.run(Builder, ExtraDoc.expected)
@@ -246,13 +233,13 @@ class TreeParserFileIOSpec
     object Builder extends CustomTheme.Builder {
 
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
-        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc99"))))
+        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc 99"))))
 
     }
     object ExtBuilder extends CustomTheme.Builder {
 
       def addDoc[F[_]: Sync](input: InputTreeBuilder[F]): InputTreeBuilder[F] =
-        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc7"))))
+        input.addDocument(Document(ExtraDoc.path, RootElement(Paragraph("Doc 7"))))
 
     }
     CustomTheme.run(Builder, ExtraDoc.expected, themeExtension = Some(ExtBuilder))
@@ -260,28 +247,28 @@ class TreeParserFileIOSpec
 
   test("read a directory from the file system plus one string input") {
     CustomInput.run(
-      _.addString("Doc7", ExtraDoc.path),
+      _.addString("Doc 7", ExtraDoc.path),
       ExtraDoc.expected
     )
   }
 
   test("read a directory from the file system plus one document from an input stream") {
     CustomInput.run(
-      _.addInputStream(IO.delay(new ByteArrayInputStream("Doc7".getBytes)), ExtraDoc.path),
+      _.addInputStream(IO.delay(new ByteArrayInputStream("Doc 7".getBytes)), ExtraDoc.path),
       ExtraDoc.expected
     )
   }
 
   test("read a directory from the file system plus one document from an fs2 text stream") {
     CustomInput.run(
-      _.addTextStream(fs2.Stream.emit("Doc7"), ExtraDoc.path),
+      _.addTextStream(fs2.Stream.emit("Doc 7"), ExtraDoc.path),
       ExtraDoc.expected
     )
   }
 
   test("read a directory from the file system plus one document from an fs2 binary stream") {
     CustomInput.run(
-      _.addBinaryStream(fs2.Stream.emit("Doc7").through(fs2.text.utf8.encode), ExtraDoc.path),
+      _.addBinaryStream(fs2.Stream.emit("Doc 7").through(fs2.text.utf8.encode), ExtraDoc.path),
       ExtraDoc.expected
     )
   }
@@ -329,7 +316,7 @@ class TreeParserFileIOSpec
   test("read a directory from the file system plus one extra config document from a string") {
     CustomInput.run(
       _.addString("foo = 7", ExtraConfig.path),
-      ExtraConfig.expected(),
+      ExtraConfig.resultBuilder.buildRoot,
       ExtraConfig.checkConfig
     )
   }
@@ -343,7 +330,11 @@ class TreeParserFileIOSpec
         input.addString("foo = 7", ExtraConfig.path)
 
     }
-    CustomTheme.run(Builder, ExtraConfig.expected(), extraCheck = ExtraConfig.checkConfig(_))
+    CustomTheme.run(
+      Builder,
+      ExtraConfig.resultBuilder.buildRoot,
+      extraCheck = ExtraConfig.checkConfig(_)
+    )
   }
 
   test(
@@ -355,7 +346,7 @@ class TreeParserFileIOSpec
 
     CustomInput.run(
       _.addConfig(config, ExtraConfig.treePath),
-      ExtraConfig.expected(),
+      ExtraConfig.resultBuilder.buildRoot,
       ExtraConfig.checkConfig
     )
   }
@@ -364,17 +355,17 @@ class TreeParserFileIOSpec
     val dir1 = FilePath.parse(getClass.getResource("/trees/a/").getFile)
     val dir2 = FilePath.parse(getClass.getResource("/trees/b/").getFile)
 
-    val baseTree: DocumentTreeRoot = SampleTrees.sixDocuments
-      .docContent(key => Seq(p("Doc" + key.num)))
+    val baseTree: DocumentTreeRoot = SampleTrees.sixDocuments.builder
+      .docContent(key => Seq(p(SampleContent.titleFor(key))))
       .suffix("md")
-      .build
+      .buildRoot
 
   }
 
   object TopLevelMergeSetup extends DirectorySetup {
-    private val doc7 = Document(Root / "tree-2" / "doc-7.md", RootElement("Doc7"))
-    private val doc8 = Document(Root / "tree-3" / "doc-8.md", RootElement("Doc8"))
-    private val doc9 = Document(Root / "doc-9.md", RootElement("Doc9"))
+    private val doc7 = Document(Root / "tree-2" / "doc-7.md", RootElement("Doc 7"))
+    private val doc8 = Document(Root / "tree-3" / "doc-8.md", RootElement("Doc 8"))
+    private val doc9 = Document(Root / "doc-9.md", RootElement("Doc 9"))
 
     val (start, end)         = baseTree.allDocuments.splitAt(2)
     private val expectedDocs = start ++ Seq(doc9) ++ end ++ Seq(doc7, doc8)
@@ -405,9 +396,9 @@ class TreeParserFileIOSpec
 
     val treeInput = InputTree[IO].addDirectory(dir1).addDirectory(dir2, Root / "tree-1")
 
-    val doc7 = Document(Root / "tree-1" / "tree-2" / "doc-7.md", RootElement("Doc7"))
-    val doc8 = Document(Root / "tree-1" / "tree-3" / "doc-8.md", RootElement("Doc8"))
-    val doc9 = Document(Root / "tree-1" / "doc-9.md", RootElement("Doc9"))
+    val doc7 = Document(Root / "tree-1" / "tree-2" / "doc-7.md", RootElement("Doc 7"))
+    val doc8 = Document(Root / "tree-1" / "tree-3" / "doc-8.md", RootElement("Doc 8"))
+    val doc9 = Document(Root / "tree-1" / "doc-9.md", RootElement("Doc 9"))
 
     val (start, end) = baseTree.allDocuments.splitAt(4)
     val expectedDocs = start ++ Seq(doc9, doc7, doc8) ++ end

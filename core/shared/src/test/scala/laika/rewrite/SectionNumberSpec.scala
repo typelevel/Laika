@@ -46,9 +46,9 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
         .toOption
         .get
         .withOrigin(Origin(Origin.TreeScope, Root))
-      val docs             = SampleTrees.sixDocuments
+      val docs             = SampleTrees.sixDocuments.builder
         .docContent(content.content)
-        .build
+        .buildRoot
         .tree
         .allDocuments
         .toList
@@ -96,9 +96,9 @@ class SectionNumberSpec extends FunSuite with DocumentTreeAssertions {
         resultContent(docNum)
       }
 
-      SampleTrees.sixDocuments
+      SampleTrees.sixDocuments.builder
         .docContent(contents _)
-        .build
+        .buildRoot
         .tree
     }
 

@@ -800,7 +800,7 @@ class TreeTransformerSpec extends CatsEffectSuite
     def fileContent(num: Int): String =
       """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
-        |. . Text - 'Doc""".stripMargin + num + "'"
+        |. . Text - 'Doc """.stripMargin + num + "'"
 
     def readFiles(base: String): IO[List[String]] = List(
       readFile(base + "/doc-1.txt"),

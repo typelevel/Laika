@@ -30,23 +30,33 @@ class LinkValidatorSpec extends FunSuite {
   private val defaultLinkValidation = LinkValidation.Local
 
   private def testCursor(docConfig: LinkValidation = defaultLinkValidation): DocumentCursor = {
-    import laika.ast.sample.SampleConfig._
+    import laika.ast.sample.SampleConfig.*
+    import SampleTrees.sixDocuments.*
+
+    val static1 = Root / "static-1"
+    val static2 = Root / "static-2"
 
     val doc2: Seq[Block] = Seq(
       Header(1, "Title").withOptions(Id("ref")),
       Paragraph("text")
     )
 
-    SampleTrees.sixDocuments
-      .root.config(siteBaseURL("https://external/"))
-      .doc4.config(targetFormats("html"))
-      .static2.config(targetFormats("html"))
-      .doc6.config(_.withValue(docConfig))
-      .staticDoc(Root / "static-1" / "doc-7.txt")
-      .staticDoc(Root / "static-2" / "doc-8.txt", "html")
+    val root = SampleTrees.sixDocuments.builder
+      .treeConfig(Root, siteBaseURL("https://external/"))
+      .docConfig(paths.tree2_doc6, _.withValue(docConfig))
+      .docConfig(paths.tree1_doc4, targetFormats("html"))
+      .treeConfig(static2, targetFormats("html"))
       .docContent(doc2)
       .suffix("md")
-      .buildCursor // TODO - buildCursor should be available on doc6
+      .buildRoot
+      .addStaticDocuments(
+        Seq(
+          StaticDocument(static1 / "doc-7.txt"),
+          StaticDocument(static2 / "doc-8.txt", "html")
+        )
+      )
+
+    RootCursor(root)
       .toOption
       .flatMap(_.allDocuments.find(_.path == Root / "tree-2" / "doc-6.md"))
       .get

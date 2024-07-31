@@ -22,13 +22,9 @@ import laika.ast.Path.Root
 import laika.ast.RelativePath.{ CurrentDocument, Parent }
 import laika.ast.*
 import laika.ast.sample.SampleConfig.{ globalLinkValidation, siteBaseURL, targetFormats }
-import laika.ast.sample.{
-  ParagraphCompanionShortcuts,
-  SampleSixDocuments,
-  SampleTrees,
-  TestSourceBuilders
-}
+import laika.ast.sample.{ ParagraphCompanionShortcuts, SampleTrees, TestSourceBuilders }
 import laika.api.config.Config.ConfigResult
+import laika.ast.sample.SampleTrees.SampleTreeBuilder
 import laika.config.{ LaikaKeys, LinkConfig, TargetDefinition, TargetFormats }
 import laika.parse.SourceCursor
 import munit.FunSuite
@@ -324,7 +320,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   object IdRefs {
 
-    private val linkTarget = RootElement(InternalLinkTarget(Id("ref")))
+    private val linkTarget = Seq(InternalLinkTarget(Id("ref")))
 
     private val linkConfig = LinkConfig.empty
       .addTargets(
@@ -335,14 +331,16 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
       )
 
     def run(ref: LinkIdReference, expected: Block): Unit = {
+      import SampleTrees.sixDocuments.*
+
       val root =
-        SampleTrees.sixDocuments
-          .root.config(_.withValue(linkConfig))
-          .root.config(globalLinkValidation)
+        builder
+          .treeConfig(Root, _.withValue(linkConfig))
+          .treeConfig(Root, globalLinkValidation)
           .docContent(linkTarget)
-          .doc3.content(p(ref))
+          .docContent(paths.tree1_doc3, Seq(p(ref)))
           .suffix("md")
-          .build
+          .buildRoot
 
       val res = root
         .rewrite(OperationConfig.default.rewriteRulesFor(root, RewritePhase.Resolve))
@@ -390,41 +388,47 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
     def rewrittenTreeDoc(
         ref: Span,
-        builder: SampleSixDocuments => SampleSixDocuments = identity
+        builderF: SampleTreeBuilder => SampleTreeBuilder = identity,
+        staticDoc: Option[StaticDocument] = None
     ): ConfigResult[Option[Block]] = {
+      import SampleTrees.sixDocuments.*
 
       val root =
-        SampleTrees.sixDocuments
-          .docContent(defaultTarget)
-          .doc3.content(p(ref), defaultTarget)
-          .doc4.content(InternalLinkTarget(Id("target-4")))
+        SampleTrees.sixDocuments.builder
+          .docContent(Seq(defaultTarget))
+          .docContent(paths.tree1_doc3, Seq(p(ref), defaultTarget))
+          .docContent(paths.tree1_doc4, Seq(InternalLinkTarget(Id("target-4"))))
           .suffix("md")
-          .root.config(siteBaseURL("http://external/"))
-          .root.config(globalLinkValidation)
-          .apply(builder)
-          .build
+          .treeConfig(Root, siteBaseURL("http://external/"))
+          .treeConfig(Root, globalLinkValidation)
+          .apply(builderF)
+          .buildRoot
 
-      root
-        .rewrite(OperationConfig.default.rewriteRulesFor(root, RewritePhase.Resolve))
+      val finalRoot = staticDoc.fold(root)(doc => root.addStaticDocuments(Seq(doc)))
+
+      finalRoot
+        .rewrite(OperationConfig.default.rewriteRulesFor(finalRoot, RewritePhase.Resolve))
         .map(_.tree.selectDocument(pathUnderTest.relative).map(_.content.content.head))
     }
 
     def run(
         ref: String,
         expected: Span,
-        builder: SampleSixDocuments => SampleSixDocuments = identity
+        builder: SampleTreeBuilder => SampleTreeBuilder = identity,
+        staticDoc: Option[StaticDocument] = None
     ): Unit = {
       val refInstance =
         LinkPathReference(List(Text("text")), RelativePath.parse(ref), generatedSource(s"[<$ref>]"))
-      run(refInstance, expected, builder)
+      run(refInstance, expected, builder, staticDoc)
     }
 
     def run(
         ref: Reference,
         expected: Span,
-        builder: SampleSixDocuments => SampleSixDocuments
+        builder: SampleTreeBuilder => SampleTreeBuilder,
+        staticDoc: Option[StaticDocument]
     ): Unit =
-      assertEquals(rewrittenTreeDoc(ref, builder), Right(Some(p(expected))))
+      assertEquals(rewrittenTreeDoc(ref, builder, staticDoc), Right(Some(p(expected))))
 
   }
 
@@ -465,7 +469,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InternalLinks.run(
       relPath,
       InternalLinks.build(RelativePath.parse(relPath)),
-      _.staticDoc(absPath)
+      staticDoc = Some(StaticDocument(absPath))
     )
   }
 
@@ -476,9 +480,10 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     val target     = InternalTarget(relPath).relativeTo(refPath)
 
     InternalLinks.run(
-      imgPathRef,
-      Image(target, alt = Some("text")),
-      _.staticDoc(absPath)
+      ref = imgPathRef,
+      expected = Image(target, alt = Some("text")),
+      builder = identity[SampleTreeBuilder](_),
+      staticDoc = Some(StaticDocument(absPath))
     )
   }
 
@@ -500,7 +505,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InternalLinks.run(
       relPath,
       invalidSpan(msg, s"[<$relPath>]"),
-      _.doc4.config(targetFormats("pdf"))
+      _.docConfig(SampleTrees.sixDocuments.paths.tree1_doc4, targetFormats("pdf"))
     )
   }
 
@@ -515,7 +520,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InternalLinks.run(
       relPath,
       invalidSpan(msg, s"[<$relPath>]"),
-      _.staticDoc(absPath, "pdf")
+      staticDoc = Some(StaticDocument(absPath, "pdf"))
     )
   }
 
@@ -526,7 +531,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InternalLinks.run(
       relPath,
       InternalLinks.build(RelativePath.parse(relPath), TargetFormats.Selected("html")),
-      _.doc4.config(targetFormats("html"))
+      _.docConfig(SampleTrees.sixDocuments.paths.tree1_doc4, targetFormats("html"))
     )
   }
 
@@ -538,7 +543,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InternalLinks.run(
       relPath,
       InternalLinks.build(RelativePath.parse(relPath), TargetFormats.Selected("html")),
-      _.staticDoc(absPath, "html")
+      staticDoc = Some(StaticDocument(absPath, "html"))
     )
   }
 
@@ -551,21 +556,25 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     InternalLinks.run(
       linkIdRef("target-4"),
       InternalLinks.build(RelativePath.parse("doc-4.md#target-4")),
-      identity(_)
+      identity(_),
+      None
     )
   }
 
   test(
     "internal links - resolve a link id reference to a header with a duplicate id by precedence"
   ) {
-    def header(level: Int): Block = Header(level, Seq(Text("Header")))
+    import SampleTrees.sixDocuments.*
+
+    def header(level: Int): Seq[Block] = Seq(Header(level, Seq(Text("Header"))))
 
     InternalLinks.run(
       linkIdRef("header"),
       InternalLinks.build(RelativePath.parse("../doc-1.md#header")),
       _
-        .doc1.content(header(1))
-        .doc2.content(header(2))
+        .docContent(paths.doc1, header(1))
+        .docContent(paths.doc2, header(2)),
+      None
     )
   }
 
