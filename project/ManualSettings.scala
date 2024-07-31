@@ -6,6 +6,7 @@ import laika.helium.config.{
   Favicon,
   HeliumIcon,
   IconLink,
+  LinkPanel,
   ReleaseInfo,
   Teaser,
   TextLink,
@@ -185,13 +186,16 @@ object ManualSettings {
         ReleaseInfo("Latest Release", versions.latestRelease)
       ),
       license = Some("Apache 2.0"),
-      documentationLinks = Seq(
-        TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),
-        TextLink.internal(Root / "02-running-laika" / "01-sbt-plugin.md", "sbt Plugin"),
-        TextLink.internal(Root / "02-running-laika" / "02-library-api.md", "Library API"),
-        TextLink.internal(Root / "table-of-content", "Table of Content"),
-        TextLink.internal(paths.downloads, "Download (PDF & EPUB)"),
-        TextLink.external(paths.apiRootLink, "API (Scaladoc)")
+      linkPanel = Some(
+        LinkPanel(
+          title = "Documentation",
+          TextLink.internal(Root / "01-about-laika" / "01-features.md", "Features"),
+          TextLink.internal(Root / "02-running-laika" / "01-sbt-plugin.md", "sbt Plugin"),
+          TextLink.internal(Root / "02-running-laika" / "02-library-api.md", "Library API"),
+          TextLink.internal(Root / "table-of-content", "Table of Content"),
+          TextLink.internal(paths.downloads, "Download (PDF & EPUB)"),
+          TextLink.external(paths.apiRootLink, "API (Scaladoc)")
+        )
       ),
       projectLinks = Seq(
         TextLink.external(paths.srcURL, "Source on GitHub"),
