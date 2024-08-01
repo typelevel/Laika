@@ -43,9 +43,7 @@ private[sbt] object Logs {
     val styles   = docTypes.count(_.isInstanceOf[StyleSheet])
     val conf     = docTypes.count(_ == Config)
 
-    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${
-        s(conf)
-      }, $styles stylesheet${s(styles)} ..."
+    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)}, $styles stylesheet${s(styles)} ..."
   }
 
   /** Create a string containing detailed information about
