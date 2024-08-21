@@ -143,15 +143,23 @@
   <p class="header"><a href="#">Creating Themes</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#the-theme-trait">The Theme Trait</a></li>
-    <li class="level1 nav-leaf"><a href="#designing-a-configuration-api">Designing a Configuration API</a></li>
-    <li class="level1 nav-node"><a href="#generating-or-loading-documents">Generating or Loading Documents</a></li>
+    <li class="level1 nav-node"><a href="#common-use-cases">Common Use Cases</a></li>
+    <li class="level2 nav-leaf"><a href="#adjusting-colors-fonts-and-layout">Adjusting Colors, Fonts and Layout</a></li>
+    <li class="level2 nav-leaf"><a href="#customizing-theme-templates">Customizing Theme Templates</a></li>
+    <li class="level2 nav-leaf"><a href="#creating-theme-extensions">Creating Theme Extensions</a></li>
+    <li class="level2 nav-leaf"><a href="#a-single-project-without-helium">A Single Project without Helium</a></li>
+    <li class="level2 nav-leaf"><a href="#creating-reusable-themes">Creating Reusable Themes</a></li>
+    <li class="level1 nav-leaf"><a href="#theme-functionality">Theme Functionality</a></li>
+    <li class="level1 nav-node"><a href="#implementing-themes">Implementing Themes</a></li>
+    <li class="level2 nav-leaf"><a href="#creating-a-themeprovider">Creating a <code>ThemeProvider</code></a></li>
+    <li class="level2 nav-leaf"><a href="#using-a-custom-theme">Using a Custom Theme</a></li>
+    <li class="level2 nav-leaf"><a href="#the-themebuilder-api">The <code>ThemeBuilder</code> API</a></li>
     <li class="level2 nav-leaf"><a href="#templates">Templates</a></li>
-    <li class="level2 nav-leaf"><a href="#generating-configuration-for-templates">Generating Configuration for Templates</a></li>
+    <li class="level2 nav-leaf"><a href="#generating-variables-for-templates">Generating Variables for Templates</a></li>
     <li class="level2 nav-leaf"><a href="#css">CSS</a></li>
     <li class="level2 nav-leaf"><a href="#fonts">Fonts</a></li>
-    <li class="level1 nav-leaf"><a href="#constructing-a-theme-instance">Constructing a Theme Instance</a></li>
-    <li class="level1 nav-leaf"><a href="#publishing-a-theme">Publishing a Theme</a></li>
+    <li class="level2 nav-leaf"><a href="#designing-a-configuration-api">Designing a Configuration API</a></li>
+    <li class="level1 nav-leaf"><a href="#publishing-themes">Publishing Themes</a></li>
   </ul>
 
   <p class="footer"><a href="https://github.com/typelevel/Laika/tree/main/docs/src/05-extending-laika/02-creating-themes.md"><i class="icofont-laika edit" title="Edit">&#xef10;</i>Source for this page</a></p>
@@ -161,11 +169,94 @@
       <main class="content">
 
         <h1 id="creating-themes" class="title">Creating Themes</h1>
-        <p>Creating your own theme is a way to build an alternative for Laika&#39;s default theme called Helium in cases
-        where its feature set or look and feel is not meeting your requirements.</p>
-        <p>The effort of designing and implementing a theme is justified if you plan to re-use it across multiple projects,
-        either as an in-house library or published as Open Source for the entire community.</p>
-        <p>If you just want to create a custom design for a single project, it&#39;s easier to just install an empty theme
+        <p>If you want to create your own look &amp; feel as an alternative to Laika&#39;s default theme called Helium 
+        there are several options depending on your concrete use case, 
+        some of which would not require to fully implement a theme yourself.</p>
+        
+        <h2 id="common-use-cases" class="section"><a class="anchor-link left" href="#common-use-cases"><i class="icofont-laika link">&#xef71;</i></a>Common Use Cases</h2>
+        <p>Here we will first describe the possible use cases,
+        which will help you determine which sections of the manual to work through
+        as some of these use cases are not actually covered by this chapter.</p>
+        
+        <h3 id="adjusting-colors-fonts-and-layout" class="section"><a class="anchor-link left" href="#adjusting-colors-fonts-and-layout"><i class="icofont-laika link">&#xef71;</i></a>Adjusting Colors, Fonts and Layout</h3>
+        <p>This is the most minimal level of adjustment and can be done with the Helium configuration API.
+        For an impression of how far you can get with this lightweight approach,
+        you can check the following documentation sites which all come with their own color scheme for Helium:</p>
+        <ul>
+          <li><a href="https://http4s.org/"><strong>http4s</strong></a></li>
+          <li><a href="https://j-mie6.github.io/parsley/"><strong>Parsley</strong></a></li>
+          <li><a href="https://typelevel.org/cats/"><strong>cats</strong></a></li>
+        </ul>
+        <p>The advantage of this approach is that you do not have to re-invent the wheel and can still benefit
+        from some of Helium&#39;s more advanced features (e.g. versioning or info boxes with tabs) without the huge
+        effort of creating those features from scratch.
+        The downside is that you are somewhat limited in how far you can deviate from the overall look &amp; feel of Helium.</p>
+        <p>If you choose this approach you can skip the remainder of this chapter and read through <a href="../03-preparing-content/03-theme-settings.html#theme-settings">Theme Settings</a> instead.</p>
+        
+        <h3 id="customizing-theme-templates" class="section"><a class="anchor-link left" href="#customizing-theme-templates"><i class="icofont-laika link">&#xef71;</i></a>Customizing Theme Templates</h3>
+        <p>This goes one step further than the previous use case, but would still rely on an existing theme.
+        Your freedom is greatly increased by the option of reassembling the features of a theme in a different layout.
+        This can be done by placing template files into a specific directory of your inputs.
+        The names and locations are dependent on the theme, for Helium they are documented in <a href="../03-preparing-content/03-theme-settings.html#customizing-template-fragments">Customizing Template Fragments</a>.</p>
+        <p>Helium&#39;s templating is modular, meaning you can, for example, easily replace the template for the left navigation bar 
+        without affecting anything else. 
+        This is relevant as overwriting a template means you need to regularly merge up changes from the original whenever 
+        Helium has a new release (unless your alternative template does not bear any resemblance to the original).
+        Only replacing the parts of the layout you actually want to adjust minimizes this work.
+        The need for regular merges is also the biggest downside of this approach. But, in the case of Helium,
+        the templates have stabilized with the 1.0 release in a way that frequent changes are very unlikely.</p>
+        <p>Like with the previous use case you can ignore the rest of this chapter when going down this route.</p>
+        
+        <h3 id="creating-theme-extensions" class="section"><a class="anchor-link left" href="#creating-theme-extensions"><i class="icofont-laika link">&#xef71;</i></a>Creating Theme Extensions</h3>
+        <p>This is similar to the previous two use cases as it relies on an existing theme, 
+        but instead of just loosely assembling functionality in your build and input directories,
+        you can bundle them up as a theme extension for reuse.</p>
+        <p>There are two slightly different approaches, depending on whether your extension is specific to Helium
+        or would work with any other existing theme, too.</p>
+        <p><strong>Extensions specific to Helium</strong></p>
+        <p>If it is specific to Helium, you can simply implement it as a function of type <code>Helium =&gt; Helium</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="type-name">Helium</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">MyHeliumBundle</span><span> </span><span class="keyword">extends</span><span> (</span><span class="type-name">Helium</span><span> =&gt; </span><span class="type-name">Helium</span><span>) {
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">apply</span><span>(</span><span class="identifier">helium</span><span>: </span><span class="type-name">Helium</span><span>) : </span><span class="type-name">Helium</span><span> = {
+     </span><span class="identifier">helium</span><span> </span><span class="comment">// your configuration code here
+</span><span>  }
+}</span></code></pre>
+        <p>Such an object can then be applied by users in their own Helium configuration:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>.</span><span class="identifier">extendWith</span><span>(</span><span class="type-name">MyHeliumBundle</span><span>).</span><span class="identifier">build</span></code></pre>
+        <p>For this approach the relevant documentation can be found in <a href="../03-preparing-content/03-theme-settings.html#theme-settings">Theme Settings</a>, 
+        and the rest of this chapter can be skipped.</p>
+        <p><strong>Generic theme extensions</strong></p>
+        <p>If you do not need to rely on Helium functionality, it&#39;s better to create a generic theme extension
+        by implementing <code>ThemeProvider</code>. 
+        This is the same API that you&#39;d implement for creating a new theme from scratch, 
+        the only difference is what you put inside.
+        In the case of an extension it would only be a subset of a typical theme feature set,
+        expanding or overwriting functionality of the host theme.</p>
+        <p>For details on how to implement this API, see <a href="#implementing-themes">Implementing Themes</a> below.</p>
+        <p>An extension can be applied to a host theme like this (note that both are of the same type):</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">theme</span><span>.</span><span class="type-name">ThemeProvider</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">hostTheme</span><span>: </span><span class="type-name">ThemeProvider</span><span> = ???
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">themeExtension</span><span>: </span><span class="type-name">ThemeProvider</span><span> = ???
+
+</span><span class="identifier">laikaTheme</span><span> := </span><span class="identifier">hostTheme</span><span>.</span><span class="identifier">extendWith</span><span>(</span><span class="identifier">themeExtension</span><span>)</span></code></pre>
+        <p>Some real world code examples for theme extensions:</p>
+        <ul>
+          <li>
+            <p><a href="https://github.com/cozydev-pink/protosearch/blob/main/laikaIO/src/main/scala/pink/cozydev/protosearch/ui/SearchUI.scala#L24">protosearch</a>: this extension adds several JavaScript files to the generated output which provide search functionality for Laika.</p>
+          </li>
+          <li>
+            <p><a href="https://github.com/typelevel/sbt-typelevel/blob/main/site/src/main/scala/org/typelevel/sbt/site/GenericSiteSettings.scala#L53">sbt-typelevel</a>: this extension adds some existing bundles to Laika and a redirect for the <code>/api</code> URL.</p>
+          </li>
+        </ul>
+        
+        <h3 id="a-single-project-without-helium" class="section"><a class="anchor-link left" href="#a-single-project-without-helium"><i class="icofont-laika link">&#xef71;</i></a>A Single Project without Helium</h3>
+        <p>This is the first use case that completely bypasses Helium or any other existing theme and implements
+        the look &amp; feel completely from scratch.
+        If this is for a single project only, and you do not plan to reuse the theme or publish it for other users,
+        then implementing it as a theme is entirely optional and more of a stylistic choice.</p>
+        <p>If you want to avoid any optional steps, the quickest approach is to just install an empty theme
         and simply place all necessary templates and CSS files in your regular input directory.</p>
         <div class="tab-container" data-tab-group="config">
           <ul class="tab-group">
@@ -192,98 +283,152 @@
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
+        <p>If you choose this approach you can skip the remainder of this chapter and read through <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a> instead.</p>
         
-        <h2 id="the-theme-trait" class="section"><a class="anchor-link left" href="#the-theme-trait"><i class="icofont-laika link">&#xef71;</i></a>The Theme Trait</h2>
-        <p>Before describing the typical steps for implementing a theme, let&#39;s have a quick look at the (simple) <code>Theme</code> trait,
-        to get an idea of what a theme represents in technical terms.</p>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">data</span><span>.</span><span class="type-name">Kleisli</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">bundle</span><span>.</span><span class="type-name">ExtensionBundle</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">OutputContext</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">descriptor</span><span>.</span><span class="type-name">ThemeDescriptor</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">model</span><span>.{ </span><span class="type-name">InputTree</span><span>, </span><span class="type-name">ParsedTree</span><span> }
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">theme</span><span>.</span><span class="type-name">Theme</span><span>.</span><span class="type-name">TreeProcessor</span><span>
+        <h3 id="creating-reusable-themes" class="section"><a class="anchor-link left" href="#creating-reusable-themes"><i class="icofont-laika link">&#xef71;</i></a>Creating Reusable Themes</h3>
+        <p>The effort of designing and implementing a new theme from scratch is justified if you plan to re-use it across multiple projects,
+        either as an in-house library or published as Open Source for the entire community.</p>
+        <p>For this approach it is recommended to work through the remaining sections of this chapter.</p>
+        <p>The need for the creation of a configuration API depends on whether this is a personal or in-house type of 
+        use case where configurability can be constrained to the differences between your particular use cases,
+        or whether you plan to publish the theme for the community.
+        In the latter case, it&#39;s best to also work through the section <a href="#designing-a-configuration-api">Designing a Configuration API</a> to give
+        sufficient flexibility to your end users like the Helium API does.</p>
+        
+        <h2 id="theme-functionality" class="section"><a class="anchor-link left" href="#theme-functionality"><i class="icofont-laika link">&#xef71;</i></a>Theme Functionality</h2>
+        <p>While it is obviously up to the respective theme author to decide on the feature set of their theme,
+        there are nevertheless a few implementation details that every theme must include:</p>
+        <ul>
+          <li>
+            <p><strong>Implementing a <code>ThemeProvider</code></strong>: This is the only public type your published theme JAR
+            must provide, as this is the type that users will pass to a Laika transformer or
+            configure as a setting in the sbt plugin.
+            It will bundle all the functionality listed in the following bullets into a single type.
+            See <a href="#implementing-themes">Implementing Themes</a> below for the steps needed to implement this API.</p>
+          </li>
+          <li>
+            <p><strong>Templates</strong>: a theme needs to include at least one template for rendering site output.
+            The <code>laika-core</code> module itself does not come with any templates, 
+            since producing complete HTML documents is the job of themes.
+            See <a href="#templates">Templates</a> below for how to include templates in a theme either as classpath
+            resources or generated in-memory.</p>
+          </li>
+          <li>
+            <p><strong>CSS</strong>: Like with templates, <code>laika-core</code> does not contain any style sheets itself, 
+            so you need to include at least one style sheet for each supported output format.
+            See <a href="#css">CSS</a> below for details.</p>
+          </li>
+          <li>
+            <p><strong>Font and Icon Resources</strong>: If you only support HTML output you can avoid embedding
+            any font or icon resources into your JAR, as you can use web fonts and simply
+            link them in the <code>&lt;head&gt;</code> section of your templates.
+            However, if you also support EPUB and PDF output, embedding fonts and icons becomes a necessity.
+            See <a href="#fonts">Fonts</a> below for details.</p>
+          </li>
+        </ul>
+        <p><strong>Optional Theme Features</strong></p>
+        <p>In addition to the mandatory functionality listed above, themes can support any other
+        functionality that is impossible to support within <code>laika-core</code>, such as features
+        relying on JavaScript resources which need be referenced from custom templating solutions.</p>
+        <p>A list of examples for such functionality living in themes is the support for site search provided
+        by the <a href="https://github.com/cozydev-pink/protosearch">protosearch</a> library or Helium
+        features like <a href="../03-preparing-content/01-directory-structure.html#versioned-documentation">Versioned Documentation</a>, <a href="../03-preparing-content/03-theme-settings.html#mermaid-diagrams">Mermaid Diagrams</a> or the <a href="../07-reference/01-standard-directives.html#select"><code>@:select</code></a> directive
+        for tabbed info boxes.</p>
+        
+        <h2 id="implementing-themes" class="section"><a class="anchor-link left" href="#implementing-themes"><i class="icofont-laika link">&#xef71;</i></a>Implementing Themes</h2>
+        <p>If you&#39;ve reached this part of the chapter it&#39;s safe to assume that your use case is either
+        the 3rd or last of those listed under <a href="#common-use-cases">Common Use Cases</a> which are the only two scenarios
+        where implementing a <code>ThemeProvider</code> is required.</p>
+        <p>This section attempts to guide you through all steps of the process.</p>
+        
+        <h3 id="creating-a-themeprovider" class="section"><a class="anchor-link left" href="#creating-a-themeprovider"><i class="icofont-laika link">&#xef71;</i></a>Creating a <code>ThemeProvider</code></h3>
+        <p><code>ThemeProvider</code> is a simple trait with a single method and the only public member
+        a minimal theme needs to provide as that is ultimately the type that can be passed
+        to the library&#39;s transformer API or to the <code>laikaTheme</code> sbt setting:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{ </span><span class="type-name">Async</span><span>, </span><span class="type-name">Resource</span><span> }
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">theme</span><span>.{ </span><span class="type-name">Theme</span><span>, </span><span class="type-name">ThemeProvider</span><span> }
 
-</span><span class="keyword">trait</span><span> </span><span class="type-name">Theme</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]] {
+</span><span class="keyword">object</span><span> </span><span class="type-name">MyTheme</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ThemeProvider</span><span> {
 
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">descriptor</span><span>: </span><span class="type-name">ThemeDescriptor</span><span>
-
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">inputs</span><span>: </span><span class="type-name">InputTree</span><span>[</span><span class="type-name">F</span><span>]
-  
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">extensions</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">ExtensionBundle</span><span>]
-  
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">treeProcessor</span><span>: </span><span class="type-name">OutputContext</span><span> =&gt; </span><span class="type-name">TreeProcessor</span><span>[</span><span class="type-name">F</span><span>]
-  
-}
-
-</span><span class="keyword">object</span><span> </span><span class="type-name">Theme</span><span> {
-
-  </span><span class="keyword">type</span><span> </span><span class="type-name">TreeProcessor</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]] = </span><span class="type-name">Kleisli</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">ParsedTree</span><span>[</span><span class="type-name">F</span><span>], </span><span class="type-name">ParsedTree</span><span>[</span><span class="type-name">F</span><span>]]
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">build</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Async</span><span>]: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Theme</span><span>[</span><span class="type-name">F</span><span>]] = ???
   
 }</span></code></pre>
-        <p>The <code>inputs</code> property is the most important aspect of the trait, as it allows to pre-populate the input tree
-        with templates and styles. 
-        See <a href="#generating-or-loading-documents">Generating or Loading Documents</a> below for details.</p>
-        <p>The <code>extensions</code> property enables theme authors to &quot;auto-install&quot; one or more extension bundles that are required
-        for the theme&#39;s feature set.
-        For simple themes this collection may be empty.
-        You can use any existing 3rd-party bundle or create your own.</p>
-        <p>For example the default Helium theme uses this option to install a few custom renderers 
-        that deal with UI aspects not covered by Laika Core, like decorating callouts with one of Helium&#39;s icons. </p>
-        <p>Bundles are not covered in this chapter as this extension point is documented in <a href="01-overview.html#the-extensionbundle-api">The ExtensionBundle API</a>.</p>
-        <p>A bundle that is automatically installed as part of the theme should be essential for the theme to function.
-        If it is opt-in, your library should make it available separately so that the user can mix and match. </p>
-        <p>Finally, the <code>treeProcessor</code> property is another optional hook that allows to inspect and modify the document AST
-        between parsing and rendering.
-        This can be useful if some of your theme&#39;s configuration logic needs to look at the input documents or configuration
-        supplied by the user before generating the final AST.
-        It is a function that expects the output format, so you can create separate logic for producing the AST for the
-        site, EPUB and PDF output.</p>
+        <p>For the implementation you can construct a <code>Theme</code> instance in any way, 
+        but the most convenient way is usually to use <a href="#the-themebuilder-api">The <code>ThemeBuilder</code> API</a>.
+        See that section for details and example implementations.</p>
         
-        <h2 id="designing-a-configuration-api" class="section"><a class="anchor-link left" href="#designing-a-configuration-api"><i class="icofont-laika link">&#xef71;</i></a>Designing a Configuration API</h2>
-        <p>Every theme should have a configuration API that allows to tweak the look and feel or add metadata or custom links.
-        It&#39;s usually the only public API of your library to reduce the likeliness of issues with binary compatibility.</p>
-        <p>You can have a look at Helium&#39;s API documented in <a href="../03-preparing-content/03-theme-settings.html#theme-settings">Theme Settings</a> for inspiration.
-        Such an API usually covers some or all of the following aspects:</p>
-        <ul>
-          <li>Configure font resources for embedding</li>
-          <li>Tweak colors, font sizes, line height and layout of the pages</li>
-          <li>Define metadata like language, authors, description</li>
-          <li>Configure special pages like table of contents, download or landing pages</li>
-          <li>Add custom links to navigation bars</li>
-          <li>Specify cover images for EPUB and PDF documents</li>
-        </ul>
-        <p>The package <code>laika.theme</code> contains a few base types that you can reuse for defining some common types:</p>
-        <ul>
-          <li>The <code>Color</code> type gives you the <code>hex</code> and <code>rgb</code> methods for defining colors.</li>
-          <li><code>LengthUnit</code> offers constructors for all length units permitted in CSS, e.g. <code>px(12)</code> or <code>em(1.5)</code>.</li>
-          <li>The <code>FontDefinition</code> type allows to define fonts for embedding. 
-          Adding these instances to the final base configuration will trigger the embedding in EPUB and PDF documents
-          without any further implementation within your theme.</li>
-        </ul>
-        <p>Another aspect users might appreciate is if you allow to define most options separately per output format.
-        Users might pick a more colorful design for the site for example, but switch to a more black-and-white feel
-        for the PDF output so that the content looks good when printed.</p>
-        <p>The Helium API solves this by requiring a selector in front of all configuration methods which is either
-        <code>all</code>, <code>site</code>, <code>epub</code> or <code>pdf</code>:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="type-name">Helium</span><span>
+        <h3 id="using-a-custom-theme" class="section"><a class="anchor-link left" href="#using-a-custom-theme"><i class="icofont-laika link">&#xef71;</i></a>Using a Custom Theme</h3>
+        <p>The theme implementation shown above can then be registered with Laika,
+        essentially replacing the built-in Helium theme which would otherwise be chosen by default:</p>
+        <div class="tab-container" data-tab-group="config">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="sbt"><a href="#">sbt Plugin</a></li>
+            <li class="tab" data-choice-name="library"><a href="#">Library API</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="sbt">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">laikaTheme</span><span> := </span><span class="type-name">MyTheme</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="library">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">_</span><span>
 
-</span><span class="keyword">val</span><span> </span><span class="identifier">theme</span><span> = </span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">all</span><span>.</span><span class="identifier">metadata</span><span>(
-    </span><span class="identifier">title</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Project Name&quot;</span><span>),
-    </span><span class="identifier">language</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;de&quot;</span><span>),
-  )
-  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
-  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+</span><span class="keyword">val</span><span> </span><span class="identifier">transformer</span><span> = </span><span class="type-name">Transformer</span><span>
+  .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
+  .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
+  .</span><span class="identifier">parallel</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">withTheme</span><span>(</span><span class="type-name">MyTheme</span><span>)
   .</span><span class="identifier">build</span></code></pre>
+          </div>
+        </div>
         
-        <h2 id="generating-or-loading-documents" class="section"><a class="anchor-link left" href="#generating-or-loading-documents"><i class="icofont-laika link">&#xef71;</i></a>Generating or Loading Documents</h2>
-        <p>The one aspect probably all theme implementations are dealing with is to pre-populate the input tree with 
-        default templates and styles.
-        For this you can use the same <code>InputTree</code> API that users can use if they need full flexibility for defining
-        their inputs.</p>
+        <h3 id="the-themebuilder-api" class="section"><a class="anchor-link left" href="#the-themebuilder-api"><i class="icofont-laika link">&#xef71;</i></a>The <code>ThemeBuilder</code> API</h3>
+        <p>This is a convenient API that takes away some of the boilerplate of implementing a <code>Theme</code> instance manually.</p>
+        <p>It helps to assemble all the templates, styles, configuration and fonts that you gather 
+        from the user&#39;s theme configuration or from your defaults if omitted.</p>
+        <p><strong>A minimal example</strong></p>
+        <p>The example below shows a very minimal theme that only supports HTML and only includes
+        a single template document, a single CSS file and the name of the theme:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{ </span><span class="type-name">Async</span><span>, </span><span class="type-name">Resource</span><span> }
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">DefaultTemplatePath</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">model</span><span>.</span><span class="type-name">InputTree</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">theme</span><span>.{ </span><span class="type-name">Theme</span><span>, </span><span class="type-name">ThemeBuilder</span><span>, </span><span class="type-name">ThemeProvider</span><span> }
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">MinimalTheme</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ThemeProvider</span><span> {
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">build</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Async</span><span>]: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Theme</span><span>[</span><span class="type-name">F</span><span>]] = {
+
+    </span><span class="keyword">val</span><span> </span><span class="identifier">inputs</span><span> = </span><span class="type-name">InputTree</span><span>[</span><span class="type-name">F</span><span>]
+      .</span><span class="identifier">addClassLoaderResource</span><span>(
+        </span><span class="string-literal">&quot;minimalTheme/default.template.html&quot;</span><span>,
+        </span><span class="type-name">DefaultTemplatePath</span><span>.</span><span class="identifier">forHTML</span><span>
+      )
+      .</span><span class="identifier">addClassLoaderResource</span><span>(
+        </span><span class="string-literal">&quot;minimalTheme/theme.css&quot;</span><span>,
+        </span><span class="type-name">Path</span><span>.</span><span class="type-name">Root</span><span> / </span><span class="string-literal">&quot;minimal&quot;</span><span> / </span><span class="string-literal">&quot;theme.css&quot;</span><span>,
+      )
+
+    </span><span class="type-name">ThemeBuilder</span><span>(</span><span class="string-literal">&quot;MinimalTheme&quot;</span><span>)
+      .</span><span class="identifier">addInputs</span><span>(</span><span class="identifier">inputs</span><span>)
+      .</span><span class="identifier">build</span><span>
+  }
+}</span></code></pre>
+        <p>First we assemble the only two inputs (the template and the stylesheet) as classpath resources.
+        Alternatively you can generate these in-memory, but you should avoid the use of any file system
+        resources, so that your theme can be a simple build dependency that does not require any additional installations.</p>
+        <p>The first argument to <code>addClassLoaderResource</code> is the path to the resource within the jar, 
+        the second is the virtual path within the Laika document tree where the document will be placed.
+        The first path (<code>DefaultTemplatePath.forHTML</code>) is a location for the default HTML template that
+        will be used for all markup documents that do not specify an alternate template in their configuration.
+        The virtual path for the CSS file can be anything as long as it is referenced properly from within the template.</p>
+        <p>Then we instantiate a <code>ThemeBuilder</code>, passing the name of the theme as an argument.
+        The name is only used for logging purposes, like when using the <code>laikaDescribe</code> task of the sbt plugin
+        to inspect your configuration.</p>
+        <p>Finally, we pass the inputs and call <code>build</code> to create a theme resource.</p>
         <div class="callout warning">
           <i class="icofont-laika warning">&#xf026;</i>
-          <p>While Laika offers the full API as for user inputs for maximum flexibility and consistency, 
+          <p>While Laika offers the full API as for user inputs for maximum flexibility and consistency,
           it is recommended to avoid using <code>addFile</code> or <code>addDirectory</code> to add any file system resources.</p>
           <p>This might be acceptable for a library shared in-house where you can rely on a specific project setup,
           but for a public library it is most convenient for users when the theme is just an additional dependency
@@ -291,11 +436,42 @@
           <p>For this reason the best option is usually to either generate resource in memory and/or load them
           as resources from the JAR, both of which is directly supported by the APIs.</p>
         </div>
+        <p><strong>Other <code>ThemeBuilder</code> methods</strong></p>
+        <p>If your requirements are less minimal than in our example, 
+        there are additional methods in <code>ThemeBuilder</code> beyond <code>addInputs</code> with which you can:</p>
+        <ul>
+          <li>
+            <p>Pre-populate the transformer configuration (e.g. with text or AST nodes that can be referenced in templates)
+            via <code>addBaseConfig</code> as shown in <a href="#generating-variables-for-templates">Generating Variables for Templates</a> below.</p>
+          </li>
+          <li>
+            <p>Customize the rendering of some AST nodes with theme-specific features via <code>addRenderOverrides</code>.
+            In Helium this is used for rendering tabs for user-selectable content, anchors for copying section links,
+            and for adding custom icons to callouts.
+            See <a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a> for details.</p>
+          </li>
+          <li>
+            <p>Add AST rewrite rules via <code>addRewriteRules</code>, which is somewhat more low-level and allows to remove or replace
+            AST nodes between parsing and rendering.
+            See <a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> for details on this topic.</p>
+          </li>
+          <li>
+            <p>Add any other type of extension via <code>addExtensions</code>, which accepts a list of <code>ExtensionBundle</code> implementations.
+            These can be any 3rd party bundle or one provided by the theme itself.</p>
+            <p>A bundle that is automatically installed as part of the theme should be essential for the theme to function.
+            If it is opt-in, your library should make it available separately so that the user can mix and match.</p>
+            <p>See <a href="01-overview.html#the-extensionbundle-api">The ExtensionBundle API</a> for details on all available extension hooks.</p>
+          </li>
+          <li>
+            <p>Finally, you can use the <code>processTree</code> method to inspect and modify the document AST
+            between parsing and rendering in an effectful way.</p>
+          </li>
+        </ul>
         
         <h3 id="templates" class="section"><a class="anchor-link left" href="#templates"><i class="icofont-laika link">&#xef71;</i></a>Templates</h3>
         <p>Each theme supporting the three major output formats (site, EPUB, PDF) would come with at least three template
         documents: one default template for each format.
-        Additionally a theme can provide opt-in templates that users can explicitly select in the configuration header
+        Additionally, a theme can provide opt-in templates that users can explicitly select in the configuration header
         of a markup document with (<code>laika.template = /&lt;theme-dir&gt;/&lt;name&gt;-template.html)</code>), where <code>theme-dir</code> is the
         directory your theme files are generated into.</p>
         <p>There are two approaches you can choose from:</p>
@@ -325,7 +501,7 @@
             <ul>
               <li>
                 <p>HOCON substitution references in the form of <code>${myTheme.site.fontFamilies}</code>.
-                For details see <a href="#generating-configuration-for-templates">Generating Configuration for Templates</a> below.</p>
+                For details see <a href="#generating-variables-for-templates">Generating Variables for Templates</a> below.</p>
               </li>
               <li>
                 <p>Laika directives, <code>@:for</code> to loop over content placed into the configuration and <code>@:if</code> for
@@ -338,10 +514,13 @@
           </li>
         </ul>
         
-        <h3 id="generating-configuration-for-templates" class="section"><a class="anchor-link left" href="#generating-configuration-for-templates"><i class="icofont-laika link">&#xef71;</i></a>Generating Configuration for Templates</h3>
+        <h3 id="generating-variables-for-templates" class="section"><a class="anchor-link left" href="#generating-variables-for-templates"><i class="icofont-laika link">&#xef71;</i></a>Generating Variables for Templates</h3>
         <p>When using the second approach described in the section above where you use directives and substitution references
         inside your templates, the base configuration for the transformer needs to be pre-populated with all the corresponding
-        values.</p>
+        values.
+        This approach allows to transfer user configuration from your theme&#39;s Scala configuration APIs to substitution variables
+        which can be referenced from within your theme&#39;s templates.
+        The indirection shields the end user from the need to configure your theme with stringly HOCON files.</p>
         <p>This can be achieved using Laika&#39;s <code>ConfigBuilder</code> API which allows to programmatically construct <code>Config</code> instances,
         which are normally obtained by parsing HOCON.
         The builder accepts all the types supported in JSON/HOCON, e.g. Strings, Numbers, Arrays and Objects,
@@ -395,9 +574,9 @@
         
         <h3 id="fonts" class="section"><a class="anchor-link left" href="#fonts"><i class="icofont-laika link">&#xef71;</i></a>Fonts</h3>
         <p>If a theme supports EPUB or PDF output, it would be convenient for the user if a theme includes a set of default fonts.
-        Otherwise PDF output would always be based on the few standard fonts that are available for every PDF generator,
+        Otherwise, PDF output would always be based on the few standard fonts that are available for every PDF generator,
         which might be somewhat limiting stylistically.</p>
-        <p>Ensure that the fonts your are using have a license that allows for redistribution as part of a library.
+        <p>Ensure that the fonts you are using have a license that allows for redistribution as part of a library.
         Beware that some web fonts might allow linking the font in websites for free, but not embedding them into 
         EPUB or PDF documents.
         Ideally the license should also not require the users of the theme to add an attribution to each page.</p>
@@ -421,77 +600,48 @@
   .</span><span class="identifier">build</span></code></pre>
         <p>Of course, like with Laika&#39;s default Helium theme, you can allow to define different fonts for EPUB and PDF.</p>
         
-        
-        <h2 id="constructing-a-theme-instance" class="section"><a class="anchor-link left" href="#constructing-a-theme-instance"><i class="icofont-laika link">&#xef71;</i></a>Constructing a Theme Instance</h2>
-        <p>Finally, all the templates, styles, configuration and fonts that you gather from the user&#39;s theme configuration
-        or from your defaults if omitted, need to be assembled into a theme provider instance.</p>
-        <p>This step will be very different for each theme depending on its feature set, 
-        so we just show an excerpt of Laika&#39;s own Helium theme builder as an example:</p>
-        <pre><code class="nohighlight"><span class="keyword">package</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="identifier">builder</span><span>
-
-</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{ </span><span class="type-name">Async</span><span>, </span><span class="type-name">Resource</span><span> }
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.{ </span><span class="type-name">EPUB</span><span>, </span><span class="type-name">HTML</span><span>, </span><span class="type-name">XSLFO</span><span> }
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="type-name">Helium</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="identifier">generate</span><span>.</span><span class="identifier">_</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">theme</span><span>.{ </span><span class="type-name">Theme</span><span>, </span><span class="type-name">ThemeBuilder</span><span>, </span><span class="type-name">ThemeProvider</span><span> }
-
-</span><span class="keyword">class</span><span> </span><span class="type-name">HeliumThemeBuilder</span><span> (</span><span class="identifier">helium</span><span>: </span><span class="type-name">Helium</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">ThemeProvider</span><span> {
-
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">build</span><span>[</span><span class="type-name">F</span><span>[</span><span class="identifier">_</span><span>]: </span><span class="type-name">Async</span><span>]: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">F</span><span>, </span><span class="type-name">Theme</span><span>[</span><span class="type-name">F</span><span>]] = {
-
-    </span><span class="keyword">import</span><span> </span><span class="identifier">helium</span><span>.</span><span class="identifier">_</span><span>
-    
-    </span><span class="keyword">val</span><span> </span><span class="identifier">treeProcessor</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">HeliumTreeProcessor</span><span>[</span><span class="type-name">F</span><span>](</span><span class="identifier">helium</span><span>)
-
-    </span><span class="type-name">ThemeBuilder</span><span>(</span><span class="string-literal">&quot;Helium&quot;</span><span>)
-      .</span><span class="identifier">addInputs</span><span>(</span><span class="type-name">HeliumInputBuilder</span><span>.</span><span class="identifier">build</span><span>(</span><span class="identifier">helium</span><span>))
-      .</span><span class="identifier">addBaseConfig</span><span>(</span><span class="type-name">ConfigGenerator</span><span>.</span><span class="identifier">populateConfig</span><span>(</span><span class="identifier">helium</span><span>))
-      .</span><span class="identifier">addRewriteRules</span><span>(</span><span class="type-name">HeliumRewriteRules</span><span>.</span><span class="identifier">build</span><span>(</span><span class="identifier">helium</span><span>))
-      .</span><span class="identifier">addRenderOverrides</span><span>(
-        </span><span class="type-name">HTML</span><span>.</span><span class="type-name">Overrides</span><span>(</span><span class="type-name">HeliumRenderOverrides</span><span>.</span><span class="identifier">forHTML</span><span>(</span><span class="identifier">siteSettings</span><span>.</span><span class="identifier">layout</span><span>.</span><span class="identifier">anchorPlacement</span><span>))
-      )
-      .</span><span class="identifier">addRenderOverrides</span><span>(</span><span class="type-name">EPUB</span><span>.</span><span class="type-name">XHTML</span><span>.</span><span class="type-name">Overrides</span><span>(</span><span class="type-name">HeliumRenderOverrides</span><span>.</span><span class="identifier">forEPUB</span><span>))
-      .</span><span class="identifier">addRenderOverrides</span><span>(</span><span class="type-name">XSLFO</span><span>.</span><span class="type-name">Overrides</span><span>(</span><span class="type-name">HeliumRenderOverrides</span><span>.</span><span class="identifier">forPDF</span><span>))
-      .</span><span class="identifier">processTree</span><span>(</span><span class="identifier">treeProcessor</span><span>.</span><span class="identifier">forHTML</span><span>, </span><span class="type-name">HTML</span><span>)
-      .</span><span class="identifier">processTree</span><span>(</span><span class="identifier">treeProcessor</span><span>.</span><span class="identifier">forAllFormats</span><span>)
-      .</span><span class="identifier">build</span><span>
-  }
-}</span></code></pre>
-        <p>As you can see, it is a very tiny class as it delegates to various other builders to properly separate concerns.
-        Let&#39;s just highlight the most important aspects:</p>
+        <h3 id="designing-a-configuration-api" class="section"><a class="anchor-link left" href="#designing-a-configuration-api"><i class="icofont-laika link">&#xef71;</i></a>Designing a Configuration API</h3>
+        <p>Every theme that is not for internal use should come with a configuration API that allows to tweak the look and feel or add metadata or custom links.
+        It&#39;s usually the only public API of your library to reduce the likeliness of issues with binary compatibility.</p>
+        <p>You can have a look at Helium&#39;s API documented in <a href="../03-preparing-content/03-theme-settings.html#theme-settings">Theme Settings</a> for inspiration.
+        Such an API usually covers some or all of the following aspects:</p>
         <ul>
-          <li>
-            <p>Your theme builder must implement <code>ThemeProvider</code> as that is ultimately the type that can be passed
-            to the library&#39;s transformer API or to the <code>laikaTheme</code> sbt setting.
-            An instance of this type is what the final call to <code>build</code> in your configuration API should produce.</p>
-          </li>
-          <li>
-            <p>The <code>build</code> method will be invoked by Laika when the transformer resource is created.
-            It passes in the effect type as it is in the hand of the end user to select the concrete implementation,
-            any implementation of <code>cats.Sync</code> is supported.</p>
-          </li>
-          <li>
-            <p>The <code>ThemeBuilder</code> is an optional API, but usually recommended as it reduces boilerplate.
-            The only requirement is that the <code>build</code> method returns a cats-effect <code>Resource[F, Theme[F]]</code>.
-            In the case of Helium, you can see that the API is used to: </p>
-            <p>a) Pre-populate the input tree with documents (templates, styles, JavaScript) via <code>addInputs</code>,
-               as described in <a href="#generating-or-loading-documents">Generating or Loading Documents</a> above.</p>
-            <p>b) Pre-populate the transformer configuration (e.g. with text or AST nodes that can be referenced in templates)
-               via <code>addBaseConfig</code> as shown in <a href="#generating-configuration-for-templates">Generating Configuration for Templates</a> above.</p>
-            <p>c) Customize the rendering of some AST nodes with theme-specific features via <code>addRenderOverrides</code>.
-               In Helium this is used for rendering tabs for user-selectable content, anchors for copying section links,
-               and for adding custom icons to callouts.
-               See <a href="../04-customizing-laika/06-overriding-renderers.html#overriding-renderers">Overriding Renderers</a> for details.</p>
-            <p>d) Add AST rewrite rules via <code>addRewriteRules</code>, which is somewhat more low-level and allows to remove or swap
-               AST nodes between parsing and rendering.
-               See <a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> for details on this topic.</p>
-            <p>e) Finally, it adds or removes additional documents via <code>processTree</code> which allows for a final modification
-               of the document tree per output format, e.g. to remove a JavaScript file that your theme from the EPUB
-               output which is only intended for websites.</p>
-          </li>
+          <li>Configure font resources for embedding</li>
+          <li>Tweak colors, font sizes, line height and layout of the pages</li>
+          <li>Define metadata like language, authors, description</li>
+          <li>Configure special pages like table of contents, download or landing pages</li>
+          <li>Add custom links to navigation bars</li>
+          <li>Specify cover images for EPUB and PDF documents</li>
+          <li>Let the user define which JavaScript and CSS resources should be auto-linked in HTML headers.</li>
         </ul>
+        <p>The package <code>laika.theme</code> contains a few base types that you can reuse for defining some common types:</p>
+        <ul>
+          <li>The <code>Color</code> type gives you the <code>hex</code> and <code>rgb</code> methods for defining colors.</li>
+          <li><code>LengthUnit</code> offers constructors for all length units permitted in CSS, e.g. <code>px(12)</code> or <code>em(1.5)</code>.</li>
+          <li>The <code>FontDefinition</code> type allows to define fonts for embedding.
+          Adding these instances to the final base configuration will trigger the embedding in EPUB and PDF documents
+          without any further implementation within your theme.</li>
+          <li>The <code>IncludeDirective</code> type allows to construct instances of the <code>@:includeCSS</code> and <code>@:includeJS</code>
+          to be used within the theme&#39;s templates, allowing the users to define where CSS and JS
+          resources for auto-linking into the generated HTML output can be found.</li>
+        </ul>
+        <p>Another aspect users might appreciate is if you allow to define most options separately per output format.
+        Users might pick a more colorful design for the site for example, but switch to a more black-and-white feel
+        for the PDF output so that the content looks good when printed.</p>
+        <p>The Helium API solves this by requiring a selector in front of all configuration methods which is either
+        <code>all</code>, <code>site</code>, <code>epub</code> or <code>pdf</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="type-name">Helium</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">theme</span><span> = </span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
+  .</span><span class="identifier">all</span><span>.</span><span class="identifier">metadata</span><span>(
+    </span><span class="identifier">title</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;Project Name&quot;</span><span>),
+    </span><span class="identifier">language</span><span> = </span><span class="type-name">Some</span><span>(</span><span class="string-literal">&quot;de&quot;</span><span>),
+  )
+  .</span><span class="identifier">epub</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">navigationDepth</span><span>(</span><span class="number-literal">4</span><span>)
+  .</span><span class="identifier">build</span></code></pre>
         
-        <h2 id="publishing-a-theme" class="section"><a class="anchor-link left" href="#publishing-a-theme"><i class="icofont-laika link">&#xef71;</i></a>Publishing a Theme</h2>
+        <h2 id="publishing-themes" class="section"><a class="anchor-link left" href="#publishing-themes"><i class="icofont-laika link">&#xef71;</i></a>Publishing Themes</h2>
         <p>Since a theme is just a dependency, you can publish it like any other library.</p>
         <p>As a minimum set of documentation it&#39;s recommended to include:</p>
         <ul>
