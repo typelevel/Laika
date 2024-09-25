@@ -3,7 +3,7 @@ object Dependencies {
   object versions {
 
     val scala2_12 = "2.12.19"
-    val scala2_13 = "2.13.14"
+    val scala2_13 = "2.13.15"
     val scala3    = "3.3.3"
 
     val catsCore   = "2.12.0"
