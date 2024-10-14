@@ -14,16 +14,16 @@ import Dependencies._
 inThisBuild(
   Seq(
     tlBaseVersion        := "1.2",
-    homepage             := Some(new URL("https://typelevel.org/Laika/")),
+    homepage             := Some(url("https://typelevel.org/Laika/")),
     organization         := "org.typelevel",
-    organizationHomepage := Some(new URL("http://typelevel.org")),
+    organizationHomepage := Some(url("http://typelevel.org")),
     description          := "Text Markup Transformer for sbt and Scala applications",
     startYear            := Some(2012),
-    licenses := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
     scalaVersion       := versions.scala2_12,
-    developers      := List(Developer("jenshalm", "Jens Halm", "", new URL("http://planet42.org"))),
-    tlCiHeaderCheck := false,
+    developers         := List(Developer("jenshalm", "Jens Halm", "", url("http://planet42.org"))),
+    tlCiHeaderCheck    := false,
     tlCiDependencyGraphJob := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
