@@ -169,7 +169,7 @@ object Tasks {
       streams.value.log.info(Logs.outputs(tree.root, config.alias))
       streams.value.log.info(s"Generated ${config.alias} in $target")
 
-      target.allPaths.get.toSet.filter(_.isFile)
+      target.allPaths.get().toSet.filter(_.isFile)
     }
 
     def renderBinary(config: BinaryRendererConfig): Set[File] = {
@@ -400,7 +400,7 @@ object Tasks {
       pathFinderWithParents(downloadPath) ---
       pathFinderWithParents(apiPath)
 
-    sbt.IO.delete(filesToDelete.get)
+    sbt.IO.delete(filesToDelete.get())
   }
 
   private def pathFinderWithParents(dir: File): PathFinder = {
