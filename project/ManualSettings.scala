@@ -20,7 +20,7 @@ object ManualSettings {
 
   object versions {
 
-    val latestRelease = "1.2.0"
+    val latestRelease = "1.2.1"
 
     private def version(version: String, label: String = "EOL"): Version = {
       val (pathSegment, canonical) = version match {
