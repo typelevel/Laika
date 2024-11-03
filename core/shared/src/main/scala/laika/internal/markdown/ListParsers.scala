@@ -19,7 +19,6 @@ package laika.internal.markdown
 import laika.api.bundle.BlockParserBuilder
 import laika.ast.*
 import laika.parse.Parser
-import laika.parse.combinator.Parsers.opt
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.{ CharGroup, PrefixedParser }
 import laika.parse.builders.*
