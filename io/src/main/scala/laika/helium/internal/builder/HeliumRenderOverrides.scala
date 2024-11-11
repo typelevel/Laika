@@ -137,13 +137,16 @@ private[helium] object HeliumRenderOverrides {
       )
   }
 
+  private def mermaidWarning(format: String): Block = {
+    val msg = s"Mermaid diagrams are not supported for $format output"
+    Paragraph(RuntimeMessage(MessageLevel.Warning, msg))
+  }
+
   def forPDF: PartialFunction[(TagFormatter, Element), String] = {
     case (fmt, b @ BlockSequence(content, opt)) if opt.styles.contains("callout") =>
       fmt.blockContainer(b, SpanSequence(icon(opt).toSeq, Styles("icon")) +: content)
     case (fmt, CodeBlock("mermaid", _, _, _))                                     =>
-      fmt.child(
-        RuntimeMessage(MessageLevel.Warning, "Mermaid diagrams are not supported for PDF output")
-      )
+      fmt.child(mermaidWarning("PDF"))
   }
 
   def forEPUB: PartialFunction[(TagFormatter, Element), String] = {
@@ -151,9 +154,7 @@ private[helium] object HeliumRenderOverrides {
       val callout = icon(opt).map(SpanSequence(_)).toSeq ++ content
       fmt.indentedElement("div", BlockSequence(callout).withOptions(opt))
     case (fmt, CodeBlock("mermaid", _, _, _))                                 =>
-      fmt.child(
-        RuntimeMessage(MessageLevel.Warning, "Mermaid diagrams are not supported for EPUB output")
-      )
+      fmt.child(mermaidWarning("EPUB"))
   }
 
 }
