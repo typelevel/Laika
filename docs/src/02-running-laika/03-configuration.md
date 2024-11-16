@@ -127,7 +127,7 @@ e.g. HTML.
 This is disabled by default, even if it is part of the original text markup specification as in the 
 case of Markdown.
 
-This is to generally discourage to tie markup input to a concrete output format, 
+The main reason is that it is generally not recommended to tie markup input to a concrete output format, 
 as Laika supports multiple formats like HTML, EPUB and PDF and an API where users can easily add their own format.
 Markup files containing raw HTML could not be used for those.
 
@@ -218,14 +218,8 @@ The handling of the second kind of error can be controlled via configuration.
 AST nodes that capture errors carry an error message, a severity
 and a fallback node to use if configuration would allow to proceed with rendering.
 
-Laika comes with two configuration options that control how these nodes are dealt with:
-
-* `failOnMessages` controls the minimum severity that causes a transformation to fail, the default is `Error`.
-* `renderMessages` controls the minimum severity that causes a message to be included in the rendered output,
-  the default is `None`.
-
-This means, by default the presence of one or more invalid nodes in the AST of a document 
-causes the transformation to fail, with all their message collected in the returned error type.
+By default, the presence of one or more invalid nodes in the AST of a document 
+causes the transformation to fail, with all their messages collected in the returned error type.
 
 
 ### Visual Debugging
@@ -266,6 +260,25 @@ Now rendering proceeds even with invalid nodes and they will be rendered in the 
 they occurred in.
 In HTML output these node are rendered as a span with the class `runtime-message` and a second class for the level 
 (`warning`, `error`, etc.), so that their display can be controlled via CSS.
+
+
+### Custom Configuration
+
+For most use cases, running with either the defaults or the settings for visual debugging shown above should be sufficient.
+But for special requirements, you can create a custom instance of `MessageFilters`:
+
+```scala mdoc:compile-only
+import laika.config.{MessageFilters, MessageFilter}
+
+val filters = MessageFilters.custom(
+  failOn = MessageFilter.Warning,
+  render = MessageFilter.Debug
+)
+```
+
+* The `failOn` argument controls the minimum severity that causes a transformation to fail, the default is `Error`.
+* The `render` argument controls the minimum severity that causes a message to be included in the rendered output,
+  the default is `None`.
 
 
 ### The AST Renderer

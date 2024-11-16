@@ -9,7 +9,7 @@ import laika.sbt.LaikaPlugin.autoImport._
 Laika's functionality for navigation can roughly be divided into four categories:
 
 * Features added on top of the native link syntax of supported markup formats, 
-  like validated [Validated Internal Links] or [Global Link Definitions].
+  like [Validated Internal Links] or [Global Link Definitions].
   
 * Link directives for individual links that provide non-standard shortcuts for convenience, 
   like [Linking by Section Headline] or [Linking to API Documentation].
@@ -17,7 +17,7 @@ Laika's functionality for navigation can roughly be divided into four categories
 * Directives that produce larger navigation structures, 
   like [Breadcrumbs] or [Generating Navigation Trees].
 
-* If you want to create your own link shortcuts, you can create [Custom Link Directives].
+* Finally, if you want to create your own link shortcuts, you can create [Custom Link Directives].
 
 
 Validated Internal Links
@@ -476,8 +476,8 @@ These path references can either point to a directory or an individual document.
 
 #### Limiting the Depth
 
-By default the navigation tree will allow an arbitrary depth and not only reflect the hierarchy of directories
-and document and their titles, but also include the individual sections within the documents.
+By default, the navigation tree will allow an arbitrary depth and not only reflect the hierarchy of directories
+and documents and their titles, but also include the individual sections within the documents.
 
 If you want to restrict the tree to a particular navigation depth, you can do so with the `defaultDepth`
 attribute on the root level, or the `depth` attribute on each individual entry:
@@ -535,7 +535,7 @@ Finally you can also include hard-coded link targets in addition to the auto-gen
 @:navigationTree {
   entries = [ 
     { target = "/", depth = 3, excludeRoot = true }
-    { target = "http://twitter.com/me-me-me", title = "Twitter" }
+    { target = "http://my-blog.com/me-me-me", title = "My Blog" }
   ]
 }
 ```
@@ -630,7 +630,7 @@ Pretty URLs
 ------------
 
 The library contains an extension for publishing a site with so-called "pretty URLs", 
-where a path like `foo/bar.html` gets translated to `foo/bar/index.html` which in turns means
+where a path like `foo/bar.html` gets translated to `foo/bar/index.html` which in turn means
 that links to that page can be expressed as `foo/bar/`, essentially stripping the `.html` suffix.
 
 The extension changes both, the physical structure of files of the generated site as well as 

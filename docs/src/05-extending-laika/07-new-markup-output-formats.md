@@ -69,7 +69,7 @@ trait MarkupFormat {
 }
 ```
 
-These are the four abstract method each parser has to implement.    
+These are the four abstract methods each parser has to implement.    
     
 * The `fileSuffixes` method should simply return the set of supported file suffixes (without the '.'). 
   For Markdown this would be `Set("md", "markdown")` for example. 
@@ -285,7 +285,7 @@ These changes (taken together, not specifically that for the Render API) caused 
 It felt reasonable to accept this cost given how much it cleaned up the API and how it lifted the library
 to meet expectations of developers who prefer a purely functional programming style.
 
-The decent performance of Laika stems mostly from a few radical optimization on the parser side,
+The decent performance of Laika stems mostly from a few radical optimizations on the parser side,
 which led to much better performance compared to some older combinator-based Markdown parsers.
 
 The alternative would have been to build on top of a functional streaming API like fs2,

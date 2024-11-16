@@ -27,7 +27,7 @@ Laika can be used as:
 
 * A plugin for sbt version 1.x.
 
-* A library on the JVM with Scala 3, 2.13 or 2.12.
+* A library on the JVM with Scala 3.3+, 2.13 or 2.12.
 
 * A library in Scala.js 1.13+ applications with all its features except File/Stream IO, EPUB and PDF output
 
@@ -62,7 +62,7 @@ Content Organization
   optionally with [Auto-Numbering].
 
 * Use integrated parsers for [Syntax Highlighting] that work for all output formats. 
-  Supported out of the box are Scala, Dotty, Java, Python, JavaScript (JSX), TypeScript (TSX), Haskell,
+  Supported out of the box are Scala, Java, Python, JavaScript (JSX), TypeScript (TSX), Haskell,
   HTML, CSS, XML, YAML, JSON, HOCON, SQL, Shell/Bash, EBNF, Diff, Alloy, Dhall, Dart
   
 * Freely organize and merge content from multiple input directories or generated in-memory 

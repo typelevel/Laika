@@ -13,7 +13,7 @@ while reusing unmodified branches for efficiency.
 
 Several of Laika's built-in features are implemented as rewrite rules internally,
 like the mechanism for resolving internal references or footnote auto-numbering.
-But it also designed to be a hook for processing on the application level.
+But it is also designed to be a hook for processing on the application level.
 
 
 How Rewrite Rules Work

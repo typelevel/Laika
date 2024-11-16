@@ -209,8 +209,8 @@ A directive always starts with an `@:`, the name of the directive and optionally
   a `@:@` fence, as shown in the example in [Document Fragments]. 
   The AST for these parsed body elements will be passed to the directive implementation for processing. 
   
-* Positional and named attribute can theoretically both appear in the same directive, 
-  but is usually avoided for sakes of clarity and simplicity.
+* Positional and named attributes can theoretically both appear in the same directive, 
+  but this is usually avoided for the sake of clarity and simplicity.
   
 Some directive implementations require a set of mandatory attributes and may cause the transformation to fail
 should they be missing.
@@ -231,7 +231,7 @@ This has several convenient consequences.
 
 First, custom elements like directives can be implemented in a way that they produce AST nodes and not
 immediately string content in the output format.
-Therefore a single implementation of a template directive can usually be used for all supported output formats. 
+Therefore, a single implementation of a template directive can usually be used for all supported output formats. 
 
 Secondly the implementation of "applying a template to a markup document" becomes close to trivial.
 It is merely the insertion of one AST at a particular node in another AST.
@@ -287,7 +287,7 @@ RootElement - Blocks: 2
 . . Text - 'Some Text.'
 ```
 
-This is just the tip of iceberg of available node types, for a general overview see [The Document AST].
+This is just the tip of the iceberg of available node types, for a general overview see [The Document AST].
 
 We then finally apply the template to the document. 
 In a normal Laika transformation this happens automatically as the final step before rendering,
