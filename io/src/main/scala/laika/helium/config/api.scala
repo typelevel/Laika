@@ -39,8 +39,6 @@ private[helium] trait CommonConfigOps {
     *
     * E-book formats like EPUB or PDF require a local font file to be available for embedding.
     * A web font URL can only be used for website generation.
-    *
-    * When using this method, all default fonts of the Helium theme will be de-registered.
     */
   def addFontResources(defn: FontDefinition*): Helium
 
@@ -403,7 +401,7 @@ private[helium] trait SiteOps extends SingleConfigOps with CopyOps {
   protected def currentColors: ColorSet           = helium.siteSettings.colors
 
   def addFontResources(defn: FontDefinition*): Helium = copyWith(
-    helium.siteSettings.copy(fontResources = defn)
+    helium.siteSettings.copy(fontResources = helium.siteSettings.fontResources ++ defn)
   )
 
   def clearFontResources: Helium = copyWith(
