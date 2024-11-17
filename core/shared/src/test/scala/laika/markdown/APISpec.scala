@@ -16,7 +16,7 @@
 
 package laika.markdown
 
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.bundle.DirectiveRegistry
 import laika.api.{ MarkupParser, RenderPhaseRewrite }
 import laika.ast.sample.ParagraphCompanionShortcuts

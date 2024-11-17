@@ -17,7 +17,6 @@
 package laika.directive.std
 
 import cats.data.NonEmptySet
-import cats.implicits._
 import laika.api.config.{ Config, ConfigBuilder }
 import laika.ast._
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }

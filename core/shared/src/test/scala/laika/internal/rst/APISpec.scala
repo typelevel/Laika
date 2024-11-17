@@ -16,7 +16,7 @@
 
 package laika.internal.rst
 
-import cats.implicits._
+import cats.syntax.all.*
 import laika.api._
 import laika.api.bundle.{ BlockDirectives, DirectiveRegistry, SpanDirectives }
 import laika.ast._

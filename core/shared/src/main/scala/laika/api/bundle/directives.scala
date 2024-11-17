@@ -922,7 +922,7 @@ object LinkDirectives {
     /** Turns the link directive into a regular span directive. */
     def asSpanDirective: SpanDirectives.Directive = SpanDirectives.eval(name) {
       import SpanDirectives.dsl.*
-      import cats.implicits.*
+      import cats.syntax.all.*
       (attribute(0).as[String], cursor).mapN(apply)
     }
 
