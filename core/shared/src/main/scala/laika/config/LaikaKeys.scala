@@ -70,8 +70,8 @@ object LaikaKeys {
   }
 
   object site {
-    val apiPath: Key      = root.child(Key("site", "downloadPath"))
-    val downloadPath: Key = root.child(Key("site", "apiPath"))
+    val apiPath: Key      = root.child(Key("site", "apiPath"))
+    val downloadPath: Key = root.child(Key("site", "downloadPath"))
     val metadata: Key     = root.child(Key("site", "metadata"))
   }
 
