@@ -24,7 +24,7 @@ PartialFunction[(Formatter, Element), String]
 ```
 
 `Formatter` is a generic type representing the formatting API which is different for each output format. 
-For HTML, XHTML for EPUB and XSL-FO for PDF it is sub-type `TagFormatter`.
+For HTML, XHTML for EPUB and XSL-FO for PDF it is the sub-type `TagFormatter`.
 It provides additional convenience APIs for rendering tags, adds the current indentation level after line breaks 
 and knows how to render child elements. 
 
@@ -59,11 +59,15 @@ Multiple custom renderers can be specified for the same transformation,
 they will be tried in the order you added them, 
 falling back to the default in case none is defined for a specific node.
 
-The `content` value above is of type `Seq[Span]`. 
 A renderer should only ever render a single node and delegate to the formatter for rendering children. 
 Only the formatter has a list of all installed render extensions as well as the base renderer
 and will delegate to those functions where the partial function is defined for the child element.
 
+The `element` method shown above is an example for `Formatter` API that supports this principle: 
+It will only render the start and end tag of the `<em>` element, and delegate to the underlying
+compound renderer for all the children extracted from the node itself (which is why we also pass `e` itself
+to the method)
+ 
 
 Registering a Render Function
 -----------------------------
@@ -140,7 +144,7 @@ This is the base API supported by all internal renderers.
 
 * `newLine` renders a newline character followed by whitespace for the current level of indentation.
 
-* `child` render a single child element.
+* `child` renders a single child element.
 
 * `childPerLine` renders a list of child elements, each on a separate line, with the current level of indentation.
 

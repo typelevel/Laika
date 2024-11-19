@@ -32,11 +32,11 @@ a transformation in Laika is performed. It can be divided into 4 phases:
 
 3) **Applying templates to markup documents**. 
    Since both are just AST structures, this step is merely a second AST transformation.
-   The AST representing the markup document will be inserted into the node of the template AST that holds
-   a reference to the content.
+   The AST representing the markup document will be inserted into the node of the template AST that represents
+   the insertion point.
    
 4) **Rendering**. As the last step the final AST obtained from the two previous transformation steps will get rendered
-   to one or more output format. 
+   to one or more output formats. 
    This is the only step specific to a particular output format, meaning the same AST structure obtained in 3) will
    get used as the input for the renderers of all formats.
 

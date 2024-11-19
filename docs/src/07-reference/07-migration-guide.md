@@ -23,7 +23,7 @@ All 0.x releases had been published under `org.planet42` which will no longer be
 Changed Behaviour for Including CSS/JS
 --------------------------------------
 
-This is a breaking change the compiler does not help with detecting. If you previously had custom CSS or JavaScript files auto-linked to your pages, you need to adjust your configuration (see the PR for more details).
+This is a breaking change the compiler does not help with detecting. If you previously had custom CSS or JavaScript files auto-linked to your pages, you need to adjust your configuration.
 
 The old default of using a global search path for automatically linking all CSS and JS files from the input sources is no longer active. Users need to explicitly configure at least one search path (via `.site.internalCSS` or `.site.internalJS`) for a resource scan to happen.
 
@@ -43,13 +43,13 @@ Breaking API Changes
 
 [Full PR Description](https://github.com/typelevel/Laika/pull/533)
 
-The public API had been cleaned up, since it had become fragmented after many types had been made private for 1.0. In laika-core the number of top-level packages has been reduced from 14 to 5. Apart from moving a lot of classes to new packages, many ADT type members have also been moved to their companion for better API navigation. In most cases a simple "Organize Imports" should See the PR for details.
+The public API had been cleaned up, since it had become fragmented after many types had been made private for 1.0. In laika-core the number of top-level packages has been reduced from 14 to 5. Apart from moving a lot of classes to new packages, many ADT type members have also been moved to their companion for better API navigation. In most cases a simple "Organize Imports" should suffice. See the PR for details.
 
 ### Reduced public API surface
 
 [Full PR Description](https://github.com/typelevel/Laika/pull/452)
 
-The number of public types have been reduced by about a quarter of the API surface compared to 0.19.x. Like many other changes for 1.0 the main motivation was to more easily evolve the library in a binary backwards-compatible way. The removed APIs were so low-level that very few users should be affected by this change.
+The number of public types has been reduced by about a quarter of the API surface compared to 0.19.x. Like many other changes for 1.0 the main motivation was to more easily evolve the library in a binary backwards-compatible way. The removed APIs were so low-level that very few users should be affected by this change.
 
 ### Many case classes became regular classes
 
@@ -61,10 +61,13 @@ Past experience showed that classes used for configuration purposes evolve more 
 
 [Full PR Description](https://github.com/typelevel/Laika/pull/523)
 
-Concrete formatter types like HTMLFormatter or FOFormatter are private now and their API has been unified under the two traits Formatter and TagFormatter. Several method signatures in TagFormatter have also been simplified for more concise renderer implementations. See the PR for details.
+Concrete formatter types like `HTMLFormatter` or `FOFormatter` are private now and their API has been unified 
+under the two traits `Formatter` and `TagFormatter`. 
+Several method signatures in `TagFormatter` have also been simplified for more concise renderer implementations.
+See the PR for details.
 
 ### Removal of all deprecated APIs
 
 [Full PR Description](https://github.com/typelevel/Laika/pull/429)
 
-For a more convenient upgrade, compile against 0.19.5 to see all deprecation warning before migrating.
+For a more convenient upgrade, compile against 0.19.5 to see all deprecation warnings before migrating.

@@ -90,7 +90,7 @@ The former holds configuration values and the latter navigation info for the cur
 An additional namespace `helium.*` will be used if you use the default theme, containing theme configuration
 and some pre-built AST nodes.
 
-Any user-supplied values will be available, too, and should live in any namespace other than the two reserved ones.
+Any user-supplied values will be available, too, and should live in any namespace other than the three reserved ones.
 
 
 Reading from Config Instances
@@ -221,17 +221,20 @@ Laika currently does not contain functionality for automatically deriving encode
 One reason is that in contrast to JSON libraries the likeliness you need to map larger structures is much smaller.
 Therefore, the amount of boilerplate is usually tolerable.
 
-Secondly we are so close to a Scala 3 release that will make automatic derivation much easier,
-that the step of building something on top of shapeless for Scala 2 (and paying the compile time tax)
-or writing a low-level Scala-2-style macro does seem very unattractive.
+Secondly, the current (seemingly indefinite) transition period from Scala 2 to Scala 3 would require
+to implement the derivation mechanism twice, since macro-based solutions are very different for those Scala 2 and 3.
+There would be the option to introduce them as a feature for Scala 3 only, but then Laika's own code base
+would not be able to benefit from them.
 
-Automatic derivation will be supported once the Laika code base moves to Scala 3.
+Thirdly, such functionality has not been requested even once so far.
+
+For those reasons there are currently no plans to add this functionality.
 
 
 Creating a Config Instance
 --------------------------
 
-The most common use cases for `Config` instance in Laika are read access.
+The most common use cases for `Config` instances in Laika are read access.
 But there may be scenarios where you want to create new instances yourself.
 One would be when you create an entire `DocumentTree` programmatically instead of parsing from sources.
 It is entirely possible in Laika to feed renderers for EPUB, PDF and HTML solely with content generated in-memory.

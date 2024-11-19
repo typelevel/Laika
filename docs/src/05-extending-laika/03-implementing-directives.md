@@ -77,21 +77,21 @@ Finally, let's also examine the anatomy of a directive implementation:
 We'll go through this line by line:
 
 * The imports you need depend on the directive type, you need to choose the matching DSL which is either
-  `Blocks.dsl._`, `Spans.dsl._` or `Templates.dsl._`.
-  You also need `cats.implicits._` for the convenient `mapN` method.
+  `BlockDirectives.dsl._`, `SpanDirectives.dsl._` or `TemplateDirectives.dsl._`.
+  You also need `cats.syntax.all._` for the convenient `mapN` method.
   
 * The entry point for creating a directive again depends on the type, it's either
-  `Blocks.create`, `Spans.create` or `Templates.create`.
+  `BlockDirectives.create`, `SpanDirectives.create` or `TemplateDirectives.create`.
   The string passed to this method is the name of the directive without the leading `@:`.
   
 * Next you need to declare the directive parts that you expect, whether they are required or optional,
   and which type they should be converted to. There are combinators for [Directive Attributes],
   [Directive Body], [Access to the Parser] and [Access to the Document Cursor].
   
-* Finally you pass the function the engine should invoke after validating and converting all expected directive parts.
+* Finally, you pass the function the engine should invoke after validating and converting all expected directive parts.
 
-  The function will not be invoked at all in case of missing required parts or type conversion errors,
-  instead an invalid node will inserted into the AST which will be handled 
+  The function will not be invoked at all in case of missing required parts or type conversion errors.
+  Instead, an invalid node will be inserted into the AST which will be handled 
   depending on your [Error Handling] configuration.
   This makes it quite convenient for directive authors as it removes a lot of boilerplate.
   
@@ -109,9 +109,9 @@ Directive Types
 Due to differences in the node types they produce and the location they are allowed to appear in, 
 there is a distinction between seven directive types:
 
-* **Template Directives** that can be used anywhere in templates, which produce `TemplateSpan` elements.
-* **Block Directives** for block elements in markup, which produce `Block` elements.
-* **Span Directives** for inline elements in markup, which produce `Span` elements.
+* **Template Directives** for templates, producing `TemplateSpan` elements.
+* **Block Directives** for block elements in markup, producing `Block` elements.
+* **Span Directives** for inline elements in markup, producing `Span` elements.
 * 3 types of [Separator Directives] which can be used to separate the body elements 
   of any of the other three directive types and can produce any kind of result type.
 * [Link Directives], a special type of span directives providing shortcuts for directives that
@@ -167,19 +167,19 @@ import SpanDirectives.dsl._
 val ticketDirective = SpanDirectives.create("ticket") {
   attribute(0).as[Int].map { ticketNo => 
     val url = s"http://our-tracker.com/$ticketNo"
-    SpanLink(Seq(Text("#" + ticketNo)), ExternalTarget(url))
+    SpanLink.external(url)("#" + ticketNo)
   }
 }
 ```
 
-* With `Spans.create("ticket")` we specify the name of the directive without the leading `@:` prefix.
+* With `SpanDirectives.create("ticket")` we specify the name of the directive without the leading `@:` prefix.
 
 * `attribute(0)` specifies a single, positional attribute (which has to appear between parenthesis).
   See [Directive Attributes] for an overview of all the other options.
 
 * `as[Int]` converts the attribute to an Int before passing it to the directive. 
   When the attribute is missing or not a valid integer, the directive fails and the function passed to `map`
-  will never be invoked
+  will never be invoked.
   There is a range of decoders that you can use out of the box, but you can also provide your own `ConfigDecoder`.
   
 * We are not calling `.optional` on the specified attribute, which means it is mandatory by default and the
@@ -262,7 +262,7 @@ val spanDirective = SpanDirectives.create("ticket") {
   (attribute(0).as[Int], cursor, source).mapN { (num, cursor, source) => 
     cursor.config.get[String]("ticket.baseURL").fold(
       error   => InvalidSpan(s"Invalid base URL: $error", source),
-      baseURL => SpanLink(Seq(Text("#"+num)), ExternalTarget(s"$baseURL$num"))
+      baseURL => SpanLink.external(s"$baseURL$num")("#" + num)
     )
   }
 }
@@ -550,14 +550,14 @@ import laika.api.bundle.LinkDirectives
 
 val directive = LinkDirectives.create("github") { (path, _) =>
   val url = s"https://github.com/our-project/$path"
-  SpanLink(Seq(Text(s"GitHub ($path)")), ExternalTarget(url))
+  SpanLink.external(url)(s"GitHub ($path)")
 }
 ```
 
 We use the string attribute for creating both, the link text and the URL.
 
 This shortcut can then be used in markup: `@:github(com/example/Hello.py)`.
-It mostly achieves a reduction in verbosity you'd otherwise need to repeat the same base URL everywhere.
+It mostly achieves a reduction in verbosity as you'd otherwise need to repeat the same base URL everywhere.
 
 We ignore the second argument, the `DocumentCursor` instance in this case. 
 Like with other directives it gives you access to the configuration and the document AST.
@@ -630,7 +630,7 @@ val directive = SpanDirectives.create("parent") {
 
 You can use the `separatedBody` combinator where you pass all expected child directives (in this case only one) 
 and then map the resulting `Multipart` instance to an AST element. 
-The `Multipart` gives you access to the main body as well as all processed separator directives in `multipart.children`.
+The `Multipart` type gives you access to the main body as well as all processed separator directives in `multipart.children`.
 
 This entire directive can then be used like this:
 

@@ -53,7 +53,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *  {{{
     *  object MyDirectives extends DirectiveRegistry {
     *    val spanDirectives = Seq(
-    *      Spans.create("ticket") {
+    *      SpanDirectives.create("ticket") {
     *        (defaultAttribute.as[String] ~ attribute("param").optional).map { case ticketNo ~ param =>
     *          val base = "http://tickets.service.com/"+ticketNo
     *          val url = base + (param map (p => "?param="+p) getOrElse "")
@@ -86,7 +86,7 @@ trait DirectiveRegistry extends ExtensionBundle { self =>
     *                                                       extends Block with BlockContainer[Note]
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(
-    *      Blocks.create("note") {
+    *      BlockDirectives.create("note") {
     *        (defaultAttribute.as[String] ~ body).map { case title ~ content => Note(title, content) }
     *      }
     *    )

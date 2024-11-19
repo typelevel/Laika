@@ -139,7 +139,7 @@ so that they are ready to be embedded into EPUB or PDF documents.
 All these fonts are licensed under the Open Font License:
 
 * `Lato` (for headlines and body text): https://fonts.google.com/specimen/Lato#about
-* `Fira Code` (for code blocks and inline code): https://github.com/tonsky/FiraCode
+* `Fira Mono` (for code blocks and inline code): https://fonts.google.com/specimen/Fira+Mono
 * `IcoFont` (for Laika's small set of icons): https://icofont.com/icons
 
 You can override these defaults by defining your own set of fonts.
@@ -167,9 +167,9 @@ Helium.defaults.all.addFontResources(
   ),
   FontDefinition(
     Font
-      .withEmbeddedResource(fontPath + "FiraCode/FiraCode-Medium.otf")
+      .withEmbeddedResource(fontPath + "FiraMono/FiraMono-Medium.otf")
       .withWebCSS(firaURL),
-    "Fira Code", FontWeight.Normal, FontStyle.Normal
+    "Fira Mono", FontWeight.Normal, FontStyle.Normal
   ),
   FontDefinition(
     Font
@@ -180,18 +180,20 @@ Helium.defaults.all.addFontResources(
 )
 ```
 
-The `embedResource` method picks the font to be embedded from the resource directory inside the jar, 
-use `emedFile` to pick a font from the file system.
-Font embedding will be performed for EPUB and PDF output
-For the site you can use the `webCSS` method to link to the CSS containing the `font-face` definitions.
+The `withEmbeddedResource` method picks the font to be embedded from the resource directory inside the jar, 
+use `withEmbeddedFile` to pick a font from the file system.
+Font embedding will be performed for EPUB and PDF output.
+For the site you can use the `withWebCSS` method to link to the CSS containing the `font-face` definitions.
 It will automatically be included in the `<head>` sections of the generated HTML 
 without the need to adjust the default templates.
 
-Note that the use of the `fontResources` method *replaces* the defaults, it does not add them.
-If you want to use some of the built-in fonts you have to redefine them in this step.
-This ensures that no unused font resources will be embedded.
+Note that the use of the `addFontResources` method will add the specified fonts to the Helium defaults.
+If you want to replace the built-in fonts you can precede the call with `clearFontResources`.
+This way you can ensure that no unused font resources will be embedded.
+If you want to replace just some of the built-in fonts, you can use `removeFontResources` which expects
+a filter function.
 
-Additionally you can define the font families and font sizes for the site and e-books:
+Additionally, you can define the font families and font sizes for the site and e-books:
 
 ```scala mdoc:silent
 import laika.ast.LengthUnit._
@@ -404,7 +406,7 @@ Layout
 ------
 
 The configuration API allows to control a few aspects of the layout, like columns widths and line heights,
-that are the most like candidates for frequent adjustments.
+that are the most likely candidates for frequent adjustments.
 
 These are the options for the site:
 
@@ -711,7 +713,7 @@ All three formats support an additional table of contents.
 This does not refer to the main navigation menu (the left pane of the Helium site and the respective
 reader's navigation bars in case of EPUB or PDF) which Helium will always produce.
 It is an optional, separate page that can be included in e-books or the site.
-For PDF format this is essential, as the reader's navigation would be lost if the user prints the PDF.
+For PDF output this is essential, as the reader's navigation would be lost if the user prints the PDF.
 
 ```scala mdoc:silent
 Helium.defaults
@@ -890,23 +892,15 @@ This is the most prominent position for links on the landing page.
 
 On the right side, the latest release info usually points to one or two releases, the latter if there is also a milestone available.
 The panel for documentation links can be any links right into the content of your site, like Getting Started pages, 
-tables of contents, and hopefully also a link to the API documentation.
+tables of contents, or a link to the API documentation.
 
-The project links below can be any set of additional links, like to GitHub, Twitter or your chat.
+The project links below can be any set of additional links, e.g. GitHub, Twitter or your chat.
 Like with the top navigation bar of the main page, you can choose between an `IconLink` with optional text,
 a `ButtonLink` with an optional icon, a plain `TextLink` or a horizontal group of links (`LinkGroup`) which
 are usually a row of icon links placed into a column of text links.
-Internal targets are again within the virtual path and will be validated.
+Internal targets use virtual paths like always and will be validated.
 
-@:callout(info)
-
-The right side of the header is the only section of the landing page containing links. 
-This is a deliberate departure from the often confusing entry points of other software documentations sites
-where relevant links are scattered all over the place.
-
-@:@
-
-Finally a set of teasers which are quite common on landing page can be defined for the white area below the header.
+Finally, a set of teasers which are quite common on landing pages can be defined for the white area below the header.
 
 Additionally or alternatively you can also add a regular markup document called `landing-page.<suffix>` to one
 of your input directories and its content will be inserted at the bottom of this page.

@@ -79,11 +79,6 @@ These are the parsers this extension adds to standard Markdown:
   The RFC based URI parser has been part of Laika for years (as reStructuredText natively supports auto-links)
   and its higher level of correctness justifies the bypassing of the informal description of GitHubs spec.
   
-* **Fenced Code Blocks** need a preceding blank line to be recognized by Laika's parser for now. 
-  This is due to temporary technical limitations which will be lifted before the 1.0 release. 
-  It will require additional hooks for how extension parsers register with the host language 
-  to allow to specify a line test that causes interruption of a paragraph.
-  
 * **Tables**: Since Laika is a tool that uses an internal AST that abstracts away the features of a specific output 
   format, it does not follow the exact syntax for HTML output as shown in the GitHub spec. 
   Specifically it does not render table cells using the deprecated `align` attributes. 
@@ -94,11 +89,14 @@ These are the parsers this extension adds to standard Markdown:
 ### CommonMark
 
 Laika does not yet integrate the official CommonMark test suite.
-This step is planned for a release shortly after the final 1.0 version is reached.
 
 In practice the differences should be minor as CommonMark is a specification that builds on top of the original
 Markdown spec plus some aspects of GitHub Flavor which Laika both supports. 
 It mostly removes some ambiguity and adds detail to some of the under-specified features of classic Markdown.
+
+Given that the effort would be quite significant (the test suite covers more than 600 tests) and the 
+current level of participation in Laika development is not very high, it is unlikely that this feature
+support will be added in the near future. The idea could be revived in case new contributors chime in.
 
 
 reStructuredText
@@ -136,9 +134,6 @@ Out of this set Laika supports the following:
  
 The following limitations apply to these directives:
 
- * `code` does currently not support syntax highlighting 
-   (it allows to set the language though, so client-side highlighters can be integrated if required).
-   
  * `sectnum` does currently not support the `prefix`, `suffix` and `start` options.
  
  * `include` does not support any of the options apart from the filename, due to the way document trees
@@ -155,7 +150,7 @@ The following limitations apply to these directives:
 ### Supported Standard Text Roles
 
 Text roles are a second extension mechanism for applying functionality to spans of text 
-and the reference implementation supports a set of standard [standard text roles][std roles] out of the box.
+and the reference implementation supports a set of [standard text roles][std roles] out of the box.
 
 [std roles]:      http://docutils.sourceforge.net/docs/ref/rst/roles.html 
  

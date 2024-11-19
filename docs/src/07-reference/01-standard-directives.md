@@ -111,7 +111,7 @@ The following example shows a simple HTML template where a header section is add
 </html>
 ```
 
-The optional, named attributes specified for the directive, in the example just `css` can be referenced in the included template
+The optional, named attributes specified for the directive (in the example just `css`) can be referenced in the included template
 with Laika's common `_` prefix for directive scopes:
 
 ```laika-html
@@ -220,7 +220,10 @@ import laika.ast._
 import laika.config.IconRegistry
 
 laikaConfig := LaikaConfig.defaults
-  .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
+  .withConfigValue(IconRegistry(
+    "open" -> IconStyle("open"), 
+    "close" -> IconGlyph('\ueedd')
+  ))
 ```
 
 @:choice(library)
@@ -234,7 +237,10 @@ val transformer = Transformer
   .from(Markdown)
   .to(HTML)
   .using(Markdown.GitHubFlavor)
-  .withConfigValue(IconRegistry("open" -> IconStyle("open"), "close" -> IconGlyph('\ueedd')))
+  .withConfigValue(IconRegistry(
+    "open" -> IconStyle("open"),
+    "close" -> IconGlyph('\ueedd')
+  ))
   .build
 ```
 @:@
@@ -242,7 +248,7 @@ val transformer = Transformer
 There are four available icon types:
 
 * `IconStyle`: renders a class attribute in HTML output, so that it can be selected in CSS.
-  This mechanism is used for different styles of icons: font icons that often come with pre-built CSS declarations or
+  This mechanism is used for different styles of icons: font icons that come with pre-built CSS declarations or
   image sprite or SVG sprite icons defined via CSS.
   This icon type does not work for PDF output.
   
@@ -282,7 +288,7 @@ The image directive is an alternative to the native syntax for including images 
 
 Note that the path, like everything in Laika, is interpreted to be within the virtual path 
 of the input tree you configured.
-It can be relative or absolute, in the latter case it would start with a `/` and 
+It can be relative or absolute, in the latter case it would start with a `/`.
 See [Virtual Tree Abstraction] for details.
 
 All other attributes shown in the example are optional:
@@ -465,10 +471,6 @@ HTML Templates
 These directives can only be used in HTML or EPUB templates, 
 as they drive the inclusion of tags in the HTML `<head>` section or render content in HTML/XML syntax.
 
-If you use the Helium theme and do not design your own templates or themes, 
-you do not need to use these directives directly, as the Helium template already contain them.
-In that case you can control which CSS and JS files to link via the theme's configuration
-as described in [Auto-Linking CSS & JS Files].
 
 ### `@:attribute`
 
@@ -589,8 +591,8 @@ Executes the body of the directive exactly once for a Boolean `true` or the stri
 @:@
 ```
 
-In this example `showSidebar` is a custom configuration entry that the user defined 
-in the configuration. See [User-Defined Variables] for details on defining them.
+In this example `showSidebar` is a custom configuration entry that the user defined.
+See [User-Defined Variables] for details on defining them.
 
 You can also specify a fallback with `@:else`, or even secondary conditions with `@:elseIf`:
 

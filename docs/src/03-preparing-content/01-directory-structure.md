@@ -4,13 +4,13 @@ Directory Structure
 
 Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.
 
-When you are using the sbt plugin or the tree transformer from the library API that accepts directories as input,
+When you are using the sbt plugin or the tree transformer from the `laika-io` module that accepts directories as input,
 Laika supports additional file types and navigation features on top of just parsing text markup.
 This section describes the supported [Document Types], how [Auto-Generated Navigation] works with
 directory input and how the [Virtual Tree Abstraction] decouples the logic from the file system. 
  
-This set of functionality is not available when you are using a transformer or parser from the library API
-that expects a single input (file, stream or string) for processing.
+This set of functionality is not available when you are using a pure transformer or parser from the `laika-core`
+module which only transforms a single in-memory string.
 
 
 Document Types
@@ -35,7 +35,7 @@ Apart from standard markup syntax, markup files in Laika can also contain the fo
 * Sections, determined by the hierarchy of headers coming after the title, 
   with auto-assigned ids based on a pluggable slug builder. See [Customization Hooks] for details.
   Sections can be part of auto-generated navigation structures and can conveniently be linked to by header text
-  with "native" markup link syntax [Linking by Section Headline]. 
+  with "native" markup link syntax. See [Linking by Section Headline] for details. 
 * Directives, which extend the text markup's functionality, either one of the built-in [Standard Directives]
   or your own, custom implementations.
 
@@ -97,9 +97,9 @@ The available options are described in [Configuration for Directories] below.
 You can provide a default template per directory with the name `default.template.<suffix>`,
 where the suffix matches the output format (e.g. `.html`). 
 They will also be applied to sub-directories, unless overridden. 
-Default templates in one of your input directories always override default template provided by themes.
+Default templates in one of your input directories always override default templates provided by themes.
 
-Additionally you can add templates with the name pattern `*.template.<suffix>`, which will only
+Additionally, you can add templates with the name pattern `*.template.<suffix>`, which will only
 be applied when a markup document explicitly refers to them in its configuration header.
 
 For more details on the template engine, see the chapter [Creating Templates].
@@ -274,27 +274,11 @@ laika.targetFormats = []
 
 This might be useful if you have a directory that contains only snippets and partial documents
 you want to use via the `@:include` or `@:embed` directives.
-With an empty array you prevent not only the rendering of those document, 
+With an empty array you prevent not only the rendering of those documents, 
 they also won't show up in any navigation structure.
 
 Finally, the `laika.targetFormats` key can also be used for individual documents, 
 by placing it in the configuration header of a text markup document.  
-
-
-### Disabling Link Validation
-
-Normally an internal link will be validated and (with default error handling) cause the transformation to fail
-if one or more targets are invalid.
-A target is invalid if either the linked document does not exist, does not contain the specified id or fragment,
-or does not support the same set of output formats as the referring document.
-
-In some cases this kind of strict validation may not be desired. 
-You may, for example, have an external process that populates a directory before or after Laika is run.
-In this case you can disable validation for all link targets within that directory or its subdirectories:
-
-```hocon
-laika.links.validation.excluded = [/generated, /styles]
-```
 
 
 Versioned Documentation
@@ -306,7 +290,7 @@ The Helium theme contains a version switcher in the top navigation bar.
 ### Configuration
 
 Each directory and each individual document can be marked as either versioned or unversioned.
-All versioned document will be rendered to a sub-directory of the root that contains only content for this
+All versioned documents will be rendered to a sub-directory of the root that contains only content for this
 specific version.
 
 Therefore, configuration for versioned documentation involves two steps:
@@ -347,8 +331,7 @@ for details see [Metadata for Individual Documents].
 Finally, `fallbackLink` allows to define a link target that the version switcher should pick, if a target version
 does not have a page corresponding to the current page the user is on.
 
-Note that this kind of "smart linking" currently only works if existing rendered versions can be found in the 
-output directory of the transformer operation.
+Note that this kind of "smart linking" only works if you have followed the setup steps in [Index for Smart Version Switcher].
 In all other cases, the version switcher will always use the `fallbackLink`.
 
 

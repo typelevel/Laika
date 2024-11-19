@@ -42,12 +42,12 @@ case class Success[+T] (result: T, next: SourceCursor) extends Parsed[T]
 case class Failure (msg: Message, next: SourceCursor) extends Parsed[Nothing]
 ```
 
-In case of success the result will be returned alongside a new `ParserContext` that may have consumed
+In case of success the result will be returned alongside a new `SourceCursor` that may have consumed
 some of the input.
 Consuming input is optional as some parsers only look ahead on the input to check a precondition.
 
 In case of an error the returned value will contain a (lazily constructed) error message 
-and a `ParserContext` which will usually be at the same offset as the context passed in,
+and a `SourceCursor` which will usually be at the same offset as the context passed in,
 so that subsequent parsers can try to read from the same location.
 
 The trait is mostly shown for providing some background about the most basic building block of the combinator library.
@@ -77,7 +77,7 @@ When working with character groups this additional import can be used:
 import laika.parse.text.CharGroup
 ```
 
-The following section demonstrate some of the most commonly used text parsers.
+The following sections demonstrate some of the most commonly used text parsers.
 For the full API see @:api(laika.parse.text.TextParsers$).
 
 
@@ -107,7 +107,7 @@ To parse a range of characters you can either provide a set of matching characte
   
 * `anyWhile(_.isUpper)` reads zero or more upper case characters. Any predicate `Char => Boolean` can be specified.
   
-* The `range` helper constructs set of characters, e.g. `anyOf(range('a','z'))`.
+* The `range` helper constructs a set of characters, e.g. `anyOf(range('a','z'))`.
 
 * There are predefined character groups for common scenarios, e.g. `anyOf(CharGroup.hexDigit)`.
 
@@ -122,7 +122,7 @@ All character parsers come with `min`, `max` and `take` methods to specify const
 * `anyOf(CharGroup.alphaNum).min(3)` expects 3 or more matching characters. 
   It fails when it matches on fewer than that.
   
-* `anyOf(CharGroup.alphaNum).min(3)` expects 0 to 3 characters. 
+* `anyOf(CharGroup.alphaNum).max(3)` expects 0 to 3 characters. 
   It always succeeds. After 3 characters are read it simply ignores any further matching input.
 
 * `anyOf(CharGroup.alphaNum).take(3)` is a shortcut for `anyOf(CharGroup.alphaNum).min(3).max(3)`.
@@ -143,7 +143,7 @@ All character parsers come with `min`, `max` and `take` methods to specify const
 Combinators
 -----------
 
-So far we were only parsing a single range of input based a condition or set of accepted input characters.
+So far we were only parsing a single range of input based on a condition or set of accepted input characters.
 In every kind of real-world scenario you would need to combine these low-level parsers to larger
 constructs.
 
@@ -156,7 +156,7 @@ The `~` combines the result of two parsers and only succeeds if both of them suc
 val p = oneOf('$','_') ~ someOf(range('a', 'z'))
 ```
 
-The above parser expect exactly one occurrence of either `$` or `_`, followed by one or more occurrences of
+The above parser expects exactly one occurrence of either `$` or `_`, followed by one or more occurrences of
 a lowercase letter.
 
 The result will be `String ~ String`, where `~` is a case class that allows to map on the result with the
@@ -213,15 +213,16 @@ This pattern is so common that there is also a shortcut for repeating with a sep
 someOf(CharGroup.alphaNum).rep(",")
 ```
 
-This parser's behaviour is identical to the previous one.
+This parser's behaviour is identical to the previous one, but the result is just `List[String]`,
+since there is no separate parser for the first occurrence.
 
 The number of repetitions can be further constrained:
 
 ```scala mdoc:silent
-someOf(CharGroup.hexDigit).max(4)
+someOf(CharGroup.hexDigit).rep(",").max(4)
 ```
 
-The above reads between 1 to 4 hexadecimal digits.
+The above reads between 1 and 4 groups of hexadecimal digits, separated by a comma.
 
 When using the `min` constraint the parser will fail when it does not reach the specified minimum number of repetitions,
 while the `max` constraint will always succeed and simply ignore subsequent repetitions.
@@ -295,7 +296,7 @@ of the individual results anyway.
 Laika's own parsers use this very frequently.
 
 Finally, while all the methods shown so far are available for all kinds of `Parser[T]`,
-the `laika.parse.implicits._` import also provides a few convenient shortcuts for parsers of a certain result type.
+the `laika.parse.syntax._` import also provides a few convenient shortcuts for parsers of a certain result type.
 
 A result of concatenating a single result with a repetition can be combined into a single list with `concat` for example:
 
@@ -449,7 +450,7 @@ To facilitate this at runtime, the library comes with an optimizable sub-trait o
 On top of the actual parsing logic it encapsulates a separate condition for the first character.
 With normal parsers this aspect is opaque. 
 
-Some API entry points in hotspots only accept such a kind of parser and not the base trait,
+Some API entry points only accept such a kind of parser and not the base trait,
 when they are in a hotspot of the parsing logic.
 You normally do not have to worry about this, as most of the likely candidates for defining the start 
 condition of an inline construct would satisfy the condition.

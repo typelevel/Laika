@@ -93,7 +93,7 @@ The blue elements of the API are identical to the pure transformer.
 The new `parallel` method used above becomes available with `import laika.io.syntax._`.
 
 This API introduces a dependency on `cats-effect` which is used to model the effectful computations.
-You can use it with any effect that supports the `cats-effect` type classes, such as `cats.IO`.
+You can use it with any effect that supports the `cats-effect` type classes, such as `cats.effect.IO`.
 
 The call to `parallel[IO]` builds a transformer that lets you specify entire directories as input and allows to instruct
 the library which effect type to use (cats-IO in this example). There are two more variants, `sequential`, 
@@ -187,7 +187,7 @@ The exact mechanics of your Laika transformer setup will depend on which of thos
 and whether you keep all of your code in an abstract `F[_]` instead of coding against a concrete effect type.
 
 The following example assumes the use case of an application written around abstract effect types and using `IOApp`
-from cats.IO for initialization:
+from cats-effect for initialization:
 
 ```scala mdoc
 import cats.effect.{ Async, Resource }
@@ -287,7 +287,7 @@ result.unsafeRunAsync {
 }
 ```
 
-Do not get too hung up on the scary sound of all these `unsafe...` methods. The one kind of safety you are loosing
+Do not get too hung up on the scary sound of all these `unsafe...` methods. The one kind of safety you are losing
 when using them is referential transparency. But if you are using a `Future`-based API for example, 
 your program is not referentially transparent anyway.
 
@@ -438,9 +438,9 @@ The `InputTreeBuilder` API gives you the following options:
 
 * Specify individual files or classpath resources.
 
-* Add in-memory string which will enter the parsing pipelines like file resources.
+* Add in-memory strings which will enter the parsing pipelines like file resources.
 
-* Add in-memory AST nodes which will by-pass the parsing step and added directly to the other document AST
+* Add in-memory AST nodes which will by-pass the parsing step and will be added directly to the other document AST
   obtained through parsing.
   
 When generating input on the fly it is usually a question of convenience or reducing boilerplate 
@@ -596,11 +596,11 @@ Configuration
 
 All the examples in this chapter only scratched the surface of Laika's API, 
 focusing on the basics like specifying input and output. 
-But since Laika is designed to be fully customizable and serve as a toolkit for creating toolkits, there is whole
+But since Laika is designed to be fully customizable and serve as a toolkit for creating toolkits, there is a whole
 range of options available for customizing and extending its built-in functionality.
 
 Most of these configuration options are not specific to the library API use case and apply to the sbt plugin as well,
-apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
+apart from differences in the syntax/mechanics with which they are applied, which are reflected in the corresponding code examples.
 For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
 ### Theme Configuration
@@ -674,8 +674,8 @@ These other settings are available independent from the theme in use:
   transform the document AST before rendering ([AST Rewriting]), install custom directives ([Implementing Directives])
   or use some of the lower level hooks in ([The ExtensionBundle API]).
 
-- **Basic Configuration Options**: Setting [Strict Mode], including [Raw Content], setting the [Character Encoding], 
-  controlling [Error Handling] and specifying [User-Defined Variables]. 
+- **Basic Configuration Options**: setting the [Character Encoding], controlling [Error Handling]
+  and specifying [User-Defined Variables]. 
 
 - [Inspecting Laika's Configuration]: Run the `describe` method on the IO-based transformers, parsers and renderers 
   to get a formatted summary of the active configuration, installed extension bundles and lists of input and output files.
@@ -737,7 +737,7 @@ in the generated site.
 ### Preview of the Document AST
 
 Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
-Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.md/ast`.
+Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.html/ast`.
 Note that this does not prevent you from using `/ast` as an actual path segment in your site,
 the server will be able to distinguish those.
 

@@ -56,7 +56,6 @@ Supported Languages
 Laika currently supports the following languages and formats:
 
 * Scala
-* Dotty
 * Java
 * Python
 * JavaScript / JSX
