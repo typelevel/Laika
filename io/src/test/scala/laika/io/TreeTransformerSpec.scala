@@ -793,7 +793,7 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   object FileSystemTest {
 
-    import cats.implicits._
+    import cats.syntax.all.*
 
     def resourcePath(path: String): String = getClass.getResource(path).getFile
 

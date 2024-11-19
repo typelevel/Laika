@@ -18,7 +18,7 @@ package laika.io.internal.runtime
 
 import cats.effect.Sync
 import cats.effect.kernel.Async
-import cats.implicits.*
+import cats.syntax.all.*
 import fs2.io.file.Files
 import laika.ast.DocumentType.Static
 import laika.ast.{ Path, TextDocumentType }

@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.builder.OperationConfig
 import laika.api.bundle.TemplateDirectives
 import laika.ast.Path.Root

@@ -17,7 +17,7 @@
 package laika.io.internal.runtime
 
 import cats.effect.Async
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.bundle.ExtensionBundle
 import laika.ast.OutputContext
 import laika.io.api.{

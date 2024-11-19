@@ -19,7 +19,7 @@ package laika.io.internal.config
 import java.io.File
 import java.net.URL
 import cats.effect.{ Async, Sync }
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.config.Config.IncludeMap
 import laika.api.config.ConfigParser
 import laika.api.config.ConfigError.ResourceLoadingFailed
