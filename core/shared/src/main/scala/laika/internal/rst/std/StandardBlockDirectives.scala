@@ -286,7 +286,6 @@ private[rst] class StandardBlockDirectives {
 
   /** The code directive,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#code]] for details.
-    *  The current implementation does not support syntax highlighting.
     */
   def code(p: RecursiveParsers): DirectivePartBuilder[Block] = {
     (argument() ~ content(Right(_)) ~ stdOpt).evalMap { case language ~ code ~ opt =>

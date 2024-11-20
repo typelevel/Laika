@@ -17,7 +17,7 @@
 package laika.io.helper
 
 import cats.effect.{ Async, Sync }
-import cats.implicits._
+import cats.syntax.all.*
 import laika.ast.Path
 import laika.io.model.RenderedTreeRoot
 

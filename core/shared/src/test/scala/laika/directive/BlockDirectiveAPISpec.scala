@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.RenderPhaseRewrite
 import laika.api.bundle.{ BlockDirectives, BlockParserBuilder, ParserBundle }
 import laika.ast.Path.Root

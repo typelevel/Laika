@@ -85,7 +85,7 @@ import TextParsers.someOf
 val ticketParser: PrefixedParser[Span] = 
   ("#" ~> someOf(CharGroup.digit)).map { num =>
     val url = s"http://our-tracker.com/$num"
-    SpanLink(Seq(Text("#" + num)), ExternalTarget(url))
+    SpanLink.external(url)("#" + num)
   }
 ```
 
@@ -180,7 +180,7 @@ case class TicketResolver (num: String,
   def resolve (cursor: DocumentCursor): Span = {
     cursor.config.get[String]("ticket.baseURL").fold(
       error => InvalidSpan(s"Invalid base URL: $error", source),
-      baseURL => SpanLink(Seq(Text("#"+num)), ExternalTarget(s"$baseURL$num"))
+      baseURL => SpanLink.external(s"$baseURL$num")("#" + num)
     )
   }
   
@@ -450,11 +450,19 @@ It expects two parsers, one for parsing the prefix of the first line, one for pa
 These parsers may be identical, like in our example for the quoted block.
 They are both of type `Parser[Any]` as the result will be discarded anyway.
 
-The result of this parser is of type `List[String]` and contains all lines where the specified conditions were met,
-**minus** the input consumed by the prefix parser.
-The prefix parsers are not required to consume any input though, 
-if the logic for a particular block does not require stripping off decoration, 
+The prefix parsers are not required to consume any input. 
+If the logic for a particular block does not require stripping off decoration, 
 you can alternatively pass parsers that only check some pre-conditions, but leave all input for the result.
+
+The result of the parser returned by this method is of type `BlockSource`.
+It contains all lines where the specified conditions were met,
+**minus** the input consumed by the prefix parser.
+
+`BlockSource` is an implementation of `SourceCursor` that supports the same API for reading and inspecting
+input, but also preserves the position of the captured text in the original, including the column offsets,
+which can be different for each line, depending on how much markup decoration has been stripped off.
+Preserving positional info for error messages throughout multi-pass markup parsing is one of the reasons
+parser libraries that expect simple Strings as input cannot be used in Laika.
 
 The method above always stops parsing when encountering a blank line on the input,
 which is common for many types of block elements.

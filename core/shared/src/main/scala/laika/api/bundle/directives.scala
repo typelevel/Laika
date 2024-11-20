@@ -622,8 +622,8 @@ trait DirectiveBuilderContext[E <: Element] {
   /**  Provides the basic building blocks for defining directives, Laika's extension
     *  mechanism for creating custom tags for both, templates or text markup.
     *
-    *  This object is used as part of the concrete objects  `Blocks.dsl`,
-    *  `Spans.dsl` and `Templates.dsl` respectively.
+    *  This object is used as part of the concrete objects  `BlockDirectives.dsl`,
+    *  `SpanDirectives.dsl` and `TemplateDirectives.dsl` respectively.
     *
     *  It contains several simple combinators that allow to specify the expected
     *  attributes and body elements of the directive, optional converters for these
@@ -674,7 +674,7 @@ trait DirectiveBuilderContext[E <: Element] {
     *
     *  object MyDirectives extends DirectiveRegistry {
     *    val blockDirectives = Seq(
-    *      Blocks.create("note") {
+    *      BlockDirectives.create("note") {
     *        (defaultAttribute.as[String], parsedBody).mapN(Note(_,_))
     *      }
     *    )
@@ -705,7 +705,7 @@ trait DirectiveBuilderContext[E <: Element] {
     *                                                with BlockContainer[Message]
     *
     *  val blockDirectives = Seq(
-    *    Blocks.create("message") {
+    *    BlockDirectives.create("message") {
     *      (defaultAttribute.as[Int], blockContent).mapN(Message(_,_))
     *    }
     *  )
@@ -728,7 +728,7 @@ trait DirectiveBuilderContext[E <: Element] {
     *                                                with BlockContainer[Message]
     *
     *  val blockDirectives = Seq(
-    *    Blocks.create("message") {
+    *    BlockDirectives.create("message") {
     *      (defaultAttribute.as[Int].optional, blockContent).mapN {
     *        (severity, content) => Message(severity.getOrElse(0), content)
     *      }
@@ -922,7 +922,7 @@ object LinkDirectives {
     /** Turns the link directive into a regular span directive. */
     def asSpanDirective: SpanDirectives.Directive = SpanDirectives.eval(name) {
       import SpanDirectives.dsl.*
-      import cats.implicits.*
+      import cats.syntax.all.*
       (attribute(0).as[String], cursor).mapN(apply)
     }
 

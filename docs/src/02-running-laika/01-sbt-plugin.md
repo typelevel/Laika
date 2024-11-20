@@ -104,13 +104,17 @@ laikaIncludeEPUB := true
 laikaIncludePDF  := true
 ```
 
-In this case the `laikaSite` task will generate EPUB and/or PDF files in the root directory of your output,
-in addition to the generated HTML site.
-The name of the files will be `<project-name>-<version>.<epub|pdf>` by default. You can change it with:
+In this case the `laikaSite` task will generate EPUB and/or PDF files in the configured download directory of your output,
+(by default `/downloads`) in addition to the generated HTML site.
+The name of the files will be `<project-name>.<epub|pdf>` by default. You can change these defaults with:
 
 ```scala mdoc:compile-only
-laikaEPUB / artifactPath  := target.value / "my-docs.epub"
-laikaPDF / artifactPath   := target.value / "my-docs.pdf"
+import laika.ast.Path.Root
+import laika.config.LaikaKeys
+
+laikaConfig := LaikaConfig.defaults
+  .withConfigValue(LaikaKeys.site.downloadPath, Root / "e-books")
+  .withConfigValue(LaikaKeys.artifactBaseName, "my-book")
 ```
 
 For other e-book configuration options like navigation structures and cover images see [E-Books (EPUB & PDF)].
@@ -150,7 +154,7 @@ laikaGenerate html epub pdf
 This will parse all files with the extensions `.md`, `.markdown` or `.rst` and render them in the specified list of formats. 
 It is efficient in that the parsing of markup files only happens once to obtain a document AST and use this structure to render all formats.
 
-Valid format arguments are `html`, `epub`, `pdf`, `xslfo`, `ast`. 
+Valid format arguments are `html`, `epub`, `pdf`, `xsl-fo`, `ast`. 
 The latter is a debug output that renders the document AST in a formatted structure.
 
 Finally if you only work with a single format there are also shortcut tasks for those: 
@@ -181,7 +185,7 @@ You can either use `cmd-S` to manually force saving or change the preferences to
 ### Preview of the Document AST
 
 Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
-Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.md/ast`. 
+Simply append the `/ast` path element to your URL, e.g. `localhost:4242/my-docs/intro.html/ast`. 
 Note that this does not prevent you from using `/ast` as an actual path segment in your site,
 the server will be able to distinguish those.
 
@@ -195,7 +199,7 @@ Plugin Settings
 ---------------
 
 The remaining configuration options are not specific to the plugin use case and merely mirror the features of the library API,
-apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
+apart from differences in the syntax/mechanics with which they are applied, which are reflected in the corresponding code examples.
 For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.
 
 
@@ -307,11 +311,11 @@ You can:
 
 Most of these setting are introduced in the sections above.
 
-- `Laika / sourceDirectories` default `Seq(sourceDirectory.value / "docs")`, usually `Seq("src/docs")`.
-  Specifies one or more source directories to process to be merged into a tree with a single root.
+- `Laika / sourceDirectories` - default `Seq(sourceDirectory.value / "docs")`, usually `Seq("src/docs")`.
+  Specifies one or more source directories to process and to be merged into a tree with a single root.
   See [Preparing Content] for details.
   
-- `Laika / target` - default `target.value / "docs",`, usually `Seq("target/docs")`.
+- `Laika / target` - default `target.value / "docs"`, usually `Seq("target/docs")`.
   Specifies the directory where the plugin should generate the site. 
   See [Generating a Site] for details.
   
@@ -379,9 +383,9 @@ The `InputTreeBuilder` API gives you the following options:
 
 * Specify individual files or classpath resources.
 
-* Add in-memory string which will enter the parsing pipelines like file resources.
+* Add in-memory strings which will enter the parsing pipelines like file resources.
 
-* Add in-memory AST nodes which will by-pass the parsing step and added directly to the other document AST
+* Add in-memory AST nodes which will by-pass the parsing step and will be added directly to the other document AST
   obtained through parsing.
   
 When generating input on the fly it is usually a question of convenience or reducing boilerplate 
@@ -418,7 +422,7 @@ laikaPreviewConfig :=
 ```
 
 By default, the port is 4242, the poll interval is 3 seconds.
-With the `verbose` options the console will log all pages served.
+With the `verbose` option the console will log all pages served.
 
 
 ### Installing Additional Renderers
@@ -457,7 +461,7 @@ When the `includeInSite` property is true, the index will also be generated when
 
 ### Inspecting Laika's Configuration
 
-Run `show laikaDescribe` to get a formatted summary of the active configuration,
+Run `laikaDescribe` to get a formatted summary of the active configuration,
 installed extension bundles and lists of input and output files.
 
 Example:
@@ -497,5 +501,5 @@ Sources:
   Root Directories
     -
 Target:
-  Directory '/dev/project/target/docs'""""
+  Directory '/dev/project/target/docs'
 ```

@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.config.{ Config, ConfigError, ConfigParser, Origin }
 import laika.ast.Path.Root
 import laika.api.config.Config.IncludeMap

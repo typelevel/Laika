@@ -2,7 +2,7 @@
 Substitution Variables
 ======================
 
-Substitution Variables can used in text markup documents and in templates for any output format.
+Substitution Variables can be used in text markup documents and in templates for any output format.
 
 
 Syntax
@@ -87,7 +87,7 @@ This is a complete list of values exposed in the `cursor` namespace:
 
     * `sourcePath`: the absolute (virtual) path of the document in the input tree, e.g. `/herbs/parsley.md`.
     
-* `root.title`: The title of the root node, usually the title of the website or e-book.
+* `cursor.root.title`: The title of the root node, usually the title of the website or e-book.
     
 
 ### Laika Configuration Values

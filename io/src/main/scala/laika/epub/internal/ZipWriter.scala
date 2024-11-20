@@ -17,7 +17,7 @@
 package laika.epub.internal
 
 import cats.effect.{ Async, Sync }
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.io.model.{ BinaryInput, BinaryOutput }
 
 import java.io.OutputStream

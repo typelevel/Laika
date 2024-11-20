@@ -351,8 +351,8 @@ This might be acceptable for a library shared in-house where you can rely on a s
 but for a public library it is most convenient for users when the theme is just an additional dependency
 and does not require any additional setup.
 
-For this reason the best option is usually to either generate resource in memory and/or load them
-as resources from the JAR, both of which is directly supported by the APIs.
+For this reason the best option is usually to either generate resources in memory and/or load them
+from the JAR, both of which is directly supported by the APIs.
 
 @:@
 
@@ -571,7 +571,7 @@ The package `laika.theme` contains a few base types that you can reuse for defin
   Adding these instances to the final base configuration will trigger the embedding in EPUB and PDF documents
   without any further implementation within your theme.
 * The `IncludeDirective` type allows to construct instances of the `@:includeCSS` and `@:includeJS`
-  to be used within the theme's templates, allowing the users to define where CSS and JS
+  directives to be used within the theme's templates, allowing the users to define where CSS and JS
   resources for auto-linking into the generated HTML output can be found.
 
 Another aspect users might appreciate is if you allow to define most options separately per output format.

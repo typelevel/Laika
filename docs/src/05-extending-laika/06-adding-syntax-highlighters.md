@@ -271,8 +271,8 @@ We simply expect a backtick as the start and end delimiter and allow anything in
 backtick characters.
 
 The call to `.source` is a convenient shortcut that discards the result of the three parsers and instead
-provides the source of the entire input by those three parsers as the result. 
-This is often preferable when all we would do with the three results would be concatenate them back to one string.
+provides the source of the entire input consumed by those three parsers as the result. 
+This is often preferable when all we would do with the three results would be to concatenate them back to one string.
 
 The code parser we now defined can then be registered in our `spanParsers` sequence like in all other examples.
 

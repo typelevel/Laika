@@ -18,7 +18,7 @@ only the final transformation step to the binary PDF format is delegated to Apac
 Generating E-Books
 ------------------
 
-If you are using the sbt plugin you can use several of its task for generating e-books:
+If you are using the sbt plugin you can use its tasks for generating e-books:
 
 * `laikaEPUB` or `laikaPDF` for transforming a directory of input files to a single output format
 * `laikaGenerate epub pdf <other formats>` for transforming a directory of input files to EPUB and PDF
@@ -200,7 +200,7 @@ In case you want to create a custom EPUB template you need to provide some indic
 the template needs scripting support, as each scripted document needs a flag in the OPF metadata for the EPUB container.
 The key for the attribute is `laika.epub.scripted` and valid values are `always`, `never`, `auto`.
 The `auto` value which is also used in Helium's default template sets the flag whenever there are any
-documents in the input tree with the suffix `.epub.js` or `.shared.js`.
+JavaScript documents in the input tree for EPUB.
 
 
 CSS for PDF

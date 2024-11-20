@@ -38,9 +38,8 @@ object ManualSettings {
     val v1      = version("1.x", "Stable")
     val v019    = version("0.19")
     val v018    = version("0.18")
-    val v017    = version("0.17")
     val current = v1
-    val all     = Seq(v1, v019, v018, v017)
+    val all     = Seq(v1, v019, v018)
 
     val config = Versions
       .forCurrentVersion(current)

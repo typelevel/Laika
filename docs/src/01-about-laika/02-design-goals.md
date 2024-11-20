@@ -29,7 +29,8 @@ Its independence from tools also makes it easier to embed it in server-side or b
 Not Tied to the JVM
 -------------------
 
-The `laika-core` module, about 80% - 90% of the library's functionality is published for both, the JVM and Scala.js.
+The `laika-core` module, containing about 80% - 90% of the library's functionality, 
+is published for both, the JVM and Scala.js.
 This way Laika can be used in the browser, e.g. for processing user input right on the client.
 
 The implementation is also free of any runtime reflection, a prerequisite for Scala.js support and has
@@ -71,7 +72,7 @@ It is decoupled from Markdown in several ways:
   same kind of model. The AST can get analyzed and transformed before being fed to any of the supported
   renderers. (See [The Document AST] and [AST Rewriting] for details)
   
-* The Markdown and reStructuredText parser sit behind a well-defined (and fairly simple) abstraction, 
+* The Markdown and reStructuredText parsers sit behind a well-defined (and fairly simple) abstraction, 
   the `MarkupFormat` trait. 
   This allows 3rd-parties (or future Laika releases) to add support for additional markup formats while
   still benefiting from the subsequent processing steps the library provides, like validating links or

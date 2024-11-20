@@ -18,7 +18,7 @@ package laika.pdf.internal
 
 import cats.effect.std.Dispatcher
 import cats.effect.{ Async, Sync }
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.io.model.{ BinaryInput, BinaryOutput }
 import laika.theme.config.DocumentMetadata
 import org.apache.fop.apps.{ FOUserAgent, FOUserAgentFactory, FopFactory }

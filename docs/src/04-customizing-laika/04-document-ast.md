@@ -35,13 +35,12 @@ At the top of the hierarchy the AST contains the following node types:
 }
 
 * `Element` is the base trait of the hierarchy. 
-  It extends `Product` and `Serializable` and is otherwise empty.
-
-* `Customizable` is a mixin almost every node type supports that allows to optionally associate an id and/or 
-  a set of style names to a node.
+  It extends `Product` and `Serializable` and has a single abstract property `options: Options`.
+  The `Options` type allows to associate an optional id and a set of style names to a node.
   The latter can be interpreted differently as hints by various renderers, 
   in HTML they simply get rendered as class attributes for example.
-  It also includes API to add or remove ids and style names polymorphically to any AST node.
+  `Element` also includes concrete methods to add or remove ids and style names.
+  Most nodes in Laika's AST extend one of the more concrete sub-traits and not this trait directly.
 
 * `Block` is one of the two major element types in the AST.
   Block level elements always start on a new line and in markup they often (but not always)
@@ -126,7 +125,11 @@ The first group of types are traits that can be mixed in to a concrete type:
   which is not possible during the parsing phase.
   See [Cursors] below and the chapter on [AST Rewriting] for more details.
 
-Finally there is a group of concrete types with special behaviour:
+* `RawContent` represents a string that the parser should interpret as "pass-through", intended to be rendered
+  to the output unchanged. 
+
+
+Finally, there is a group of concrete types with special behaviour:
 
 * `DocumentFragment` holds a named body element that is not supposed to be rendered with the main content.
   It may be used for populating template elements like sidebars and footers.
@@ -210,7 +213,7 @@ For details on this functionality from a markup author's perspective, see [Navig
 
 Fully resolved `Link` nodes:
 
-* `SpanLink` is a link associated to a sequence of spans, which may be text or images.
+* `SpanLink` is a link associated with a sequence of spans, which may be text or images.
 
 * `FootnoteLink` is a link to a footnote in the same document.
   The link text here is usually just a label or number, e.g. `[4]`.
@@ -261,7 +264,7 @@ Fully resolved `Link` nodes:
 
 * `LiteralBlock` is a literal block type that usually renders with whitespace preserved.
 
-* `CodeSpan` is a span of text associated to a code category. 
+* `CodeSpan` is a span of text associated with a code category. 
   Used in a `CodeBlock` where Laika's internal syntax highlighter has been applied. 
 
 * `Comment` is a comment in a markup document (not a comment in a code block).
@@ -292,6 +295,8 @@ Most block elements are either [Span Containers] or [Block Containers], but a fe
   In Markdown the syntax is `[id]: http://foo.com/` for example.
   
   All renderers are supposed to ignore this element and it normally gets removed during the AST transformation phase.
+
+* The `Rule` element represents a horizontal rule.
    
 * The `PageBreak` element can be used to explicitly request a page break at the position of the node.
   Currently all renderers apart from the one for PDF ignore this element.
@@ -306,7 +311,7 @@ Most span elements are either [Span Containers] or [Text Containers], but a few 
    
   If you want to use an image as a block-level element you can wrap it in a `Paragraph`. 
 
-* The `LineBreak` represents an explicit line break in inline content.
+* The `LineBreak` element represents an explicit line break in inline content.
 
 
 ### Template Spans
@@ -370,19 +375,7 @@ assembled into a `DocumentTree`, consisting of nested `DocumentTree` nodes and l
 
 ### The Document Type
 
-This is the signature of the `Document` class:
-
-```scala:reset
-import laika.ast.{Path, RootElement, Element, Config, TreePosition, DocumentStructure, TreeContent}
-
-case class Document (
-  path: Path,
-  content: RootElement,
-  fragments: Map[String, Element] = Map.empty,
-  config: Config = Config.empty,
-  position: TreePosition = TreePosition.orphan
-) extends DocumentStructure with TreeContent
-```
+The `Document` class contains the following properties:
 
 * The `path` property holds the absolute, virtual path of the document inside the tree.
   It is virtual as no content in Laika has to originate from the file system.
@@ -403,8 +396,6 @@ case class Document (
 * The `position` property represents the position of the document in a tree.
   It can be used for functionality like auto-numbering.
   It is not populated if the transformation deals with a single document only.
-
-The `DocumentStructure` mixin provides additional methods as shortcuts for selecting content from the document:
 
 * `title: Option[SpanSequence]` provides the title of the document, either from the configuration header or
   the first header in the markup. It is empty when none of the two are defined.
@@ -504,7 +495,7 @@ In most transformations the AST moves through three different phases between par
    but users can provide additional, custom rules.
    See [AST Rewriting] for details.
    
-3) Finally the resolved AST representing the markup document is applied to the AST of the template.
+3) Finally, the resolved AST representing the markup document is applied to the AST of the template.
    It is merely the insertion of one AST at a particular node in another AST.
    
 The result obtained from step 3 is then passed to renderers.

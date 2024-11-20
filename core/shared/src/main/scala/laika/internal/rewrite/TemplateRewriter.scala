@@ -16,7 +16,7 @@
 
 package laika.internal.rewrite
 
-import cats.implicits.*
+import cats.syntax.all.*
 import laika.api.config.ConfigError
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.ast.*
