@@ -19,40 +19,53 @@ package laika.time
 import laika.config.PlatformDateTime
 import munit.FunSuite
 
-import java.time.{ Instant, OffsetDateTime, ZoneId }
+import java.time.{ LocalDateTime, OffsetDateTime, ZoneId }
 
 class PlatformDateTimeSpec extends FunSuite {
 
-  private val expectedLocalOffset =
-    ZoneId.systemDefault().getRules.getOffset(Instant.now()).toString
+  private val localDate     = "2011-10-10"
+  private val localDateTime = localDate + "T14:48:00"
+
+  private val expectedOffset =
+    ZoneId.systemDefault().getRules
+      .getValidOffsets(LocalDateTime.parse(localDateTime))
+      .get(0)
+      .toString
 
   private def getDate(dateString: String): PlatformDateTime.Type = OffsetDateTime.parse(dateString)
 
   test("parse a date without time") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10"),
-      Right(getDate(s"2011-10-10T00:00:00$expectedLocalOffset"))
+      PlatformDateTime.parse(localDate),
+      Right(getDate(s"${localDate}T00:00:00$expectedOffset"))
     )
   }
 
   test("parse a local date time") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10T14:48:00"),
-      Right(getDate(s"2011-10-10T14:48:00$expectedLocalOffset"))
+      PlatformDateTime.parse(localDateTime),
+      Right(getDate(s"$localDateTime$expectedOffset"))
     )
   }
 
   test("parse a UTC date time") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10T14:48:00Z"),
-      Right(getDate("2011-10-10T14:48:00Z"))
+      PlatformDateTime.parse(localDateTime + "Z"),
+      Right(getDate(localDateTime + "Z"))
     )
   }
 
-  test("parse a date time with an offset") {
+  test("parse a date time with an offset without colon") {
     assertEquals(
-      PlatformDateTime.parse("2011-10-10T14:48:00+0300"),
-      Right(getDate("2011-10-10T14:48:00+03:00"))
+      PlatformDateTime.parse(localDateTime + "+0300"),
+      Right(getDate(localDateTime + "+03:00"))
+    )
+  }
+
+  test("parse a date time with an offset with colon") {
+    assertEquals(
+      PlatformDateTime.parse(localDateTime + "+03:00"),
+      Right(getDate(localDateTime + "+03:00"))
     )
   }
 
