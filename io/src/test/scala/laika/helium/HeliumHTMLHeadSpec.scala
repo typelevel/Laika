@@ -115,6 +115,21 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
 
   val heliumBase = Helium.defaults.site.landingPage()
 
+  private val testFonts = Seq(
+    FontDefinition(
+      Font.withWebCSS("http://fonts.com/font-1.css"),
+      "Font-1",
+      FontWeight.Normal,
+      FontStyle.Normal
+    ),
+    FontDefinition(
+      Font.withWebCSS("http://fonts.com/font-2.css"),
+      "Font-2",
+      FontWeight.Normal,
+      FontStyle.Normal
+    )
+  )
+
   def transformAndExtractHead(inputs: Seq[(Path, String)]): IO[String] =
     transformAndExtractHead(inputs, Helium.defaults)
 
@@ -419,21 +434,24 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
     transformAndExtractHead(inputs, helium, pathUnderTest).assertEquals(expected)
   }
 
-  test("custom web fonts") {
-    val helium   = heliumBase.site.addFontResources(
-      FontDefinition(
-        Font.withWebCSS("http://fonts.com/font-1.css"),
-        "Font-1",
-        FontWeight.Normal,
-        FontStyle.Normal
-      ),
-      FontDefinition(
-        Font.withWebCSS("http://fonts.com/font-2.css"),
-        "Font-2",
-        FontWeight.Normal,
-        FontStyle.Normal
-      )
-    )
+  test("custom web fonts - added to default fonts") {
+    val helium   = heliumBase.site.addFontResources(testFonts *)
+    val expected =
+      meta ++ """
+                |<title></title>
+                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+                |<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+                |<link rel="stylesheet" href="http://fonts.com/font-1.css">
+                |<link rel="stylesheet" href="http://fonts.com/font-2.css">
+                |<link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+                |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+                |<script src="helium/site/laika-helium.js"></script>
+                |<script> /* for avoiding page load transitions */ </script>""".stripMargin
+    transformAndExtractHead(singleDoc, helium).assertEquals(expected)
+  }
+
+  test("custom web fonts - replacing default fonts") {
+    val helium   = heliumBase.site.clearFontResources.site.addFontResources(testFonts *)
     val expected =
       meta ++ """
                 |<title></title>
