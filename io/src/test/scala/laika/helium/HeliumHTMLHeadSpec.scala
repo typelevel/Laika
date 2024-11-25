@@ -565,7 +565,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |theme: "base",
           |themeVariables: {
           |'darkMode': dark,
-          |'primaryColor': dark ? '#125d75' : '#ebf6f7',
+          |'primaryColor': dark ? '#125d75' : '#eef5f6',
           |'primaryTextColor': dark ? '#a7d4de' : '#007c99',
           |'primaryBorderColor': dark ? '#a7d4de' : '#a7d4de',
           |'lineColor': dark ? '#a7d4de' : '#007c99',

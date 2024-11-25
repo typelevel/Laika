@@ -71,7 +71,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   test("defaults") {
     val expected = s"""--primary-color: #007c99;
-                      |--primary-light: #ebf6f7;
+                      |--primary-light: #eef5f6;
                       |--primary-medium: #a7d4de;
                       |--secondary-color: #931813;
                       |--text-color: #5f5f5f;
@@ -160,7 +160,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   private val customFonts = s"""--primary-color: #007c99;
-                               |--primary-light: #ebf6f7;
+                               |--primary-light: #eef5f6;
                                |--primary-medium: #a7d4de;
                                |--secondary-color: #931813;
                                |--text-color: #5f5f5f;
@@ -422,7 +422,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
 
   test("layout") {
     val expected = s"""--primary-color: #007c99;
-                      |--primary-light: #ebf6f7;
+                      |--primary-light: #eef5f6;
                       |--primary-medium: #a7d4de;
                       |--secondary-color: #931813;
                       |--text-color: #5f5f5f;

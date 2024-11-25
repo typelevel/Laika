@@ -60,7 +60,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   private val defaultColors = """--primary-color: #007c99;
-                                |--primary-light: #ebf6f7;
+                                |--primary-light: #eef5f6;
                                 |--primary-medium: #a7d4de;
                                 |--secondary-color: #931813;
                                 |--text-color: #5f5f5f;
