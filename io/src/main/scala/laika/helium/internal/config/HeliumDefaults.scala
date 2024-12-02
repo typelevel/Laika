@@ -85,7 +85,7 @@ private[helium] object HeliumDefaults {
     info = Color.hex("ebf6f7"),
     infoLight = Color.hex("007c99"),
     warning = Color.hex("fcfacd"),
-    warningLight = Color.hex("b1a400"),
+    warningLight = Color.hex("817800"),
     error = Color.hex("ffe9e3"),
     errorLight = Color.hex("d83030")
   )
@@ -128,7 +128,7 @@ private[helium] object HeliumDefaults {
     primary = Color.hex("007c99"),
     secondary = Color.hex("931813"),
     primaryMedium = Color.hex("a7d4de"),
-    primaryLight = Color.hex("ebf6f7"),
+    primaryLight = Color.hex("eef5f6"),
     text = Color.hex("5f5f5f"),
     background = Color.hex("ffffff"),
     bgGradient = (Color.hex("095269"), Color.hex("007c99"))
