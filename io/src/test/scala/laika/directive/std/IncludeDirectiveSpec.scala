@@ -51,14 +51,29 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
           |
           |ccc
         """.stripMargin,
+      Root / "inc" / "header.md"           ->
+        """# Header
+          |
+          |aaa (${?_.key}) bbb
+          |""".stripMargin,
+      Root / "inc" / "header-embed.md"     ->
+        """# Header
+          |
+          |aaa (${?_.key}) bbb
+          |
+          |${?_.embeddedBody}
+          |
+          |ccc
+          |""".stripMargin,
       Root / "inc" / "inc-1.template.html" -> "aaa (${?_.key}) bbb",
       Root / "inc" / "inc-2.template.html" -> """aaa (${?_.key}) bbb <${?_.embeddedBody}> ccc"""
     )
   }
 
-  def embedResult(firstPara: String): Seq[Block] = Seq(
-    BlockSequence(
-      Paragraph(firstPara),
+  def embedResult(firstPara: String): Seq[Block] = embedResult(Seq(Paragraph(firstPara)))
+
+  def embedResult(blocks: Seq[Block]): Seq[Block] = {
+    val composedBlocks = blocks ++ Seq(
       Paragraph(
         TemplateElement(
           BlockSequence(
@@ -69,7 +84,8 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
       ),
       Paragraph("ccc")
     )
-  )
+    Seq(BlockSequence(composedBlocks))
+  }
 
   def parseAndExtract(input: String, template: Option[String] = None): IO[Seq[Block]] = {
     val inputTree = build(inputs(input) ++ template.map((DefaultTemplatePath.forHTML, _)).toSeq)
@@ -99,6 +115,13 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     parseAndExtract(markup).assertEquals(Seq(BlockSequence(Paragraph("aaa () bbb"))))
   }
 
+  test("block include with header") {
+    val markup = "@:include(../inc/header.md)"
+    parseAndExtract(markup).assertEquals(
+      Seq(BlockSequence(Header(1, "Header").withId("header"), Paragraph("aaa () bbb")))
+    )
+  }
+
   test("block include with attributes") {
     val markup = "@:include(../inc/inc-1.md) { key = foo }"
     parseAndExtract(markup).assertEquals(Seq(BlockSequence(Paragraph("aaa (foo) bbb"))))
@@ -115,6 +138,21 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
         |@:@
       """.stripMargin
     parseAndExtract(markup).assertEquals(embedResult("aaa () bbb"))
+  }
+
+  test("block embed with header") {
+    val markup =
+      """@:embed(../inc/header-embed.md)
+        |
+        |Par 1
+        |
+        |Par 2
+        |
+        |@:@
+      """.stripMargin
+    parseAndExtract(markup).assertEquals(
+      embedResult(Seq(Header(1, "Header").withId("header"), Paragraph("aaa () bbb")))
+    )
   }
 
   test("block embed with attributes") {

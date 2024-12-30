@@ -138,7 +138,8 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
       "org.typelevel" %%% "cats-core" % versions.catsCore
     ),
     scalacOptions ++= inferOverrideFor2_13(scalaVersion.value),
-    Test / scalacOptions ~= disableMissingInterpolatorWarning
+    Test / scalacOptions ~= disableMissingInterpolatorWarning,
+    mimaBinaryIssueFilters ++= MimaFilters.internalDirectiveAPI
   )
   .jvmSettings(
     libraryDependencies += jTidy
