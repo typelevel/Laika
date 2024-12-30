@@ -1,4 +1,9 @@
-import com.typesafe.tools.mima.core.{ MissingClassProblem, ProblemFilter, ProblemFilters }
+import com.typesafe.tools.mima.core.{
+  MissingClassProblem,
+  ProblemFilter,
+  ProblemFilters,
+  ReversedMissingMethodProblem
+}
 
 object MimaFilters {
 
@@ -25,6 +30,12 @@ object MimaFilters {
     ProblemFilters.exclude[MissingClassProblem]("laika.helium.internal.config.InternalJS$"),
     ProblemFilters.exclude[MissingClassProblem]("laika.helium.internal.config.InlineJS"),
     ProblemFilters.exclude[MissingClassProblem]("laika.helium.internal.config.InlineJS$")
+  )
+
+  val internalDirectiveAPI: Seq[ProblemFilter] = Seq(
+    ProblemFilters.exclude[ReversedMissingMethodProblem](
+      "laika.api.bundle.DirectiveBuilderContext.Directive"
+    )
   )
 
 }

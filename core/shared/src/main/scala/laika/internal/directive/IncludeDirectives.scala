@@ -87,7 +87,7 @@ private[laika] object IncludeDirectives {
         val content = BlockSequence(doc.content.content)
         BlockScope(content, context, source)
       }
-      .toRight(s"Unresolved reference to template '${path.toString}'")
+      .toRight(s"Unresolved reference to document '${path.toString}'")
   }
 
   /** Implementation of the `include` directive for templates.
@@ -133,7 +133,7 @@ private[laika] object IncludeDirectives {
         resolvePath(literalPath, pathKey, cursor.config)
           .flatMap(resolveDocumentReference(_, attributes, cursor, source))
     }
-  }
+  }.allowCursorInBuildPhase
 
   /** Implementation of the `embed` directive for text markup documents.
     */
@@ -152,6 +152,6 @@ private[laika] object IncludeDirectives {
       resolvePath(literalPath, pathKey, cursor.config)
         .flatMap(resolveDocumentReference(_, attributes, cursor, source, Some(body)))
     }
-  }
+  }.allowCursorInBuildPhase
 
 }

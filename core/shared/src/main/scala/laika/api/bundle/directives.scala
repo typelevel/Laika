@@ -570,16 +570,23 @@ trait DirectiveBuilderContext[E <: Element] {
 
   /** Represents a directive, its name and its (combined) parts.
     */
-  class Directive private[bundle] (val name: String, part: DirectivePart[E]) {
+  class Directive private[bundle] (
+      val name: String,
+      part: DirectivePart[E],
+      allowsCursorInBuildPhase: Boolean = false
+  ) {
     private[bundle] def apply(context: DirectiveContext): Result[E] = part(context)
     def hasBody: Boolean                                            = part.hasBody
     def separators: Set[String]                                     = part.separators
 
-    def runsIn(phase: RewritePhase): Boolean = phase match {
-      case RewritePhase.Render(_) => true
-      case _                      => !part.needsCursor
+    def runsIn(phase: RewritePhase): Boolean = {
+      phase match {
+        case RewritePhase.Render(_) => true
+        case _                      => allowsCursorInBuildPhase || !part.needsCursor
+      }
     }
 
+    def allowCursorInBuildPhase: Directive = new Directive(name, part, true)
   }
 
   /** Represents a separator directive, its name and its (combined) parts.
