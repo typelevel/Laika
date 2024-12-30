@@ -104,6 +104,25 @@ class HTMLBlockParserSpec extends FunSuite
     run(input, p("aaa"), html.HTMLBlock(outer), p("bbb"))
   }
 
+  test("recognize a script tag as a root element") {
+    val input  = """aaa
+                  |
+                  |<script type="text/javascript" defer>
+                  |  var x = [1, 2, 3];
+                  |  var y = 'foo';
+                  |</script>
+                  |
+                  |bbb""".stripMargin
+    val script = HTMLScriptElement(
+      List(
+        HTMLAttribute("type", List(Text("text/javascript")), Some('"')),
+        HTMLAttribute("defer", List(), None)
+      ),
+      "\n  var x = [1, 2, 3];\n  var y = 'foo';\n"
+    )
+    run(input, p("aaa"), script, p("bbb"))
+  }
+
   test("ignore elements which are not listed as block-level elements") {
     val input = """aaa
                   |
