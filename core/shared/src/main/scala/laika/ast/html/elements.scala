@@ -96,7 +96,7 @@ case class HTMLScriptElement(
     attributes: List[HTMLAttribute],
     content: String,
     options: Options = Options.empty
-) extends HTMLSpan with TextContainer {
+) extends HTMLSpan with TextContainer with Block {
   type Self = HTMLScriptElement
   def withOptions(options: Options): HTMLScriptElement = copy(options = options)
 }

@@ -252,6 +252,6 @@ private[laika] object HTMLParsers {
     "<" ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine
 
   lazy val htmlBlockFragment: BlockParserBuilder =
-    BlockParserBuilder.standalone(htmlBlock | htmlBlockElement).rootOnly // TODO - keep separate
+    BlockParserBuilder.standalone("<" ~> htmlScriptElement | htmlBlock | htmlBlockElement).rootOnly
 
 }
