@@ -32,27 +32,25 @@ private[laika] object RecursiveResolverRules {
       phase: RewritePhase
   ): RewriteRules = {
 
-    val removeScopes = phase.isInstanceOf[RewritePhase.Render]
-
     def rulesForScope(scope: ElementScope[_]): RewriteRules =
       applyTo(cursor.withReferenceContext(scope.context), baseRules, phase)
 
     lazy val rules: RewriteRules = RewriteRules.forBlocks {
       case ph: BlockResolver if ph.runsIn(phase) => Replace(rules.rewriteBlock(ph.resolve(cursor)))
-      case scope: BlockScope if removeScopes     =>
+      case scope: BlockScope     =>
         Replace(rulesForScope(scope).rewriteBlock(scope.content))
       case scope: BlockScope                     =>
         Replace(scope.copy(content = rulesForScope(scope).rewriteBlock(scope.content)))
     } ++ RewriteRules.forSpans {
       case ph: SpanResolver if ph.runsIn(phase) => Replace(rules.rewriteSpan(ph.resolve(cursor)))
-      case scope: SpanScope if removeScopes     =>
+      case scope: SpanScope     =>
         Replace(rulesForScope(scope).rewriteSpan(scope.content))
       case scope: SpanScope                     =>
         Replace(scope.copy(content = rulesForScope(scope).rewriteSpan(scope.content)))
     } ++ RewriteRules.forTemplates {
       case ph: SpanResolver if ph.runsIn(phase) =>
         Replace(rules.rewriteTemplateSpan(asTemplateSpan(ph.resolve(cursor))))
-      case scope: TemplateScope if removeScopes =>
+      case scope: TemplateScope =>
         Replace(rulesForScope(scope).rewriteTemplateSpan(scope.content))
       case scope: TemplateScope                 =>
         Replace(scope.copy(content = rulesForScope(scope).rewriteTemplateSpan(scope.content)))
