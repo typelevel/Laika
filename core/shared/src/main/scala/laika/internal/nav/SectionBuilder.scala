@@ -63,10 +63,14 @@ private[laika] object SectionBuilder extends RewriteRulesBuilder {
 
     def buildSections(document: RootElement): RootElement = {
 
-      val flattenedDocument = document.content.flatMap {
-        case seq: BlockSequence if seq.options.styles.isEmpty => seq.content
-        case b: Block                                         => Seq(b)
-      }
+      def flattenDocument(blocks: Seq[Block]): Seq[Block] =
+        blocks.flatMap {
+          case seq: BlockSequence if seq.options.styles.isEmpty => flattenDocument(seq.content)
+          case b: Block                                         => Seq(b)
+        }
+
+
+      val flattenedDocument = flattenDocument(document.content)
 
       val docPosition = if (autonumberConfig.documents) position else TreePosition.root
 
