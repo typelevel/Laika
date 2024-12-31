@@ -220,12 +220,6 @@
             and its higher level of correctness justifies the bypassing of the informal description of GitHubs spec.</p>
           </li>
           <li>
-            <p><strong>Fenced Code Blocks</strong> need a preceding blank line to be recognized by Laika&#39;s parser for now. 
-            This is due to temporary technical limitations which will be lifted before the 1.0 release. 
-            It will require additional hooks for how extension parsers register with the host language 
-            to allow to specify a line test that causes interruption of a paragraph.</p>
-          </li>
-          <li>
             <p><strong>Tables</strong>: Since Laika is a tool that uses an internal AST that abstracts away the features of a specific output 
             format, it does not follow the exact syntax for HTML output as shown in the GitHub spec. 
             Specifically it does not render table cells using the deprecated <code>align</code> attributes. 
@@ -235,11 +229,13 @@
         </ul>
         
         <h3 id="commonmark" class="section"><a class="anchor-link left" href="#commonmark"><i class="icofont-laika link">&#xef71;</i></a>CommonMark</h3>
-        <p>Laika does not yet integrate the official CommonMark test suite.
-        This step is planned for a release shortly after the final 1.0 version is reached.</p>
+        <p>Laika does not yet integrate the official CommonMark test suite.</p>
         <p>In practice the differences should be minor as CommonMark is a specification that builds on top of the original
         Markdown spec plus some aspects of GitHub Flavor which Laika both supports. 
         It mostly removes some ambiguity and adds detail to some of the under-specified features of classic Markdown.</p>
+        <p>Given that the effort would be quite significant (the test suite covers more than 600 tests) and the 
+        current level of participation in Laika development is not very high, it is unlikely that this feature
+        support will be added in the near future. The idea could be revived in case new contributors chime in.</p>
         
         <h2 id="restructuredtext" class="section"><a class="anchor-link left" href="#restructuredtext"><i class="icofont-laika link">&#xef71;</i></a>reStructuredText</h2>
         <p>The reStructuredText project is part of Python&#39;s Docutils project. 
@@ -278,10 +274,6 @@
         </ul>
         <p>The following limitations apply to these directives:</p>
         <ul>
-          <li><code>code</code> does currently not support syntax highlighting 
-          (it allows to set the language though, so client-side highlighters can be integrated if required).</li>
-        </ul>
-        <ul>
           <li><code>sectnum</code> does currently not support the <code>prefix</code>, <code>suffix</code> and <code>start</code> options.</li>
         </ul>
         <ul>
@@ -301,7 +293,7 @@
         
         <h3 id="supported-standard-text-roles" class="section"><a class="anchor-link left" href="#supported-standard-text-roles"><i class="icofont-laika link">&#xef71;</i></a>Supported Standard Text Roles</h3>
         <p>Text roles are a second extension mechanism for applying functionality to spans of text 
-        and the reference implementation supports a set of standard <a href="http://docutils.sourceforge.net/docs/ref/rst/roles.html">standard text roles</a> out of the box.</p>
+        and the reference implementation supports a set of <a href="http://docutils.sourceforge.net/docs/ref/rst/roles.html">standard text roles</a> out of the box.</p>
         <p>Out of this set Laika supports the following:</p>
         <ul>
           <li><code>emphasis</code></li>

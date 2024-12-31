@@ -178,18 +178,18 @@
         <p>Which of the modules you need to add to the build depends on the functionality you intend to use.</p>
         <p>If you want to stick to pure transformations from string to string and don&#39;t need file or stream IO or
         any of the binary output formats like EPUB or PDF, you are fine with just using the <code>laika-core</code> module:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;1.2.1&quot;</span><span> </span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;1.3.0&quot;</span><span> </span></code></pre>
         <p>This module is also 100% supported for Scala.js, so you can alternatively use the triple <code>%%%</code> syntax
         if you want to cross-build for Scala.js and the JVM:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %%% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;1.2.1&quot;</span><span> </span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %%% </span><span class="string-literal">&quot;laika-core&quot;</span><span> % </span><span class="string-literal">&quot;1.3.0&quot;</span><span> </span></code></pre>
         <p>If you want to add support for file and stream IO and/or output in the EPUB format, 
         you need to depend on the <code>laika-io</code> module instead:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;1.2.1&quot;</span><span> </span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;laika-io&quot;</span><span> % </span><span class="string-literal">&quot;1.3.0&quot;</span><span> </span></code></pre>
         <p>This depends on <code>laika-core</code> in turn, so you always only need to add one module as a dependency and will get
         the rest via transitive dependencies. No module apart from <code>laika-core</code> is available for Scala.js, so you
         are in JVM land here.</p>
         <p>Finally PDF support comes with its own module as it adds a whole range of additional dependencies:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;1.2.1&quot;</span><span> </span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.typelevel&quot;</span><span> %% </span><span class="string-literal">&quot;laika-pdf&quot;</span><span> % </span><span class="string-literal">&quot;1.3.0&quot;</span><span> </span></code></pre>
         <p>Again, this builds on top of the other modules, so adding just this one dependency is sufficient.</p>
         
         
@@ -228,7 +228,7 @@
         <p>The blue elements of the API are identical to the pure transformer.
         The new <code>parallel</code> method used above becomes available with <code>import laika.io.syntax._</code>.</p>
         <p>This API introduces a dependency on <code>cats-effect</code> which is used to model the effectful computations.
-        You can use it with any effect that supports the <code>cats-effect</code> type classes, such as <code>cats.IO</code>.</p>
+        You can use it with any effect that supports the <code>cats-effect</code> type classes, such as <code>cats.effect.IO</code>.</p>
         <p>The call to <code>parallel[IO]</code> builds a transformer that lets you specify entire directories as input and allows to instruct
         the library which effect type to use (cats-IO in this example). There are two more variants, <code>sequential</code>, 
         that processes inputs sequentially as well as an overload for <code>parallel</code> that allows to specify the level of parallelism.</p>
@@ -286,7 +286,7 @@
         <p>The exact mechanics of your Laika transformer setup will depend on which of those libraries you are using 
         and whether you keep all of your code in an abstract <code>F[_]</code> instead of coding against a concrete effect type.</p>
         <p>The following example assumes the use case of an application written around abstract effect types and using <code>IOApp</code>
-        from cats.IO for initialization:</p>
+        from cats-effect for initialization:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{ </span><span class="type-name">Async</span><span>, </span><span class="type-name">Resource</span><span> }
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">api</span><span>.</span><span class="type-name">TreeTransformer</span><span>
 
@@ -350,7 +350,7 @@
   </span><span class="keyword">case</span><span> </span><span class="type-name">Left</span><span>(</span><span class="identifier">throwable</span><span>) =&gt; </span><span class="identifier">handleError</span><span>(</span><span class="identifier">throwable</span><span>)
   </span><span class="keyword">case</span><span> </span><span class="type-name">Right</span><span>(</span><span class="identifier">result</span><span>)   =&gt; </span><span class="identifier">handleResult</span><span>(</span><span class="identifier">result</span><span>)
 }</span></code></pre>
-        <p>Do not get too hung up on the scary sound of all these <code>unsafe...</code> methods. The one kind of safety you are loosing
+        <p>Do not get too hung up on the scary sound of all these <code>unsafe...</code> methods. The one kind of safety you are losing
         when using them is referential transparency. But if you are using a <code>Future</code>-based API for example, 
         your program is not referentially transparent anyway.</p>
         <p>Finally, if you intend to reuse the transformer, for example in a web application based on the Play framework,
@@ -459,10 +459,10 @@
             <p>Specify individual files or classpath resources.</p>
           </li>
           <li>
-            <p>Add in-memory string which will enter the parsing pipelines like file resources.</p>
+            <p>Add in-memory strings which will enter the parsing pipelines like file resources.</p>
           </li>
           <li>
-            <p>Add in-memory AST nodes which will by-pass the parsing step and added directly to the other document AST
+            <p>Add in-memory AST nodes which will by-pass the parsing step and will be added directly to the other document AST
             obtained through parsing.</p>
           </li>
         </ul>
@@ -584,10 +584,10 @@
         <h2 id="configuration" class="section"><a class="anchor-link left" href="#configuration"><i class="icofont-laika link">&#xef71;</i></a>Configuration</h2>
         <p>All the examples in this chapter only scratched the surface of Laika&#39;s API, 
         focusing on the basics like specifying input and output. 
-        But since Laika is designed to be fully customizable and serve as a toolkit for creating toolkits, there is whole
+        But since Laika is designed to be fully customizable and serve as a toolkit for creating toolkits, there is a whole
         range of options available for customizing and extending its built-in functionality.</p>
         <p>Most of these configuration options are not specific to the library API use case and apply to the sbt plugin as well,
-        apart from differences in the syntax/mechanics which with they are applied, which are reflected in the corresponding code examples.
+        apart from differences in the syntax/mechanics with which they are applied, which are reflected in the corresponding code examples.
         For this reason this section only gives a very brief overview while linking to the relevant sections in the other chapters.</p>
         
         <h3 id="theme-configuration" class="section"><a class="anchor-link left" href="#theme-configuration"><i class="icofont-laika link">&#xef71;</i></a>Theme Configuration</h3>
@@ -668,8 +668,8 @@
             or use some of the lower level hooks in (<a href="../05-extending-laika/01-overview.html#the-extensionbundle-api">The ExtensionBundle API</a>).</p>
           </li>
           <li>
-            <p><strong>Basic Configuration Options</strong>: Setting <a href="03-configuration.html#strict-mode">Strict Mode</a>, including <a href="03-configuration.html#raw-content">Raw Content</a>, setting the <a href="03-configuration.html#character-encoding">Character Encoding</a>, 
-            controlling <a href="03-configuration.html#error-handling">Error Handling</a> and specifying <a href="03-configuration.html#user-defined-variables">User-Defined Variables</a>. </p>
+            <p><strong>Basic Configuration Options</strong>: setting the <a href="03-configuration.html#character-encoding">Character Encoding</a>, controlling <a href="03-configuration.html#error-handling">Error Handling</a>
+            and specifying <a href="03-configuration.html#user-defined-variables">User-Defined Variables</a>. </p>
           </li>
           <li>
             <p><a href="01-sbt-plugin.html#inspecting-laika-s-configuration">Inspecting Laika&#39;s Configuration</a>: Run the <code>describe</code> method on the IO-based transformers, parsers and renderers 
@@ -721,7 +721,7 @@
         
         <h3 id="preview-of-the-document-ast" class="section"><a class="anchor-link left" href="#preview-of-the-document-ast"><i class="icofont-laika link">&#xef71;</i></a>Preview of the Document AST</h3>
         <p>Introduced in version 0.19.4 the preview server can now also render the document AST for any markup source document.
-        Simply append the <code>/ast</code> path element to your URL, e.g. <code>localhost:4242/my-docs/intro.md/ast</code>.
+        Simply append the <code>/ast</code> path element to your URL, e.g. <code>localhost:4242/my-docs/intro.html/ast</code>.
         Note that this does not prevent you from using <code>/ast</code> as an actual path segment in your site,
         the server will be able to distinguish those.</p>
         <p>The AST shown is equivalent to the AST passed to the actual renderer after the final rewrite phase.

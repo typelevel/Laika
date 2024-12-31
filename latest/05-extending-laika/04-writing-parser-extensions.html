@@ -231,7 +231,7 @@
 </span><span class="keyword">val</span><span> </span><span class="identifier">ticketParser</span><span>: </span><span class="type-name">PrefixedParser</span><span>[</span><span class="type-name">Span</span><span>] = 
   (</span><span class="string-literal">&quot;#&quot;</span><span> ~&gt; </span><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">digit</span><span>)).</span><span class="identifier">map</span><span> { </span><span class="identifier">num</span><span> =&gt;
     </span><span class="keyword">val</span><span> </span><span class="identifier">url</span><span> = </span><span class="string-literal">s&quot;http://our-tracker.com/</span><span class="substitution">$num</span><span class="string-literal">&quot;</span><span>
-    </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="identifier">url</span><span>))
+    </span><span class="type-name">SpanLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="identifier">url</span><span>)(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>)
   }</span></code></pre>
         <ul>
           <li>We first look for a literal <code>&quot;#&quot;</code>.</li>
@@ -307,7 +307,7 @@
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">resolve</span><span> (</span><span class="identifier">cursor</span><span>: </span><span class="type-name">DocumentCursor</span><span>): </span><span class="type-name">Span</span><span> = {
     </span><span class="identifier">cursor</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;ticket.baseURL&quot;</span><span>).</span><span class="identifier">fold</span><span>(
       </span><span class="identifier">error</span><span> =&gt; </span><span class="type-name">InvalidSpan</span><span>(</span><span class="string-literal">s&quot;Invalid base URL: </span><span class="substitution">$error</span><span class="string-literal">&quot;</span><span>, </span><span class="identifier">source</span><span>),
-      </span><span class="identifier">baseURL</span><span> =&gt; </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span>+</span><span class="identifier">num</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">s&quot;</span><span class="substitution">$baseURL$num</span><span class="string-literal">&quot;</span><span>))
+      </span><span class="identifier">baseURL</span><span> =&gt; </span><span class="type-name">SpanLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">s&quot;</span><span class="substitution">$baseURL$num</span><span class="string-literal">&quot;</span><span>)(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>)
     )
   }
   
@@ -523,11 +523,17 @@ But this line isn&#39;t</code></pre>
         <p>It expects two parsers, one for parsing the prefix of the first line, one for parsing it for all subsequent lines.
         These parsers may be identical, like in our example for the quoted block.
         They are both of type <code>Parser[Any]</code> as the result will be discarded anyway.</p>
-        <p>The result of this parser is of type <code>List[String]</code> and contains all lines where the specified conditions were met,
-        <strong>minus</strong> the input consumed by the prefix parser.
-        The prefix parsers are not required to consume any input though, 
-        if the logic for a particular block does not require stripping off decoration, 
+        <p>The prefix parsers are not required to consume any input. 
+        If the logic for a particular block does not require stripping off decoration, 
         you can alternatively pass parsers that only check some pre-conditions, but leave all input for the result.</p>
+        <p>The result of the parser returned by this method is of type <code>BlockSource</code>.
+        It contains all lines where the specified conditions were met,
+        <strong>minus</strong> the input consumed by the prefix parser.</p>
+        <p><code>BlockSource</code> is an implementation of <code>SourceCursor</code> that supports the same API for reading and inspecting
+        input, but also preserves the position of the captured text in the original, including the column offsets,
+        which can be different for each line, depending on how much markup decoration has been stripped off.
+        Preserving positional info for error messages throughout multi-pass markup parsing is one of the reasons
+        parser libraries that expect simple Strings as input cannot be used in Laika.</p>
         <p>The method above always stops parsing when encountering a blank line on the input,
         which is common for many types of block elements.
         For cases where parsing may need to continue beyond blank lines,

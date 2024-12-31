@@ -246,7 +246,7 @@
     </span><span class="substitution">${cursor.currentDocument.content}</span><span>
   </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">body</span><span class="tag-punctuation">&gt;</span><span>
 </span><span class="tag-punctuation">&lt;/</span><span class="tag-name">html</span><span class="tag-punctuation">&gt;</span></code></pre>
-        <p>The optional, named attributes specified for the directive, in the example just <code>css</code> can be referenced in the included template
+        <p>The optional, named attributes specified for the directive (in the example just <code>css</code>) can be referenced in the included template
         with Laika&#39;s common <code>_</code> prefix for directive scopes:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="tag-punctuation">&lt;</span><span class="tag-name">head</span><span class="tag-punctuation">&gt;</span><span>
   </span><span class="tag-punctuation">&lt;</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span class="substitution">${cursor.currentDocument.title}</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">title</span><span class="tag-punctuation">&gt;</span><span>
@@ -315,10 +315,13 @@ While this paragraph does not.</span></code></pre>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">IconRegistry</span><span>
 
 </span><span class="identifier">laikaConfig</span><span> := </span><span class="type-name">LaikaConfig</span><span>.</span><span class="identifier">defaults</span><span>
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">IconRegistry</span><span>(</span><span class="string-literal">&quot;open&quot;</span><span> -&gt; </span><span class="type-name">IconStyle</span><span>(</span><span class="string-literal">&quot;open&quot;</span><span>), </span><span class="string-literal">&quot;close&quot;</span><span> -&gt; </span><span class="type-name">IconGlyph</span><span>(</span><span class="char-literal">&#39;</span><span class="escape-sequence">\ueedd</span><span class="char-literal">&#39;</span><span>)))</span></code></pre>
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">IconRegistry</span><span>(
+    </span><span class="string-literal">&quot;open&quot;</span><span> -&gt; </span><span class="type-name">IconStyle</span><span>(</span><span class="string-literal">&quot;open&quot;</span><span>), 
+    </span><span class="string-literal">&quot;close&quot;</span><span> -&gt; </span><span class="type-name">IconGlyph</span><span>(</span><span class="char-literal">&#39;</span><span class="escape-sequence">\ueedd</span><span class="char-literal">&#39;</span><span>)
+  ))</span></code></pre>
           </div>
           <div class="tab-content" data-choice-name="library">
-            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">IconRegistry</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">format</span><span>.</span><span class="identifier">_</span><span>
@@ -327,7 +330,10 @@ While this paragraph does not.</span></code></pre>
   .</span><span class="identifier">from</span><span>(</span><span class="type-name">Markdown</span><span>)
   .</span><span class="identifier">to</span><span>(</span><span class="type-name">HTML</span><span>)
   .</span><span class="identifier">using</span><span>(</span><span class="type-name">Markdown</span><span>.</span><span class="type-name">GitHubFlavor</span><span>)
-  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">IconRegistry</span><span>(</span><span class="string-literal">&quot;open&quot;</span><span> -&gt; </span><span class="type-name">IconStyle</span><span>(</span><span class="string-literal">&quot;open&quot;</span><span>), </span><span class="string-literal">&quot;close&quot;</span><span> -&gt; </span><span class="type-name">IconGlyph</span><span>(</span><span class="char-literal">&#39;</span><span class="escape-sequence">\ueedd</span><span class="char-literal">&#39;</span><span>)))
+  .</span><span class="identifier">withConfigValue</span><span>(</span><span class="type-name">IconRegistry</span><span>(
+    </span><span class="string-literal">&quot;open&quot;</span><span> -&gt; </span><span class="type-name">IconStyle</span><span>(</span><span class="string-literal">&quot;open&quot;</span><span>),
+    </span><span class="string-literal">&quot;close&quot;</span><span> -&gt; </span><span class="type-name">IconGlyph</span><span>(</span><span class="char-literal">&#39;</span><span class="escape-sequence">\ueedd</span><span class="char-literal">&#39;</span><span>)
+  ))
   .</span><span class="identifier">build</span></code></pre>
           </div>
         </div>
@@ -335,7 +341,7 @@ While this paragraph does not.</span></code></pre>
         <ul>
           <li>
             <p><code>IconStyle</code>: renders a class attribute in HTML output, so that it can be selected in CSS.
-            This mechanism is used for different styles of icons: font icons that often come with pre-built CSS declarations or
+            This mechanism is used for different styles of icons: font icons that come with pre-built CSS declarations or
             image sprite or SVG sprite icons defined via CSS.
             This icon type does not work for PDF output.</p>
           </li>
@@ -369,7 +375,7 @@ While this paragraph does not.</span></code></pre>
 }</span></code></pre>
         <p>Note that the path, like everything in Laika, is interpreted to be within the virtual path 
         of the input tree you configured.
-        It can be relative or absolute, in the latter case it would start with a <code>/</code> and 
+        It can be relative or absolute, in the latter case it would start with a <code>/</code>.
         See <a href="../03-preparing-content/01-directory-structure.html#virtual-tree-abstraction">Virtual Tree Abstraction</a> for details.</p>
         <p>All other attributes shown in the example are optional:</p>
         <ul>
@@ -503,10 +509,6 @@ not in PDF, EPUB or any other format.
         <h2 id="html-templates" class="section"><a class="anchor-link left" href="#html-templates"><i class="icofont-laika link">&#xef71;</i></a>HTML Templates</h2>
         <p>These directives can only be used in HTML or EPUB templates, 
         as they drive the inclusion of tags in the HTML <code>&lt;head&gt;</code> section or render content in HTML/XML syntax.</p>
-        <p>If you use the Helium theme and do not design your own templates or themes, 
-        you do not need to use these directives directly, as the Helium template already contain them.
-        In that case you can control which CSS and JS files to link via the theme&#39;s configuration
-        as described in <a href="../03-preparing-content/03-theme-settings.html#auto-linking-css-js-files">Auto-Linking CSS &amp; JS Files</a>.</p>
         
         <h3 id="attribute" class="section"><a class="anchor-link left" href="#attribute"><i class="icofont-laika link">&#xef71;</i></a><code>@:attribute</code></h3>
         <p>This directive can also be used in XSL-FO templates for PDF as it renders attribute syntax that is valid in both,
@@ -601,8 +603,8 @@ not in PDF, EPUB or any other format.
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(</span><span class="string-literal">showSidebar</span><span>)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>
 </span><span class="keyword">@:@</span></code></pre>
-        <p>In this example <code>showSidebar</code> is a custom configuration entry that the user defined 
-        in the configuration. See <a href="../02-running-laika/03-configuration.html#user-defined-variables">User-Defined Variables</a> for details on defining them.</p>
+        <p>In this example <code>showSidebar</code> is a custom configuration entry that the user defined.
+        See <a href="../02-running-laika/03-configuration.html#user-defined-variables">User-Defined Variables</a> for details on defining them.</p>
         <p>You can also specify a fallback with <code>@:else</code>, or even secondary conditions with <code>@:elseIf</code>:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">if</span><span>(</span><span class="string-literal">showSidebar</span><span>)
 </span><span class="tag-punctuation">&lt;</span><span class="tag-name">div</span><span class="tag-punctuation"> </span><span class="attribute-name">class</span><span class="tag-punctuation">=</span><span class="string-literal">&quot;sidebar&quot;</span><span class="tag-punctuation">&gt;</span><span>...</span><span class="tag-punctuation">&lt;/</span><span class="tag-name">div</span><span class="tag-punctuation">&gt;</span><span>

@@ -228,7 +228,7 @@
         The former holds configuration values and the latter navigation info for the current document.
         An additional namespace <code>helium.*</code> will be used if you use the default theme, containing theme configuration
         and some pre-built AST nodes.</p>
-        <p>Any user-supplied values will be available, too, and should live in any namespace other than the two reserved ones.</p>
+        <p>Any user-supplied values will be available, too, and should live in any namespace other than the three reserved ones.</p>
         
         <h2 id="reading-from-config-instances" class="section"><a class="anchor-link left" href="#reading-from-config-instances"><i class="icofont-laika link">&#xef71;</i></a>Reading from Config Instances</h2>
         <p>Once you obtained access to a <code>Config</code> instance, either through one of the objects listed above 
@@ -313,13 +313,15 @@
         <p>Laika currently does not contain functionality for automatically deriving encoders or decoders for case classes.
         One reason is that in contrast to JSON libraries the likeliness you need to map larger structures is much smaller.
         Therefore, the amount of boilerplate is usually tolerable.</p>
-        <p>Secondly we are so close to a Scala 3 release that will make automatic derivation much easier,
-        that the step of building something on top of shapeless for Scala 2 (and paying the compile time tax)
-        or writing a low-level Scala-2-style macro does seem very unattractive.</p>
-        <p>Automatic derivation will be supported once the Laika code base moves to Scala 3.</p>
+        <p>Secondly, the current (seemingly indefinite) transition period from Scala 2 to Scala 3 would require
+        to implement the derivation mechanism twice, since macro-based solutions are very different for those Scala 2 and 3.
+        There would be the option to introduce them as a feature for Scala 3 only, but then Laika&#39;s own code base
+        would not be able to benefit from them.</p>
+        <p>Thirdly, such functionality has not been requested even once so far.</p>
+        <p>For those reasons there are currently no plans to add this functionality.</p>
         
         <h2 id="creating-a-config-instance" class="section"><a class="anchor-link left" href="#creating-a-config-instance"><i class="icofont-laika link">&#xef71;</i></a>Creating a Config Instance</h2>
-        <p>The most common use cases for <code>Config</code> instance in Laika are read access.
+        <p>The most common use cases for <code>Config</code> instances in Laika are read access.
         But there may be scenarios where you want to create new instances yourself.
         One would be when you create an entire <code>DocumentTree</code> programmatically instead of parsing from sources.
         It is entirely possible in Laika to feed renderers for EPUB, PDF and HTML solely with content generated in-memory.

@@ -34,7 +34,7 @@ mermaid.initialize({
   theme: "base",
   themeVariables: {
     'darkMode': dark,
-    'primaryColor': dark ? '#125d75' : '#ebf6f7', 
+    'primaryColor': dark ? '#125d75' : '#eef5f6', 
     'primaryTextColor': dark ? '#a7d4de' : '#007c99',
     'primaryBorderColor': dark ? '#a7d4de' : '#a7d4de',
     'lineColor': dark ? '#a7d4de' : '#007c99',
@@ -307,7 +307,7 @@ mermaid.initialize({
         All these fonts are licensed under the Open Font License:</p>
         <ul>
           <li><code>Lato</code> (for headlines and body text): <a href="https://fonts.google.com/specimen/Lato#about">https://fonts.google.com/specimen/Lato#about</a></li>
-          <li><code>Fira Code</code> (for code blocks and inline code): <a href="https://github.com/tonsky/FiraCode">https://github.com/tonsky/FiraCode</a></li>
+          <li><code>Fira Mono</code> (for code blocks and inline code): <a href="https://fonts.google.com/specimen/Fira+Mono">https://fonts.google.com/specimen/Fira+Mono</a></li>
           <li><code>IcoFont</code> (for Laika&#39;s small set of icons): <a href="https://icofont.com/icons">https://icofont.com/icons</a></li>
         </ul>
         <p>You can override these defaults by defining your own set of fonts.</p>
@@ -332,9 +332,9 @@ mermaid.initialize({
   ),
   </span><span class="type-name">FontDefinition</span><span>(
     </span><span class="type-name">Font</span><span>
-      .</span><span class="identifier">withEmbeddedResource</span><span>(</span><span class="identifier">fontPath</span><span> + </span><span class="string-literal">&quot;FiraCode/FiraCode-Medium.otf&quot;</span><span>)
+      .</span><span class="identifier">withEmbeddedResource</span><span>(</span><span class="identifier">fontPath</span><span> + </span><span class="string-literal">&quot;FiraMono/FiraMono-Medium.otf&quot;</span><span>)
       .</span><span class="identifier">withWebCSS</span><span>(</span><span class="identifier">firaURL</span><span>),
-    </span><span class="string-literal">&quot;Fira Code&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Normal</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
+    </span><span class="string-literal">&quot;Fira Mono&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Normal</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
   ),
   </span><span class="type-name">FontDefinition</span><span>(
     </span><span class="type-name">Font</span><span>
@@ -343,16 +343,18 @@ mermaid.initialize({
     </span><span class="string-literal">&quot;IcoFont&quot;</span><span>, </span><span class="type-name">FontWeight</span><span>.</span><span class="type-name">Normal</span><span>, </span><span class="type-name">FontStyle</span><span>.</span><span class="type-name">Normal</span><span>
   )
 )</span></code></pre>
-        <p>The <code>embedResource</code> method picks the font to be embedded from the resource directory inside the jar, 
-        use <code>emedFile</code> to pick a font from the file system.
-        Font embedding will be performed for EPUB and PDF output
-        For the site you can use the <code>webCSS</code> method to link to the CSS containing the <code>font-face</code> definitions.
+        <p>The <code>withEmbeddedResource</code> method picks the font to be embedded from the resource directory inside the jar, 
+        use <code>withEmbeddedFile</code> to pick a font from the file system.
+        Font embedding will be performed for EPUB and PDF output.
+        For the site you can use the <code>withWebCSS</code> method to link to the CSS containing the <code>font-face</code> definitions.
         It will automatically be included in the <code>&lt;head&gt;</code> sections of the generated HTML 
         without the need to adjust the default templates.</p>
-        <p>Note that the use of the <code>fontResources</code> method <em>replaces</em> the defaults, it does not add them.
-        If you want to use some of the built-in fonts you have to redefine them in this step.
-        This ensures that no unused font resources will be embedded.</p>
-        <p>Additionally you can define the font families and font sizes for the site and e-books:</p>
+        <p>Note that the use of the <code>addFontResources</code> method will add the specified fonts to the Helium defaults.
+        If you want to replace the built-in fonts you can precede the call with <code>clearFontResources</code>.
+        This way you can ensure that no unused font resources will be embedded.
+        If you want to replace just some of the built-in fonts, you can use <code>removeFontResources</code> which expects
+        a filter function.</p>
+        <p>Additionally, you can define the font families and font sizes for the site and e-books:</p>
         <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">LengthUnit</span><span>.</span><span class="identifier">_</span><span>
 
 </span><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
@@ -610,7 +612,7 @@ mermaid.initialize({
         
         <h2 id="layout" class="section"><a class="anchor-link left" href="#layout"><i class="icofont-laika link">&#xef71;</i></a>Layout</h2>
         <p>The configuration API allows to control a few aspects of the layout, like columns widths and line heights,
-        that are the most like candidates for frequent adjustments.</p>
+        that are the most likely candidates for frequent adjustments.</p>
         <p>These are the options for the site:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">ast</span><span>.</span><span class="type-name">LengthUnit</span><span>.</span><span class="identifier">_</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">helium</span><span>.</span><span class="identifier">config</span><span>.</span><span class="type-name">AnchorPlacement</span><span>
@@ -831,7 +833,7 @@ mermaid.initialize({
         This does not refer to the main navigation menu (the left pane of the Helium site and the respective
         reader&#39;s navigation bars in case of EPUB or PDF) which Helium will always produce.
         It is an optional, separate page that can be included in e-books or the site.
-        For PDF format this is essential, as the reader&#39;s navigation would be lost if the user prints the PDF.</p>
+        For PDF output this is essential, as the reader&#39;s navigation would be lost if the user prints the PDF.</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Helium</span><span>.</span><span class="identifier">defaults</span><span>
   .</span><span class="identifier">site</span><span>.</span><span class="identifier">tableOfContent</span><span>(</span><span class="identifier">title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>, </span><span class="identifier">depth</span><span> = </span><span class="number-literal">3</span><span>)
   .</span><span class="identifier">pdf</span><span>.</span><span class="identifier">tableOfContent</span><span>(</span><span class="identifier">title</span><span> = </span><span class="string-literal">&quot;Contents&quot;</span><span>, </span><span class="identifier">depth</span><span> = </span><span class="number-literal">4</span><span>)
@@ -960,19 +962,13 @@ mermaid.initialize({
         This is the most prominent position for links on the landing page.</p>
         <p>On the right side, the latest release info usually points to one or two releases, the latter if there is also a milestone available.
         The panel for documentation links can be any links right into the content of your site, like Getting Started pages, 
-        tables of contents, and hopefully also a link to the API documentation.</p>
-        <p>The project links below can be any set of additional links, like to GitHub, Twitter or your chat.
+        tables of contents, or a link to the API documentation.</p>
+        <p>The project links below can be any set of additional links, e.g. GitHub, Twitter or your chat.
         Like with the top navigation bar of the main page, you can choose between an <code>IconLink</code> with optional text,
         a <code>ButtonLink</code> with an optional icon, a plain <code>TextLink</code> or a horizontal group of links (<code>LinkGroup</code>) which
         are usually a row of icon links placed into a column of text links.
-        Internal targets are again within the virtual path and will be validated.</p>
-        <div class="callout info">
-          <i class="icofont-laika info">&#xef4e;</i>
-          <p>The right side of the header is the only section of the landing page containing links. 
-          This is a deliberate departure from the often confusing entry points of other software documentations sites
-          where relevant links are scattered all over the place.</p>
-        </div>
-        <p>Finally a set of teasers which are quite common on landing page can be defined for the white area below the header.</p>
+        Internal targets use virtual paths like always and will be validated.</p>
+        <p>Finally, a set of teasers which are quite common on landing pages can be defined for the white area below the header.</p>
         <p>Additionally or alternatively you can also add a regular markup document called <code>landing-page.&lt;suffix&gt;</code> to one
         of your input directories and its content will be inserted at the bottom of this page.
         This is in case you want to stick with the traditional approach of some sites, which give you &#39;Getting Started&#39;

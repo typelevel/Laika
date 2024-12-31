@@ -178,7 +178,8 @@
         Its independence from tools also makes it easier to embed it in server-side or browser applications.</p>
         
         <h2 id="not-tied-to-the-jvm" class="section"><a class="anchor-link left" href="#not-tied-to-the-jvm"><i class="icofont-laika link">&#xef71;</i></a>Not Tied to the JVM</h2>
-        <p>The <code>laika-core</code> module, about 80% - 90% of the library&#39;s functionality is published for both, the JVM and Scala.js.
+        <p>The <code>laika-core</code> module, containing about 80% - 90% of the library&#39;s functionality, 
+        is published for both, the JVM and Scala.js.
         This way Laika can be used in the browser, e.g. for processing user input right on the client.</p>
         <p>The implementation is also free of any runtime reflection, a prerequisite for Scala.js support and has
         minimal dependencies. 
@@ -213,7 +214,7 @@
             renderers. (See <a href="../04-customizing-laika/04-document-ast.html#the-document-ast">The Document AST</a> and <a href="../04-customizing-laika/05-ast-rewriting.html#ast-rewriting">AST Rewriting</a> for details)</p>
           </li>
           <li>
-            <p>The Markdown and reStructuredText parser sit behind a well-defined (and fairly simple) abstraction, 
+            <p>The Markdown and reStructuredText parsers sit behind a well-defined (and fairly simple) abstraction, 
             the <code>MarkupFormat</code> trait. 
             This allows 3rd-parties (or future Laika releases) to add support for additional markup formats while
             still benefiting from the subsequent processing steps the library provides, like validating links or

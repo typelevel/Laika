@@ -154,7 +154,6 @@
     <li class="level2 nav-leaf"><a href="#directory-title">Directory Title</a></li>
     <li class="level2 nav-leaf"><a href="#navigation-order">Navigation Order</a></li>
     <li class="level2 nav-leaf"><a href="#limiting-the-output-formats">Limiting the Output Formats</a></li>
-    <li class="level2 nav-leaf"><a href="#disabling-link-validation">Disabling Link Validation</a></li>
     <li class="level1 nav-node"><a href="#versioned-documentation">Versioned Documentation</a></li>
     <li class="level2 nav-leaf"><a href="#configuration">Configuration</a></li>
     <li class="level2 nav-leaf"><a href="#index-for-smart-version-switcher">Index for Smart Version Switcher</a></li>
@@ -170,12 +169,12 @@
 
         <h1 id="directory-structure" class="title">Directory Structure</h1>
         <p>Laika does not have any special directories and content can be nested in sub-directories down to arbitrary levels.</p>
-        <p>When you are using the sbt plugin or the tree transformer from the library API that accepts directories as input,
+        <p>When you are using the sbt plugin or the tree transformer from the <code>laika-io</code> module that accepts directories as input,
         Laika supports additional file types and navigation features on top of just parsing text markup.
         This section describes the supported <a href="#document-types">Document Types</a>, how <a href="#auto-generated-navigation">Auto-Generated Navigation</a> works with
         directory input and how the <a href="#virtual-tree-abstraction">Virtual Tree Abstraction</a> decouples the logic from the file system. </p>
-        <p>This set of functionality is not available when you are using a transformer or parser from the library API
-        that expects a single input (file, stream or string) for processing.</p>
+        <p>This set of functionality is not available when you are using a pure transformer or parser from the <code>laika-core</code>
+        module which only transforms a single in-memory string.</p>
         
         <h2 id="document-types" class="section"><a class="anchor-link left" href="#document-types"><i class="icofont-laika link">&#xef71;</i></a>Document Types</h2>
         <p>The library distinguishes between the following file types:</p>
@@ -194,7 +193,7 @@
           <li>Sections, determined by the hierarchy of headers coming after the title, 
           with auto-assigned ids based on a pluggable slug builder. See <a href="../05-extending-laika/01-overview.html#customization-hooks">Customization Hooks</a> for details.
           Sections can be part of auto-generated navigation structures and can conveniently be linked to by header text
-          with &quot;native&quot; markup link syntax <a href="02-navigation.html#linking-by-section-headline">Linking by Section Headline</a>. </li>
+          with &quot;native&quot; markup link syntax. See <a href="02-navigation.html#linking-by-section-headline">Linking by Section Headline</a> for details. </li>
           <li>Directives, which extend the text markup&#39;s functionality, either one of the built-in <a href="../07-reference/01-standard-directives.html#standard-directives">Standard Directives</a>
           or your own, custom implementations.</li>
         </ul>
@@ -244,8 +243,8 @@
         <p>You can provide a default template per directory with the name <code>default.template.&lt;suffix&gt;</code>,
         where the suffix matches the output format (e.g. <code>.html</code>). 
         They will also be applied to sub-directories, unless overridden. 
-        Default templates in one of your input directories always override default template provided by themes.</p>
-        <p>Additionally you can add templates with the name pattern <code>*.template.&lt;suffix&gt;</code>, which will only
+        Default templates in one of your input directories always override default templates provided by themes.</p>
+        <p>Additionally, you can add templates with the name pattern <code>*.template.&lt;suffix&gt;</code>, which will only
         be applied when a markup document explicitly refers to them in its configuration header.</p>
         <p>For more details on the template engine, see the chapter <a href="../04-customizing-laika/03-creating-templates.html#creating-templates">Creating Templates</a>.</p>
         
@@ -374,20 +373,10 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="attribute-name">laika.targetFormats</span><span> = []</span></code></pre>
         <p>This might be useful if you have a directory that contains only snippets and partial documents
         you want to use via the <code>@:include</code> or <code>@:embed</code> directives.
-        With an empty array you prevent not only the rendering of those document, 
+        With an empty array you prevent not only the rendering of those documents, 
         they also won&#39;t show up in any navigation structure.</p>
         <p>Finally, the <code>laika.targetFormats</code> key can also be used for individual documents, 
         by placing it in the configuration header of a text markup document.<br></p>
-        
-        <h3 id="disabling-link-validation" class="section"><a class="anchor-link left" href="#disabling-link-validation"><i class="icofont-laika link">&#xef71;</i></a>Disabling Link Validation</h3>
-        <p>Normally an internal link will be validated and (with default error handling) cause the transformation to fail
-        if one or more targets are invalid.
-        A target is invalid if either the linked document does not exist, does not contain the specified id or fragment,
-        or does not support the same set of output formats as the referring document.</p>
-        <p>In some cases this kind of strict validation may not be desired. 
-        You may, for example, have an external process that populates a directory before or after Laika is run.
-        In this case you can disable validation for all link targets within that directory or its subdirectories:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="attribute-name">laika.links.validation.excluded</span><span> = [</span><span class="string-literal">/generated</span><span>, </span><span class="string-literal">/styles</span><span>]</span></code></pre>
         
         <h2 id="versioned-documentation" class="section"><a class="anchor-link left" href="#versioned-documentation"><i class="icofont-laika link">&#xef71;</i></a>Versioned Documentation</h2>
         <p>Laika supports versioned documentation, where the current inputs are interpreted as belonging to one version only.
@@ -395,7 +384,7 @@
         
         <h3 id="configuration" class="section"><a class="anchor-link left" href="#configuration"><i class="icofont-laika link">&#xef71;</i></a>Configuration</h3>
         <p>Each directory and each individual document can be marked as either versioned or unversioned.
-        All versioned document will be rendered to a sub-directory of the root that contains only content for this
+        All versioned documents will be rendered to a sub-directory of the root that contains only content for this
         specific version.</p>
         <p>Therefore, configuration for versioned documentation involves two steps:</p>
         <p><strong>1) Configure all existing versions</strong></p>
@@ -425,8 +414,7 @@
         for details see <a href="03-theme-settings.html#metadata-for-individual-documents">Metadata for Individual Documents</a>.</p>
         <p>Finally, <code>fallbackLink</code> allows to define a link target that the version switcher should pick, if a target version
         does not have a page corresponding to the current page the user is on.</p>
-        <p>Note that this kind of &quot;smart linking&quot; currently only works if existing rendered versions can be found in the 
-        output directory of the transformer operation.
+        <p>Note that this kind of &quot;smart linking&quot; only works if you have followed the setup steps in <a href="#index-for-smart-version-switcher">Index for Smart Version Switcher</a>.
         In all other cases, the version switcher will always use the <code>fallbackLink</code>.</p>
         <p><strong>2) Configure which directories and documents are versioned</strong></p>
         <p>This step is necessary as each documentation site may contain any number of documents with content that is independent

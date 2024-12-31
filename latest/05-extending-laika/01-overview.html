@@ -187,10 +187,10 @@
            a <code>DocumentCursor</code> that allows to access content from anywhere in the input tree.</p>
         <p>3) <strong>Applying templates to markup documents</strong>. 
            Since both are just AST structures, this step is merely a second AST transformation.
-           The AST representing the markup document will be inserted into the node of the template AST that holds
-           a reference to the content.</p>
+           The AST representing the markup document will be inserted into the node of the template AST that represents
+           the insertion point.</p>
         <p>4) <strong>Rendering</strong>. As the last step the final AST obtained from the two previous transformation steps will get rendered
-           to one or more output format. 
+           to one or more output formats. 
            This is the only step specific to a particular output format, meaning the same AST structure obtained in 3) will
            get used as the input for the renderers of all formats.</p>
         

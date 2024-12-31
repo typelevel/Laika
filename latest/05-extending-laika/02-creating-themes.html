@@ -433,8 +433,8 @@
           <p>This might be acceptable for a library shared in-house where you can rely on a specific project setup,
           but for a public library it is most convenient for users when the theme is just an additional dependency
           and does not require any additional setup.</p>
-          <p>For this reason the best option is usually to either generate resource in memory and/or load them
-          as resources from the JAR, both of which is directly supported by the APIs.</p>
+          <p>For this reason the best option is usually to either generate resources in memory and/or load them
+          from the JAR, both of which is directly supported by the APIs.</p>
         </div>
         <p><strong>Other <code>ThemeBuilder</code> methods</strong></p>
         <p>If your requirements are less minimal than in our example, 
@@ -622,7 +622,7 @@
           Adding these instances to the final base configuration will trigger the embedding in EPUB and PDF documents
           without any further implementation within your theme.</li>
           <li>The <code>IncludeDirective</code> type allows to construct instances of the <code>@:includeCSS</code> and <code>@:includeJS</code>
-          to be used within the theme&#39;s templates, allowing the users to define where CSS and JS
+          directives to be used within the theme&#39;s templates, allowing the users to define where CSS and JS
           resources for auto-linking into the generated HTML output can be found.</li>
         </ul>
         <p>Another aspect users might appreciate is if you allow to define most options separately per output format.

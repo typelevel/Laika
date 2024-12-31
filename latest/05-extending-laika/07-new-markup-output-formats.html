@@ -209,7 +209,7 @@
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">extensions</span><span>: </span><span class="type-name">Seq</span><span>[</span><span class="type-name">ExtensionBundle</span><span>]
   
 }</span></code></pre>
-        <p>These are the four abstract method each parser has to implement.  <br></p>
+        <p>These are the four abstract methods each parser has to implement.  <br></p>
         <ul>
           <li>
             <p>The <code>fileSuffixes</code> method should simply return the set of supported file suffixes (without the &#39;.&#39;). 
@@ -398,7 +398,7 @@
         These changes (taken together, not specifically that for the Render API) caused a performance drop of roughly 10%.
         It felt reasonable to accept this cost given how much it cleaned up the API and how it lifted the library
         to meet expectations of developers who prefer a purely functional programming style.</p>
-        <p>The decent performance of Laika stems mostly from a few radical optimization on the parser side,
+        <p>The decent performance of Laika stems mostly from a few radical optimizations on the parser side,
         which led to much better performance compared to some older combinator-based Markdown parsers.</p>
         <p>The alternative would have been to build on top of a functional streaming API like fs2,
         as this might have preserved both, the old performance characteristics as well as full referential transparency.

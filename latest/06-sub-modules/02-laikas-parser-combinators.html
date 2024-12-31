@@ -190,11 +190,11 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Success</span><span>[+</span><span class="type-name">T</span><span>] (</span><span class="identifier">result</span><span>: </span><span class="type-name">T</span><span>, </span><span class="identifier">next</span><span>: </span><span class="type-name">SourceCursor</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">Parsed</span><span>[</span><span class="type-name">T</span><span>]
 
 </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Failure</span><span> (</span><span class="identifier">msg</span><span>: </span><span class="type-name">Message</span><span>, </span><span class="identifier">next</span><span>: </span><span class="type-name">SourceCursor</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">Parsed</span><span>[</span><span class="type-name">Nothing</span><span>]</span></code></pre>
-        <p>In case of success the result will be returned alongside a new <code>ParserContext</code> that may have consumed
+        <p>In case of success the result will be returned alongside a new <code>SourceCursor</code> that may have consumed
         some of the input.
         Consuming input is optional as some parsers only look ahead on the input to check a precondition.</p>
         <p>In case of an error the returned value will contain a (lazily constructed) error message 
-        and a <code>ParserContext</code> which will usually be at the same offset as the context passed in,
+        and a <code>SourceCursor</code> which will usually be at the same offset as the context passed in,
         so that subsequent parsers can try to read from the same location.</p>
         <p>The trait is mostly shown for providing some background about the most basic building block of the combinator library.
         You will rarely create an implementation of <code>Parser</code> yourself as the existing building blocks cover a lot of scenarios
@@ -210,7 +210,7 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">parse</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">_</span></code></pre>
         <p>When working with character groups this additional import can be used:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">parse</span><span>.</span><span class="identifier">text</span><span>.</span><span class="type-name">CharGroup</span></code></pre>
-        <p>The following section demonstrate some of the most commonly used text parsers.
+        <p>The following sections demonstrate some of the most commonly used text parsers.
         For the full API see <a class="api" href="https://javadoc.io/doc/org.typelevel/laika-docs_2.12/latest/laika/parse/text/TextParsers$.html">TextParsers</a>.</p>
         
         <h3 id="literal-text" class="section"><a class="anchor-link left" href="#literal-text"><i class="icofont-laika link">&#xef71;</i></a>Literal Text</h3>
@@ -237,7 +237,7 @@
             <p><code>anyWhile(_.isUpper)</code> reads zero or more upper case characters. Any predicate <code>Char =&gt; Boolean</code> can be specified.</p>
           </li>
           <li>
-            <p>The <code>range</code> helper constructs set of characters, e.g. <code>anyOf(range(&#39;a&#39;,&#39;z&#39;))</code>.</p>
+            <p>The <code>range</code> helper constructs a set of characters, e.g. <code>anyOf(range(&#39;a&#39;,&#39;z&#39;))</code>.</p>
           </li>
           <li>
             <p>There are predefined character groups for common scenarios, e.g. <code>anyOf(CharGroup.hexDigit)</code>.</p>
@@ -254,7 +254,7 @@
             It fails when it matches on fewer than that.</p>
           </li>
           <li>
-            <p><code>anyOf(CharGroup.alphaNum).min(3)</code> expects 0 to 3 characters. 
+            <p><code>anyOf(CharGroup.alphaNum).max(3)</code> expects 0 to 3 characters. 
             It always succeeds. After 3 characters are read it simply ignores any further matching input.</p>
           </li>
           <li>
@@ -278,14 +278,14 @@
         </ul>
         
         <h2 id="combinators" class="section"><a class="anchor-link left" href="#combinators"><i class="icofont-laika link">&#xef71;</i></a>Combinators</h2>
-        <p>So far we were only parsing a single range of input based a condition or set of accepted input characters.
+        <p>So far we were only parsing a single range of input based on a condition or set of accepted input characters.
         In every kind of real-world scenario you would need to combine these low-level parsers to larger
         constructs.</p>
         
         <h3 id="concatenation" class="section"><a class="anchor-link left" href="#concatenation"><i class="icofont-laika link">&#xef71;</i></a>Concatenation</h3>
         <p>The <code>~</code> combines the result of two parsers and only succeeds if both of them succeed:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">p</span><span> = </span><span class="identifier">oneOf</span><span>(</span><span class="char-literal">&#39;$&#39;</span><span>,</span><span class="char-literal">&#39;_&#39;</span><span>) ~ </span><span class="identifier">someOf</span><span>(</span><span class="identifier">range</span><span>(</span><span class="char-literal">&#39;a&#39;</span><span>, </span><span class="char-literal">&#39;z&#39;</span><span>))</span></code></pre>
-        <p>The above parser expect exactly one occurrence of either <code>$</code> or <code>_</code>, followed by one or more occurrences of
+        <p>The above parser expects exactly one occurrence of either <code>$</code> or <code>_</code>, followed by one or more occurrences of
         a lowercase letter.</p>
         <p>The result will be <code>String ~ String</code>, where <code>~</code> is a case class that allows to map on the result with the
         same symbol:</p>
@@ -315,10 +315,11 @@
         The result will be <code>String ~ Seq[String]</code></p>
         <p>This pattern is so common that there is also a shortcut for repeating with a separator:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">alphaNum</span><span>).</span><span class="identifier">rep</span><span>(</span><span class="string-literal">&quot;,&quot;</span><span>)</span></code></pre>
-        <p>This parser&#39;s behaviour is identical to the previous one.</p>
+        <p>This parser&#39;s behaviour is identical to the previous one, but the result is just <code>List[String]</code>,
+        since there is no separate parser for the first occurrence.</p>
         <p>The number of repetitions can be further constrained:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">hexDigit</span><span>).</span><span class="identifier">max</span><span>(</span><span class="number-literal">4</span><span>)</span></code></pre>
-        <p>The above reads between 1 to 4 hexadecimal digits.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">hexDigit</span><span>).</span><span class="identifier">rep</span><span>(</span><span class="string-literal">&quot;,&quot;</span><span>).</span><span class="identifier">max</span><span>(</span><span class="number-literal">4</span><span>)</span></code></pre>
+        <p>The above reads between 1 and 4 groups of hexadecimal digits, separated by a comma.</p>
         <p>When using the <code>min</code> constraint the parser will fail when it does not reach the specified minimum number of repetitions,
         while the <code>max</code> constraint will always succeed and simply ignore subsequent repetitions.</p>
         <p>There is also a shortcut called <code>.take(4)</code> which is identical to <code>.min(4).max(4)</code>.</p>
@@ -358,7 +359,7 @@
         of the individual results anyway. 
         Laika&#39;s own parsers use this very frequently.</p>
         <p>Finally, while all the methods shown so far are available for all kinds of <code>Parser[T]</code>,
-        the <code>laika.parse.implicits._</code> import also provides a few convenient shortcuts for parsers of a certain result type.</p>
+        the <code>laika.parse.syntax._</code> import also provides a few convenient shortcuts for parsers of a certain result type.</p>
         <p>A result of concatenating a single result with a repetition can be combined into a single list with <code>concat</code> for example:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">alphaNum</span><span>) ~ (</span><span class="string-literal">&quot;,&quot;</span><span> ~ </span><span class="identifier">someOf</span><span>(</span><span class="type-name">CharGroup</span><span>.</span><span class="identifier">alphaNum</span><span>).</span><span class="identifier">rep</span><span>).</span><span class="identifier">concat</span></code></pre>
         <p>This will turn a parser with the result <code>String ~ Seq[String]</code> into a parser for <code>Seq[String]</code>.</p>
@@ -465,7 +466,7 @@
         <code>PrefixedParser[T]</code>. 
         On top of the actual parsing logic it encapsulates a separate condition for the first character.
         With normal parsers this aspect is opaque. </p>
-        <p>Some API entry points in hotspots only accept such a kind of parser and not the base trait,
+        <p>Some API entry points only accept such a kind of parser and not the base trait,
         when they are in a hotspot of the parsing logic.
         You normally do not have to worry about this, as most of the likely candidates for defining the start 
         condition of an inline construct would satisfy the condition.</p>

@@ -172,7 +172,7 @@
         only the final transformation step to the binary PDF format is delegated to Apache FOP.</p>
         
         <h2 id="generating-e-books" class="section"><a class="anchor-link left" href="#generating-e-books"><i class="icofont-laika link">&#xef71;</i></a>Generating E-Books</h2>
-        <p>If you are using the sbt plugin you can use several of its task for generating e-books:</p>
+        <p>If you are using the sbt plugin you can use its tasks for generating e-books:</p>
         <ul>
           <li><code>laikaEPUB</code> or <code>laikaPDF</code> for transforming a directory of input files to a single output format</li>
           <li><code>laikaGenerate epub pdf &lt;other formats&gt;</code> for transforming a directory of input files to EPUB and PDF
@@ -311,7 +311,7 @@
         the template needs scripting support, as each scripted document needs a flag in the OPF metadata for the EPUB container.
         The key for the attribute is <code>laika.epub.scripted</code> and valid values are <code>always</code>, <code>never</code>, <code>auto</code>.
         The <code>auto</code> value which is also used in Helium&#39;s default template sets the flag whenever there are any
-        documents in the input tree with the suffix <code>.epub.js</code> or <code>.shared.js</code>.</p>
+        JavaScript documents in the input tree for EPUB.</p>
         
         <h2 id="css-for-pdf" class="section"><a class="anchor-link left" href="#css-for-pdf"><i class="icofont-laika link">&#xef71;</i></a>CSS for PDF</h2>
         <p>Laika offers the unusual, but convenient feature of CSS styling for PDF.

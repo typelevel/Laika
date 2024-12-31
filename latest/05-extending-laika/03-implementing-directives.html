@@ -238,12 +238,12 @@
         <ul>
           <li>
             <p>The imports you need depend on the directive type, you need to choose the matching DSL which is either
-            <code>Blocks.dsl._</code>, <code>Spans.dsl._</code> or <code>Templates.dsl._</code>.
-            You also need <code>cats.implicits._</code> for the convenient <code>mapN</code> method.</p>
+            <code>BlockDirectives.dsl._</code>, <code>SpanDirectives.dsl._</code> or <code>TemplateDirectives.dsl._</code>.
+            You also need <code>cats.syntax.all._</code> for the convenient <code>mapN</code> method.</p>
           </li>
           <li>
             <p>The entry point for creating a directive again depends on the type, it&#39;s either
-            <code>Blocks.create</code>, <code>Spans.create</code> or <code>Templates.create</code>.
+            <code>BlockDirectives.create</code>, <code>SpanDirectives.create</code> or <code>TemplateDirectives.create</code>.
             The string passed to this method is the name of the directive without the leading <code>@:</code>.</p>
           </li>
           <li>
@@ -252,9 +252,9 @@
             <a href="#directive-body">Directive Body</a>, <a href="#access-to-the-parser">Access to the Parser</a> and <a href="#access-to-the-document-cursor">Access to the Document Cursor</a>.</p>
           </li>
           <li>
-            <p>Finally you pass the function the engine should invoke after validating and converting all expected directive parts.</p>
-            <p>The function will not be invoked at all in case of missing required parts or type conversion errors,
-            instead an invalid node will inserted into the AST which will be handled 
+            <p>Finally, you pass the function the engine should invoke after validating and converting all expected directive parts.</p>
+            <p>The function will not be invoked at all in case of missing required parts or type conversion errors.
+            Instead, an invalid node will be inserted into the AST which will be handled 
             depending on your <a href="../02-running-laika/03-configuration.html#error-handling">Error Handling</a> configuration.
             This makes it quite convenient for directive authors as it removes a lot of boilerplate.</p>
             <p>When the directive is valid, the parameters of the function will be of the type matching your spec,
@@ -269,9 +269,9 @@
         <p>Due to differences in the node types they produce and the location they are allowed to appear in, 
         there is a distinction between seven directive types:</p>
         <ul>
-          <li><strong>Template Directives</strong> that can be used anywhere in templates, which produce <code>TemplateSpan</code> elements.</li>
-          <li><strong>Block Directives</strong> for block elements in markup, which produce <code>Block</code> elements.</li>
-          <li><strong>Span Directives</strong> for inline elements in markup, which produce <code>Span</code> elements.</li>
+          <li><strong>Template Directives</strong> for templates, producing <code>TemplateSpan</code> elements.</li>
+          <li><strong>Block Directives</strong> for block elements in markup, producing <code>Block</code> elements.</li>
+          <li><strong>Span Directives</strong> for inline elements in markup, producing <code>Span</code> elements.</li>
           <li>3 types of <a href="#separator-directives">Separator Directives</a> which can be used to separate the body elements 
           of any of the other three directive types and can produce any kind of result type.</li>
           <li><a href="#link-directives">Link Directives</a>, a special type of span directives providing shortcuts for directives that
@@ -311,12 +311,12 @@
 </span><span class="keyword">val</span><span> </span><span class="identifier">ticketDirective</span><span> = </span><span class="type-name">SpanDirectives</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;ticket&quot;</span><span>) {
   </span><span class="identifier">attribute</span><span>(</span><span class="number-literal">0</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">Int</span><span>].</span><span class="identifier">map</span><span> { </span><span class="identifier">ticketNo</span><span> =&gt; 
     </span><span class="keyword">val</span><span> </span><span class="identifier">url</span><span> = </span><span class="string-literal">s&quot;http://our-tracker.com/</span><span class="substitution">$ticketNo</span><span class="string-literal">&quot;</span><span>
-    </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">ticketNo</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="identifier">url</span><span>))
+    </span><span class="type-name">SpanLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="identifier">url</span><span>)(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">ticketNo</span><span>)
   }
 }</span></code></pre>
         <ul>
           <li>
-            <p>With <code>Spans.create(&quot;ticket&quot;)</code> we specify the name of the directive without the leading <code>@:</code> prefix.</p>
+            <p>With <code>SpanDirectives.create(&quot;ticket&quot;)</code> we specify the name of the directive without the leading <code>@:</code> prefix.</p>
           </li>
           <li>
             <p><code>attribute(0)</code> specifies a single, positional attribute (which has to appear between parenthesis).
@@ -325,7 +325,7 @@
           <li>
             <p><code>as[Int]</code> converts the attribute to an Int before passing it to the directive. 
             When the attribute is missing or not a valid integer, the directive fails and the function passed to <code>map</code>
-            will never be invoked
+            will never be invoked.
             There is a range of decoders that you can use out of the box, but you can also provide your own <code>ConfigDecoder</code>.</p>
           </li>
           <li>
@@ -393,7 +393,7 @@
   (</span><span class="identifier">attribute</span><span>(</span><span class="number-literal">0</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">Int</span><span>], </span><span class="identifier">cursor</span><span>, </span><span class="identifier">source</span><span>).</span><span class="identifier">mapN</span><span> { (</span><span class="identifier">num</span><span>, </span><span class="identifier">cursor</span><span>, </span><span class="identifier">source</span><span>) =&gt; 
     </span><span class="identifier">cursor</span><span>.</span><span class="identifier">config</span><span>.</span><span class="identifier">get</span><span>[</span><span class="type-name">String</span><span>](</span><span class="string-literal">&quot;ticket.baseURL&quot;</span><span>).</span><span class="identifier">fold</span><span>(
       </span><span class="identifier">error</span><span>   =&gt; </span><span class="type-name">InvalidSpan</span><span>(</span><span class="string-literal">s&quot;Invalid base URL: </span><span class="substitution">$error</span><span class="string-literal">&quot;</span><span>, </span><span class="identifier">source</span><span>),
-      </span><span class="identifier">baseURL</span><span> =&gt; </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">&quot;#&quot;</span><span>+</span><span class="identifier">num</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="string-literal">s&quot;</span><span class="substitution">$baseURL$num</span><span class="string-literal">&quot;</span><span>))
+      </span><span class="identifier">baseURL</span><span> =&gt; </span><span class="type-name">SpanLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="string-literal">s&quot;</span><span class="substitution">$baseURL$num</span><span class="string-literal">&quot;</span><span>)(</span><span class="string-literal">&quot;#&quot;</span><span> + </span><span class="identifier">num</span><span>)
     )
   }
 }</span></code></pre>
@@ -599,11 +599,11 @@ It is just regular markup.
 
 </span><span class="keyword">val</span><span> </span><span class="identifier">directive</span><span> = </span><span class="type-name">LinkDirectives</span><span>.</span><span class="identifier">create</span><span>(</span><span class="string-literal">&quot;github&quot;</span><span>) { (</span><span class="identifier">path</span><span>, </span><span class="identifier">_</span><span>) =&gt;
   </span><span class="keyword">val</span><span> </span><span class="identifier">url</span><span> = </span><span class="string-literal">s&quot;https://github.com/our-project/</span><span class="substitution">$path</span><span class="string-literal">&quot;</span><span>
-  </span><span class="type-name">SpanLink</span><span>(</span><span class="type-name">Seq</span><span>(</span><span class="type-name">Text</span><span>(</span><span class="string-literal">s&quot;GitHub (</span><span class="substitution">$path</span><span class="string-literal">)&quot;</span><span>)), </span><span class="type-name">ExternalTarget</span><span>(</span><span class="identifier">url</span><span>))
+  </span><span class="type-name">SpanLink</span><span>.</span><span class="identifier">external</span><span>(</span><span class="identifier">url</span><span>)(</span><span class="string-literal">s&quot;GitHub (</span><span class="substitution">$path</span><span class="string-literal">)&quot;</span><span>)
 }</span></code></pre>
         <p>We use the string attribute for creating both, the link text and the URL.</p>
         <p>This shortcut can then be used in markup: <code>@:github(com/example/Hello.py)</code>.
-        It mostly achieves a reduction in verbosity you&#39;d otherwise need to repeat the same base URL everywhere.</p>
+        It mostly achieves a reduction in verbosity as you&#39;d otherwise need to repeat the same base URL everywhere.</p>
         <p>We ignore the second argument, the <code>DocumentCursor</code> instance in this case. 
         Like with other directives it gives you access to the configuration and the document AST.
         You can examine the <a href="#sample-directive">Sample Directive</a> for an implementation that avoids the hard-coding of the base URL
@@ -652,7 +652,7 @@ It is just regular markup.
 }</span></code></pre>
         <p>You can use the <code>separatedBody</code> combinator where you pass all expected child directives (in this case only one) 
         and then map the resulting <code>Multipart</code> instance to an AST element. 
-        The <code>Multipart</code> gives you access to the main body as well as all processed separator directives in <code>multipart.children</code>.</p>
+        The <code>Multipart</code> type gives you access to the main body as well as all processed separator directives in <code>multipart.children</code>.</p>
         <p>This entire directive can then be used like this:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">parent</span><span>
 This is the main body

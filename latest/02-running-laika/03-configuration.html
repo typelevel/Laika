@@ -153,6 +153,7 @@
     <li class="level2 nav-leaf"><a href="#error-types">Error Types</a></li>
     <li class="level2 nav-leaf"><a href="#default-behaviour">Default Behaviour</a></li>
     <li class="level2 nav-leaf"><a href="#visual-debugging">Visual Debugging</a></li>
+    <li class="level2 nav-leaf"><a href="#custom-configuration">Custom Configuration</a></li>
     <li class="level2 nav-leaf"><a href="#the-ast-renderer">The AST Renderer</a></li>
     <li class="level1 nav-leaf"><a href="#user-defined-variables">User-Defined Variables</a></li>
   </ul>
@@ -291,7 +292,7 @@
         e.g. HTML.</p>
         <p>This is disabled by default, even if it is part of the original text markup specification as in the 
         case of Markdown.</p>
-        <p>This is to generally discourage to tie markup input to a concrete output format, 
+        <p>The main reason is that it is generally not recommended to tie markup input to a concrete output format, 
         as Laika supports multiple formats like HTML, EPUB and PDF and an API where users can easily add their own format.
         Markup files containing raw HTML could not be used for those.</p>
         <p>Secondly, when the markup originates from user input in a web application, 
@@ -367,14 +368,8 @@
         <h3 id="default-behaviour" class="section"><a class="anchor-link left" href="#default-behaviour"><i class="icofont-laika link">&#xef71;</i></a>Default Behaviour</h3>
         <p>AST nodes that capture errors carry an error message, a severity
         and a fallback node to use if configuration would allow to proceed with rendering.</p>
-        <p>Laika comes with two configuration options that control how these nodes are dealt with:</p>
-        <ul>
-          <li><code>failOnMessages</code> controls the minimum severity that causes a transformation to fail, the default is <code>Error</code>.</li>
-          <li><code>renderMessages</code> controls the minimum severity that causes a message to be included in the rendered output,
-          the default is <code>None</code>.</li>
-        </ul>
-        <p>This means, by default the presence of one or more invalid nodes in the AST of a document 
-        causes the transformation to fail, with all their message collected in the returned error type.</p>
+        <p>By default, the presence of one or more invalid nodes in the AST of a document 
+        causes the transformation to fail, with all their messages collected in the returned error type.</p>
         
         <h3 id="visual-debugging" class="section"><a class="anchor-link left" href="#visual-debugging"><i class="icofont-laika link">&#xef71;</i></a>Visual Debugging</h3>
         <p>In some cases you may prefer to examine the errors in the rendered content, 
@@ -409,6 +404,21 @@
         they occurred in.
         In HTML output these node are rendered as a span with the class <code>runtime-message</code> and a second class for the level 
         (<code>warning</code>, <code>error</code>, etc.), so that their display can be controlled via CSS.</p>
+        
+        <h3 id="custom-configuration" class="section"><a class="anchor-link left" href="#custom-configuration"><i class="icofont-laika link">&#xef71;</i></a>Custom Configuration</h3>
+        <p>For most use cases, running with either the defaults or the settings for visual debugging shown above should be sufficient.
+        But for special requirements, you can create a custom instance of <code>MessageFilters</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">laika</span><span>.</span><span class="identifier">config</span><span>.{</span><span class="type-name">MessageFilters</span><span>, </span><span class="type-name">MessageFilter</span><span>}
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">filters</span><span> = </span><span class="type-name">MessageFilters</span><span>.</span><span class="identifier">custom</span><span>(
+  </span><span class="identifier">failOn</span><span> = </span><span class="type-name">MessageFilter</span><span>.</span><span class="type-name">Warning</span><span>,
+  </span><span class="identifier">render</span><span> = </span><span class="type-name">MessageFilter</span><span>.</span><span class="type-name">Debug</span><span>
+)</span></code></pre>
+        <ul>
+          <li>The <code>failOn</code> argument controls the minimum severity that causes a transformation to fail, the default is <code>Error</code>.</li>
+          <li>The <code>render</code> argument controls the minimum severity that causes a message to be included in the rendered output,
+          the default is <code>None</code>.</li>
+        </ul>
         
         <h3 id="the-ast-renderer" class="section"><a class="anchor-link left" href="#the-ast-renderer"><i class="icofont-laika link">&#xef71;</i></a>The AST Renderer</h3>
         <p>If you need even more low-level insight, you can use the included AST renderer

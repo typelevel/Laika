@@ -1,6 +1,6 @@
 :root {
   --primary-color: #007c99;
-  --primary-light: #ebf6f7;
+  --primary-light: #eef5f6;
   --primary-medium: #a7d4de;
   --secondary-color: #931813;
   --text-color: #5f5f5f;
@@ -75,7 +75,7 @@
     --messages-info: #ebf6f7;
     --messages-info-light: #007c99;
     --messages-warning: #fcfacd;
-    --messages-warning-light: #b1a400;
+    --messages-warning-light: #817800;
     --messages-error: #ffe9e3;
     --messages-error-light: #d83030;
     --syntax-base1: #2a3236;

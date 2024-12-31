@@ -357,8 +357,8 @@
         We simply expect a backtick as the start and end delimiter and allow anything in-between apart from newline or
         backtick characters.</p>
         <p>The call to <code>.source</code> is a convenient shortcut that discards the result of the three parsers and instead
-        provides the source of the entire input by those three parsers as the result. 
-        This is often preferable when all we would do with the three results would be concatenate them back to one string.</p>
+        provides the source of the entire input consumed by those three parsers as the result. 
+        This is often preferable when all we would do with the three results would be to concatenate them back to one string.</p>
         <p>The code parser we now defined can then be registered in our <code>spanParsers</code> sequence like in all other examples.</p>
         <p>The entry point above is just one option.
         It&#39;s only appropriate if we provide a string parser and want the same category assigned to the entire string.</p>

@@ -172,7 +172,7 @@
         <ul>
           <li>
             <p>Features added on top of the native link syntax of supported markup formats, 
-            like validated <a href="#validated-internal-links">Validated Internal Links</a> or <a href="#global-link-definitions">Global Link Definitions</a>.</p>
+            like <a href="#validated-internal-links">Validated Internal Links</a> or <a href="#global-link-definitions">Global Link Definitions</a>.</p>
           </li>
           <li>
             <p>Link directives for individual links that provide non-standard shortcuts for convenience, 
@@ -183,7 +183,7 @@
             like <a href="#breadcrumbs">Breadcrumbs</a> or <a href="#generating-navigation-trees">Generating Navigation Trees</a>.</p>
           </li>
           <li>
-            <p>If you want to create your own link shortcuts, you can create <a href="#custom-link-directives">Custom Link Directives</a>.</p>
+            <p>Finally, if you want to create your own link shortcuts, you can create <a href="#custom-link-directives">Custom Link Directives</a>.</p>
           </li>
         </ul>
         
@@ -527,8 +527,8 @@
         <p>These path references can either point to a directory or an individual document.</p>
         
         <h4 id="limiting-the-depth" class="section"><a class="anchor-link left" href="#limiting-the-depth"><i class="icofont-laika link">&#xef71;</i></a>Limiting the Depth</h4>
-        <p>By default the navigation tree will allow an arbitrary depth and not only reflect the hierarchy of directories
-        and document and their titles, but also include the individual sections within the documents.</p>
+        <p>By default, the navigation tree will allow an arbitrary depth and not only reflect the hierarchy of directories
+        and documents and their titles, but also include the individual sections within the documents.</p>
         <p>If you want to restrict the tree to a particular navigation depth, you can do so with the <code>defaultDepth</code>
         attribute on the root level, or the <code>depth</code> attribute on each individual entry:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
@@ -567,7 +567,7 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">@:</span><span class="identifier">navigationTree</span><span> {
   </span><span class="attribute-name">entries</span><span> = [ 
     { </span><span class="attribute-name">target</span><span> = </span><span class="string-literal">&quot;/&quot;</span><span>, </span><span class="attribute-name">depth</span><span> = </span><span class="number-literal">3</span><span>, </span><span class="attribute-name">excludeRoot</span><span> = </span><span class="boolean-literal">true</span><span> }
-    { target = &quot;http://twitter.com/me-me-me&quot;, title = &quot;Twitter&quot; }
+    { target = &quot;http://my-blog.com/me-me-me&quot;, title = &quot;My Blog&quot; }
   ]
 }</span></code></pre>
         <p>In this example an auto-generated navigation tree with depth 3 will be inserted, but an additional element
@@ -633,7 +633,7 @@
         
         <h2 id="pretty-urls" class="section"><a class="anchor-link left" href="#pretty-urls"><i class="icofont-laika link">&#xef71;</i></a>Pretty URLs</h2>
         <p>The library contains an extension for publishing a site with so-called &quot;pretty URLs&quot;, 
-        where a path like <code>foo/bar.html</code> gets translated to <code>foo/bar/index.html</code> which in turns means
+        where a path like <code>foo/bar.html</code> gets translated to <code>foo/bar/index.html</code> which in turn means
         that links to that page can be expressed as <code>foo/bar/</code>, essentially stripping the <code>.html</code> suffix.</p>
         <p>The extension changes both, the physical structure of files of the generated site as well as 
         the rendering of internal links. It has no effect on other formats like EPUB or PDF.</p>

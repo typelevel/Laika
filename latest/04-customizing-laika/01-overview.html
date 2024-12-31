@@ -173,25 +173,25 @@
         you can use one of Laika&#39;s hooks into the various phases of a transformation.</p>
         <p>For a better understanding of the customization options it is good to a have a rough idea about how
         a transformation in Laika is performed. It can be divided into 4 phases:</p>
-        <p>1) The parsing step. Text markup and template documents get parsed and translated into an internal AST.
+        <p>1) <strong>The parsing step</strong>. Text markup and template documents get parsed and translated into an internal AST.
            The AST is a generic abstraction of the document&#39;s structure and is not tied to any specific semantics
            of a particular input or output format.</p>
-        <p>2) The AST transformation. The original AST is only what each parser for the corresponding block or inline
+        <p>2) <strong>The AST transformation</strong>. The original AST is only what each parser for the corresponding block or inline
            element can process locally, without access to other nodes or even other documents. 
            One of the advantages of this design, apart from separation of concerns, is that parsers can run in parallel.
            As a consequence nodes like internal references or auto-numbered footnotes require further processing with access to
            a <code>DocumentCursor</code> that allows to access content from anywhere in the input tree.</p>
-        <p>3) Applying templates to markup documents. 
+        <p>3) <strong>Applying templates to markup documents</strong>. 
            Since both are just AST structures, this step is merely a second AST transformation.
-           The AST representing the markup document will be inserted into the node of the template AST that holds
-           a reference to the content.</p>
-        <p>4) Rendering. As the last step the final AST obtained from the two previous transformation steps will get rendered
-           to one or more output format. 
+           The AST representing the markup document will be inserted into the node of the template AST that represents 
+           the insertion point.</p>
+        <p>4) <strong>Rendering</strong>. As the last step the final AST obtained from the two previous transformation steps will get rendered
+           to one or more output formats. 
            This is the only step specific to a particular output format, meaning the same AST structure obtained in 3) will
            get used as the input for the renderers of all formats.</p>
         
         <h2 id="customization-options" class="section"><a class="anchor-link left" href="#customization-options"><i class="icofont-laika link">&#xef71;</i></a>Customization Options</h2>
-        <p>The hooks that are the most likely candidates of helping you with smaller tweaks to a transformation are the
+        <p>The hooks that are the most likely candidates for helping you with smaller tweaks to a transformation are the
         following:</p>
         <ul>
           <li>

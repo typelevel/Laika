@@ -171,7 +171,7 @@
         <p>All 0.x releases had been published under <code>org.planet42</code> which will no longer be used in the future.</p>
         
         <h2 id="changed-behaviour-for-including-css-js" class="section"><a class="anchor-link left" href="#changed-behaviour-for-including-css-js"><i class="icofont-laika link">&#xef71;</i></a>Changed Behaviour for Including CSS/JS</h2>
-        <p>This is a breaking change the compiler does not help with detecting. If you previously had custom CSS or JavaScript files auto-linked to your pages, you need to adjust your configuration (see the PR for more details).</p>
+        <p>This is a breaking change the compiler does not help with detecting. If you previously had custom CSS or JavaScript files auto-linked to your pages, you need to adjust your configuration.</p>
         <p>The old default of using a global search path for automatically linking all CSS and JS files from the input sources is no longer active. Users need to explicitly configure at least one search path (via <code>.site.internalCSS</code> or <code>.site.internalJS</code>) for a resource scan to happen.</p>
         <p>The old behaviour was often unexpected (and users had to search for ways to disable it) and also came with the risk of overlapping search paths where a theme or extension adds their own resources. The new API allows more control in general (e.g. setting a condition per document for whether resources are linked or not).</p>
         <p>See the <a href="https://github.com/typelevel/Laika/pull/511">corresponding PR</a> for additional details.</p>
@@ -183,11 +183,11 @@
         
         <h3 id="new-package-structure" class="section"><a class="anchor-link left" href="#new-package-structure"><i class="icofont-laika link">&#xef71;</i></a>New package structure</h3>
         <p><a href="https://github.com/typelevel/Laika/pull/533">Full PR Description</a></p>
-        <p>The public API had been cleaned up, since it had become fragmented after many types had been made private for 1.0. In laika-core the number of top-level packages has been reduced from 14 to 5. Apart from moving a lot of classes to new packages, many ADT type members have also been moved to their companion for better API navigation. In most cases a simple &quot;Organize Imports&quot; should See the PR for details.</p>
+        <p>The public API had been cleaned up, since it had become fragmented after many types had been made private for 1.0. In laika-core the number of top-level packages has been reduced from 14 to 5. Apart from moving a lot of classes to new packages, many ADT type members have also been moved to their companion for better API navigation. In most cases a simple &quot;Organize Imports&quot; should suffice. See the PR for details.</p>
         
         <h3 id="reduced-public-api-surface" class="section"><a class="anchor-link left" href="#reduced-public-api-surface"><i class="icofont-laika link">&#xef71;</i></a>Reduced public API surface</h3>
         <p><a href="https://github.com/typelevel/Laika/pull/452">Full PR Description</a></p>
-        <p>The number of public types have been reduced by about a quarter of the API surface compared to 0.19.x. Like many other changes for 1.0 the main motivation was to more easily evolve the library in a binary backwards-compatible way. The removed APIs were so low-level that very few users should be affected by this change.</p>
+        <p>The number of public types has been reduced by about a quarter of the API surface compared to 0.19.x. Like many other changes for 1.0 the main motivation was to more easily evolve the library in a binary backwards-compatible way. The removed APIs were so low-level that very few users should be affected by this change.</p>
         
         <h3 id="many-case-classes-became-regular-classes" class="section"><a class="anchor-link left" href="#many-case-classes-became-regular-classes"><i class="icofont-laika link">&#xef71;</i></a>Many case classes became regular classes</h3>
         <p><a href="https://github.com/typelevel/Laika/pull/482">Full PR Description</a></p>
@@ -195,11 +195,14 @@
         
         <h3 id="simplified-formatter-apis" class="section"><a class="anchor-link left" href="#simplified-formatter-apis"><i class="icofont-laika link">&#xef71;</i></a>Simplified Formatter APIs</h3>
         <p><a href="https://github.com/typelevel/Laika/pull/523">Full PR Description</a></p>
-        <p>Concrete formatter types like HTMLFormatter or FOFormatter are private now and their API has been unified under the two traits Formatter and TagFormatter. Several method signatures in TagFormatter have also been simplified for more concise renderer implementations. See the PR for details.</p>
+        <p>Concrete formatter types like <code>HTMLFormatter</code> or <code>FOFormatter</code> are private now and their API has been unified 
+        under the two traits <code>Formatter</code> and <code>TagFormatter</code>. 
+        Several method signatures in <code>TagFormatter</code> have also been simplified for more concise renderer implementations.
+        See the PR for details.</p>
         
         <h3 id="removal-of-all-deprecated-apis" class="section"><a class="anchor-link left" href="#removal-of-all-deprecated-apis"><i class="icofont-laika link">&#xef71;</i></a>Removal of all deprecated APIs</h3>
         <p><a href="https://github.com/typelevel/Laika/pull/429">Full PR Description</a></p>
-        <p>For a more convenient upgrade, compile against 0.19.5 to see all deprecation warning before migrating.</p>
+        <p>For a more convenient upgrade, compile against 0.19.5 to see all deprecation warnings before migrating.</p>
 
         
 <hr class="footer-rule"/>

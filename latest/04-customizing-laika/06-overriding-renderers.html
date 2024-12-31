@@ -172,7 +172,7 @@
         <p>This is the signature of a custom renderer hook:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">PartialFunction</span><span>[(</span><span class="type-name">Formatter</span><span>, </span><span class="type-name">Element</span><span>), </span><span class="type-name">String</span><span>]</span></code></pre>
         <p><code>Formatter</code> is a generic type representing the formatting API which is different for each output format. 
-        For HTML, XHTML for EPUB and XSL-FO for PDF it is sub-type <code>TagFormatter</code>.
+        For HTML, XHTML for EPUB and XSL-FO for PDF it is the sub-type <code>TagFormatter</code>.
         It provides additional convenience APIs for rendering tags, adds the current indentation level after line breaks 
         and knows how to render child elements. </p>
         <p><code>Element</code> is the base type of the document AST and represents the AST node to render, 
@@ -195,10 +195,13 @@
         <p>Multiple custom renderers can be specified for the same transformation, 
         they will be tried in the order you added them, 
         falling back to the default in case none is defined for a specific node.</p>
-        <p>The <code>content</code> value above is of type <code>Seq[Span]</code>. 
-        A renderer should only ever render a single node and delegate to the formatter for rendering children. 
+        <p>A renderer should only ever render a single node and delegate to the formatter for rendering children. 
         Only the formatter has a list of all installed render extensions as well as the base renderer
         and will delegate to those functions where the partial function is defined for the child element.</p>
+        <p>The <code>element</code> method shown above is an example for <code>Formatter</code> API that supports this principle: 
+        It will only render the start and end tag of the <code>&lt;em&gt;</code> element, and delegate to the underlying
+        compound renderer for all the children extracted from the node itself (which is why we also pass <code>e</code> itself
+        to the method)</p>
         
         <h2 id="registering-a-render-function" class="section"><a class="anchor-link left" href="#registering-a-render-function"><i class="icofont-laika link">&#xef71;</i></a>Registering a Render Function</h2>
         <p>Since it is one of the most likely extension points used in user-code, there is a direct shortcut for passing
@@ -255,7 +258,7 @@
             <p><code>newLine</code> renders a newline character followed by whitespace for the current level of indentation.</p>
           </li>
           <li>
-            <p><code>child</code> render a single child element.</p>
+            <p><code>child</code> renders a single child element.</p>
           </li>
           <li>
             <p><code>childPerLine</code> renders a list of child elements, each on a separate line, with the current level of indentation.</p>
