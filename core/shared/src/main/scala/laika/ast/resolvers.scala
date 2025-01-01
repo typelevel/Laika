@@ -164,8 +164,7 @@ case class MarkupContextReference(
 
   def withOptions(options: Options): MarkupContextReference = copy(options = options)
 
-  def runsIn(phase: RewritePhase): Boolean =
-    phase.isInstanceOf[RewritePhase.Render] // TODO - test earlier phases
+  def runsIn(phase: RewritePhase): Boolean = true
 
   lazy val unresolvedMessage: String =
     s"Unresolved markup context reference with key '${ref.toString}'"

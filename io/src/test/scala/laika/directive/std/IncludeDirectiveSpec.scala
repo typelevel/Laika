@@ -25,7 +25,7 @@ import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
 import laika.io.internal.errors.ConfigException
-import laika.io.syntax._
+import laika.io.syntax.*
 import laika.theme.Theme
 import munit.CatsEffectSuite
 
@@ -84,7 +84,7 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
       ),
       Paragraph("ccc")
     )
-    Seq(BlockSequence(composedBlocks))
+    composedBlocks
   }
 
   def parseAndExtract(input: String, template: Option[String] = None): IO[Seq[Block]] = {
@@ -112,19 +112,19 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
 
   test("block include without attributes") {
     val markup = "@:include(../inc/inc-1.md)"
-    parseAndExtract(markup).assertEquals(Seq(BlockSequence(Paragraph("aaa () bbb"))))
+    parseAndExtract(markup).assertEquals(Seq(Paragraph("aaa () bbb")))
   }
 
   test("block include with header") {
     val markup = "@:include(../inc/header.md)"
     parseAndExtract(markup).assertEquals(
-      Seq(BlockSequence(Header(1, "Header").withId("header"), Paragraph("aaa () bbb")))
+      Seq(Title("Header").withId("header").withStyle("title"), Paragraph("aaa () bbb"))
     )
   }
 
   test("block include with attributes") {
     val markup = "@:include(../inc/inc-1.md) { key = foo }"
-    parseAndExtract(markup).assertEquals(Seq(BlockSequence(Paragraph("aaa (foo) bbb"))))
+    parseAndExtract(markup).assertEquals(Seq(Paragraph("aaa (foo) bbb")))
   }
 
   test("block embed without attributes") {
@@ -151,7 +151,9 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
         |@:@
       """.stripMargin
     parseAndExtract(markup).assertEquals(
-      embedResult(Seq(Header(1, "Header").withId("header"), Paragraph("aaa () bbb")))
+      embedResult(
+        Seq(Title("Header").withId("header").withStyle("title"), Paragraph("aaa () bbb"))
+      )
     )
   }
 
