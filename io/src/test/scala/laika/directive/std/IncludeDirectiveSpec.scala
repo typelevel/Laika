@@ -17,7 +17,7 @@
 package laika.directive.std
 
 import cats.effect.{ IO, Resource }
-import laika.api.MarkupParser
+import laika.api.{ MarkupParser, Transformer }
 import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast.*
@@ -25,6 +25,7 @@ import laika.format.{ HTML, Markdown }
 import laika.io.api.TreeParser
 import laika.io.helper.InputBuilder
 import laika.io.internal.errors.ConfigException
+import laika.io.model.InputTree
 import laika.io.syntax.*
 import laika.theme.Theme
 import munit.CatsEffectSuite
@@ -218,6 +219,60 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     val template =
       "111 @:embed(../inc/inc-2.template.html) { key = foo } body @:@ 222 ${cursor.currentDocument.content} 333"
     parseAndExtract("Text", Some(template)).assertEquals(Seq(embedTemplateResult("foo")))
+  }
+
+  test("interaction of @:include and @:navigationTree directive") {
+
+    val include =
+      """Header 1
+        |========
+        |""".stripMargin
+
+    val doc =
+      """Title
+        |=====
+        |
+        |@:include(inc.md)
+        |
+        |Header 2
+        |========
+        |
+        |@:navigationTree {
+        |  entries = [
+        |    { target = "#", excludeRoot = true }
+        |  ]
+        |}
+        |""".stripMargin
+
+    val inputs = InputTree[IO]
+      .addString(doc, Root / "doc.md")
+      .addString(include, Root / "inc.md")
+
+    val res = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .parallel[IO]
+      .withTheme(Theme.empty)
+      .build
+      .use { t =>
+        t
+          .fromInput(inputs)
+          .toMemory
+          .transform
+          .map(_.allDocuments.head.content)
+      }
+
+    val expected = """<h1 id="title" class="title">Title</h1>
+                     |
+                     |<h1 id="header-1" class="section">Header 1</h1>
+                     |
+                     |<h1 id="header-2" class="section">Header 2</h1>
+                     |<ul class="nav-list">
+                     |  <li class="level1 nav-leaf"><a href="#header-1">Header 1</a></li>
+                     |  <li class="level1 nav-leaf"><a href="#header-2">Header 2</a></li>
+                     |</ul>""".stripMargin
+
+    res.assertEquals(expected)
   }
 
 }
