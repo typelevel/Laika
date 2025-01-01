@@ -3,7 +3,7 @@
 
 Site and E-book Generator and Customizable Text Markup Transformer for sbt, Scala and Scala.js
 
-![Build Status](https://github.com/typelevel/Laika/workflows/CI/badge.svg)
+![Build Status](https://github.com/typelevel/Laika/actions/workflows/ci.yml/badge.svg)
 ![Maven Central Release](https://img.shields.io/maven-central/v/org.typelevel/laika-core_2.12.svg)
 
 
