@@ -112,7 +112,7 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
                   | 1st Para
                   |
                   | 2nd Para""".stripMargin
-    run(input, BlockSequence(simplePars))
+    run(input, simplePars *)
   }
 
   test("container - sequence of two paragraphs with two custom styles") {

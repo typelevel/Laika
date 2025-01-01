@@ -132,7 +132,7 @@ class StandardDirectiveSpec extends FunSuite
                   |@:todo(FIXME LATER)
                   |
                   |bb""".stripMargin
-    run(input, p("aa"), BlockSequence(Nil), p("bb"))
+    run(input, p("aa"), p("bb"))
   }
 
   test("todo directive as span") {
