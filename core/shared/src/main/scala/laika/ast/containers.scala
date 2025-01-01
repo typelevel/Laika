@@ -18,6 +18,7 @@ package laika.ast
 
 import laika.api.Renderer
 import laika.format.AST
+import cats.syntax.all.*
 
 /** A generic container.
   *  Usually not mixed in directly, instead one of the sub-traits
@@ -163,5 +164,8 @@ trait BlockContainerCompanion extends SpanContainerCompanion {
 
 private[ast] object FormattedElementString {
   private lazy val renderer: Renderer = Renderer.of(AST).build.skipRewritePhase
-  def render(elem: Element): String   = "\n" + renderer.render(elem) + "\n"
+
+  def render(elem: Element): String =
+    renderer.render(elem).leftMap(err => s"<${err.message}>").merge
+
 }
