@@ -38,6 +38,12 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
     .withTheme(Theme.empty)
     .build
 
+  private val excludeFromOutputHOCON =
+    """|{%
+       |laika.targetFormats = []
+       |%}
+       |""".stripMargin
+
   def inputs(docUnderTest: String): Seq[(Path, String)] = {
     Seq(
       Root / "dir1" / "doc-1.md"           -> "# Ref",
@@ -45,29 +51,29 @@ class IncludeDirectiveSpec extends CatsEffectSuite with InputBuilder {
       Root / "dir2" / "doc-3.md"           -> "# Ref",
       Root / "dir2" / "doc-4.md"           -> docUnderTest,
       Root / "inc" / "inc-1.md"            -> "aaa (${?_.key}) bbb",
-      Root / "inc" / "inc-2.md"            ->
+      Root / "inc" / "inc-2.md"            -> (excludeFromOutputHOCON +
         """aaa (${?_.key}) bbb
           |
-          |${?_.embeddedBody}
+          |${_.embeddedBody}
           |
           |ccc
-        """.stripMargin,
+        """.stripMargin),
       Root / "inc" / "header.md"           ->
         """# Header
           |
           |aaa (${?_.key}) bbb
           |""".stripMargin,
-      Root / "inc" / "header-embed.md"     ->
+      Root / "inc" / "header-embed.md"     -> (excludeFromOutputHOCON +
         """# Header
           |
           |aaa (${?_.key}) bbb
           |
-          |${?_.embeddedBody}
+          |${_.embeddedBody}
           |
           |ccc
-          |""".stripMargin,
+          |""".stripMargin),
       Root / "inc" / "inc-1.template.html" -> "aaa (${?_.key}) bbb",
-      Root / "inc" / "inc-2.template.html" -> """aaa (${?_.key}) bbb <${?_.embeddedBody}> ccc"""
+      Root / "inc" / "inc-2.template.html" -> """aaa (${?_.key}) bbb <${_.embeddedBody}> ccc"""
     )
   }
 
