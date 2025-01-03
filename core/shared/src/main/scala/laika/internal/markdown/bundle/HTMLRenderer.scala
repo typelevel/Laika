@@ -70,4 +70,11 @@ private[bundle] object HTMLRenderer {
     case (fmt, HTMLBlock(root, _))                  => fmt.child(root)
   }
 
+  val foFilter: PartialFunction[(TagFormatter, Element), String] = {
+
+    case (_, _: HTMLBlock) => ""
+    case (_, _: HTMLSpan)  => ""
+
+  }
+
 }

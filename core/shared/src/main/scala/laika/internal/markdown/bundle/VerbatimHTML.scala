@@ -17,7 +17,7 @@
 package laika.internal.markdown.bundle
 
 import laika.api.bundle.{ BundleOrigin, ExtensionBundle, ParserBundle, RenderOverrides }
-import laika.format.HTML
+import laika.format.{ HTML, XSLFO }
 import laika.internal.markdown.HTMLParsers
 
 /** Markdown extension that also parses verbatim HTML elements alongside the standard Markdown markup.
@@ -48,7 +48,8 @@ private[laika] object VerbatimHTML extends ExtensionBundle {
   )
 
   override val renderOverrides: Seq[RenderOverrides] = Seq(
-    HTML.Overrides(value = HTMLRenderer.custom)
+    HTML.Overrides(value = HTMLRenderer.custom),
+    XSLFO.Overrides(value = HTMLRenderer.foFilter)
   )
 
 }
