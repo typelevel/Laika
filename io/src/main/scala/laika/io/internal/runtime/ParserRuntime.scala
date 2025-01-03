@@ -25,7 +25,7 @@ import laika.ast.Path.Root
 import laika.ast.*
 import laika.api.config.Config.IncludeMap
 import laika.api.config.{ ConfigBuilder, ConfigParser }
-import laika.config.LinkValidation
+import laika.config.{ LinkValidation, TargetFormats }
 import laika.io.api.TreeParser
 import laika.io.internal.config.IncludeHandler
 import laika.io.internal.config.IncludeHandler.RequestedInclude
@@ -122,17 +122,31 @@ private[io] object ParserRuntime {
       }.combineAll.toEither.leftMap(es => ParserErrors(es.toList.toSet))
 
       def rewriteTree(root: DocumentTreeRoot): Either[InvalidDocuments, ParsedTree[F]] = {
-        val parsedTree = ParsedTree(root)
+
+        def filterExcluded(tree: DocumentTree): DocumentTree = {
+          val newContent = tree.content.flatMap {
+            case tree: DocumentTree => Some(filterExcluded(tree))
+            case doc: Document if doc.config.get[TargetFormats].exists(_ == TargetFormats.None) =>
+              None
+            case doc: Document => Some(doc)
+          }
+          tree.replaceContent(newContent)
+        }
+
+        val parsedTree   = ParsedTree(root)
           .addStaticDocuments(inputs.binaryInputs)
           .modifyRoot(_.addStaticDocuments(inputs.providedPaths))
-        val finalTree  = for {
+        val finalTree    = for {
           phase1 <- parsedTree.root.rewrite(
             op.config.rewriteRulesFor(parsedTree.root, RewritePhase.Build)
           )
           result <- phase1.rewrite(op.config.rewriteRulesFor(phase1, RewritePhase.Resolve))
         } yield result
+        val filteredTree = finalTree.map { root =>
+          root.modifyTree(filterExcluded)
+        }
         InvalidDocuments
-          .from(finalTree, op.config.messageFilters.failOn)
+          .from(filteredTree, op.config.messageFilters.failOn)
           .map(tree => parsedTree.modifyRoot(_ => tree))
       }
 
