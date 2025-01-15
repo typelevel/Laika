@@ -301,7 +301,9 @@ private[laika] class FOStyles(helium: Helium) {
        |}
        |
        |CodeBlock .identifier {
-       |  color: ${colors.syntaxHighlighting.base.c4.displayValue};
+       |  color: ${
+        colors.syntaxHighlighting.base.c4.displayValue
+      };
        |}
        |
        |CodeBlock .substitution, CodeBlock .annotation, CodeBlock .markup-emphasized, CodeBlock .xml-processing-instruction {
@@ -313,11 +315,15 @@ private[laika] class FOStyles(helium: Helium) {
        |}
        |
        |CodeBlock .attribute-name, CodeBlock .declaration-name, CodeBlock .markup-link-target {
-       |  color: ${colors.syntaxHighlighting.wheel.c3.displayValue};
+       |  color: ${
+        colors.syntaxHighlighting.wheel.c3.displayValue
+      };
        |}
        |
        |CodeBlock .number-literal, CodeBlock .string-literal, CodeBlock .char-literal, CodeBlock .boolean-literal, CodeBlock .regex-literal, CodeBlock .symbol-literal, CodeBlock .literal-value, CodeBlock .markup-link-text {
-       |  color: ${colors.syntaxHighlighting.wheel.c4.displayValue};
+       |  color: ${
+        colors.syntaxHighlighting.wheel.c4.displayValue
+      };
        |}
        |
        |CodeBlock .type-name, CodeBlock .tag-name, CodeBlock .xml-dtd-tag-name, CodeBlock .markup-fence {

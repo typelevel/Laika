@@ -64,7 +64,9 @@ abstract class TagFormatter extends Formatter {
       container: ElementContainer[_ <: Element],
       attrs: (String, String)*
   ): String =
-    s"<$tagName${attributes(tagName, container, attrs)}>${indentedChildren(container.content)}$newLine</$tagName>"
+    s"<$tagName${attributes(tagName, container, attrs)}>${
+        indentedChildren(container.content)
+      }$newLine</$tagName>"
 
   /** Renders an element with the specified tag name, attributes derived from the style hint
     * and content based on the provided string that is interpreted as already rendered in the target format.

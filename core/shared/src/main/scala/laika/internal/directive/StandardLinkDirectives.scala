@@ -59,7 +59,9 @@ private[laika] object StandardLinkDirectives {
     linkConfig(cursor)
       .flatMap { linkConfig =>
         val matching =
-          linkConfig.apiLinks.toList.filter(l => linkId.startsWith(l.packagePrefix)).maximumByOption(
+          linkConfig.apiLinks.toList.filter(l =>
+            linkId.startsWith(l.packagePrefix)
+          ).maximumByOption(
             _.packagePrefix.length
           )
         matching.orElse(linkConfig.apiLinks.find(_.packagePrefix == "*")).fold[Either[

@@ -105,7 +105,9 @@ object Tasks {
     val invalid          = formats.diff(supportedFormats)
     if (invalid.nonEmpty)
       throw new IllegalArgumentException(
-        s"Unsupported formats ${invalid.mkString(", ")} - supported are ${supportedFormats.mkString(", ")}"
+        s"Unsupported formats ${
+            invalid.mkString(", ")
+          } - supported are ${supportedFormats.mkString(", ")}"
       )
 
     val configs = formats.map(aliasMap.apply).map(configMap.apply)
@@ -295,7 +297,9 @@ object Tasks {
     val (_, cancel) = buildPreviewServer.value.allocated.unsafeRunSync()
 
     streams.value.log.info(
-      s"Preview server started at http://${laikaPreviewConfig.value.host}:${laikaPreviewConfig.value.port}. Press return/enter to exit."
+      s"Preview server started at http://${laikaPreviewConfig.value.host}:${
+          laikaPreviewConfig.value.port
+        }. Press return/enter to exit."
     )
 
     try {
