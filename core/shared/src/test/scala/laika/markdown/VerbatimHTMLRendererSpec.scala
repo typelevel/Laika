@@ -16,11 +16,11 @@
 
 package laika.markdown
 
-import laika.api.{ MarkupParser, Renderer }
+import laika.api.{ MarkupParser, Renderer, Transformer }
 import laika.ast.html.{ HTMLAttribute, HTMLBlock, HTMLScriptElement, HTMLStartTag }
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.ast.{ Element, QuotedBlock, Text }
-import laika.format.{ HTML, Markdown }
+import laika.format.{ HTML, Markdown, XSLFO }
 import munit.FunSuite
 
 class VerbatimHTMLRendererSpec extends FunSuite
@@ -155,6 +155,47 @@ class VerbatimHTMLRendererSpec extends FunSuite
     val outer = element(startTag("span"), Text("aaa "), inner, Text(" bbb"))
     val elem  = HTMLBlock(outer)
     run(elem, "<span>aaa <span>inner</span> bbb</span>")
+  }
+
+  val foTransformer: Transformer =
+    Transformer.from(Markdown).to(XSLFO).withRawContent.build
+
+  test("verbatim HTML - skip HTML comment") {
+    val input    =
+      """Line 1
+        |
+        |<!-- some comment -->
+        |
+        |Line 2
+        |""".stripMargin
+    val expected =
+      """|<fo:block>Line 1</fo:block>
+         |
+         |<fo:block>Line 2</fo:block>""".stripMargin
+    assertEquals(foTransformer.transform(input), Right(expected))
+  }
+
+  test("verbatim HTML - skip HTML block") {
+    val input    =
+      """Line 1
+        |
+        |<div>
+        |  <p>Some Paragraph</p>
+        |</div>
+        |
+        |Line 2
+        |""".stripMargin
+    val expected =
+      """|<fo:block>Line 1</fo:block>
+         |
+         |<fo:block>Line 2</fo:block>""".stripMargin
+    assertEquals(foTransformer.transform(input), Right(expected))
+  }
+
+  test("verbatim HTML - skip inline HTML") {
+    val input    = "some <em>emphasized</em> text"
+    val expected = "<fo:block>some  text</fo:block>"
+    assertEquals(foTransformer.transform(input), Right(expected))
   }
 
 }
