@@ -12,4 +12,4 @@ addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 
 addSbtPlugin("org.typelevel" % "laika-sbt" % "1.3.1")
 
-addSbtPlugin("org.typelevel" % "sbt-typelevel" % "0.7.4")
+addSbtPlugin("org.typelevel" % "sbt-typelevel" % "0.7.5")
