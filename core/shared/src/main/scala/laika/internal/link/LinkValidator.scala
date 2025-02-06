@@ -123,7 +123,9 @@ private[laika] class LinkValidator(
             if (missingFormats.isEmpty) ValidTarget
             else
               attemptRecovery(
-                s"$invalidRefMsg that does not support some of the formats of this document (${missingFormats.mkString(", ")})",
+                s"$invalidRefMsg that does not support some of the formats of this document (${
+                    missingFormats.mkString(", ")
+                  })",
                 targetFormats
               )
         }

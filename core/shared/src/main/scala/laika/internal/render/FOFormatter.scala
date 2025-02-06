@@ -95,7 +95,9 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
           content: Seq[Element],
           attrs: (String, String)*
       ): String =
-        s"<$tagName${fmt.attributes(tagName, styleHint, attrs)}>${fmt.indentedChildren(content)}${fmt.newLine}</$tagName>"
+        s"<$tagName${fmt.attributes(tagName, styleHint, attrs)}>${fmt.indentedChildren(content)}${
+            fmt.newLine
+          }</$tagName>"
 
       /** Renders an element with the specified tag name, attributes derived from the style hint
         * and content based on the provided string that is interpreted as already rendered in the target format.
