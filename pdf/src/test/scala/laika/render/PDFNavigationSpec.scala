@@ -98,7 +98,9 @@ class PDFNavigationSpec extends CatsEffectSuite with FileIO with PDFTreeModel {
   def result(num: Int): String = {
     s"""
        |
-       |<fo:block id="${idPrefix(num)}_doc-$num" page-break-before="always">
+       |<fo:block id="${
+        idPrefix(num)
+      }_doc-$num" page-break-before="always">
        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
        |</fo:block>
        |<fo:block id="${idPrefix(num)}_doc-${
