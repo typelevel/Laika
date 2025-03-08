@@ -1,0 +1,89 @@
+.search-row {
+  margin-left: auto; /* Pin top search bar to right, near links */
+}
+
+#search-top-bar {
+  background-color: var(--component-area-bg);
+  border: 1px solid var(--primary-medium);
+  color: var(--primary-color);
+  border-radius: 5px;
+  height: 24px;
+  padding-left: 10px;
+}
+
+.field.has-addons-centered {
+  justify-content: center;
+}
+
+#search_input {
+  width: 100%;
+}
+
+#app {
+  min-height: 200px;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+/* Modal CSS setup from https://www.w3schools.com/howto/howto_css_modals.asp */
+/* The Modal (background) */
+.search-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+#search-modal-input {
+  background-color: var(--component-area-bg);
+  border: 1px solid var(--primary-medium);
+  color: var(--primary-color);
+  border-radius: 5px;
+  height: 28px;
+  width: 80%;
+  margin: 10px 25px 10px 25px;
+  padding-left: 10px;
+}
+
+/* Modal Content/Box */
+.search-modal-content {
+  background-color: var(--bg-color);
+  margin: 1px auto; /* at the top and centered */
+  padding: 0px 20px 40px;
+  width: 80%; /* Could be more or less, depending on screen size */
+  border: 1px solid var(--primary-medium);
+  border-radius: 8px;
+}
+
+.search-modal-content span {
+  color: var(--secondary-color);
+}
+
+.search-modal-content .title mark {
+  color: var(--secondary-color);
+  background-color: var(--syntax-wheel3);
+}
+
+.search-modal-content mark {
+  background-color: var(--syntax-wheel3);
+}
+
+/* The Close Button */
+.search-close {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.search-close:hover,
+.search-close:focus {
+  color: var(--primary-medium);
+  text-decoration: none;
+  cursor: pointer;
+}
