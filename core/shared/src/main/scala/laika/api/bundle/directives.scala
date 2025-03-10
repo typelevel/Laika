@@ -417,7 +417,9 @@ trait DirectiveBuilderContext[E <: Element] {
                 acc :+ nextSeparator
                   .left.map(errs =>
                     Seq(
-                      s"One or more errors processing separator directive '$name': ${errs.mkString(", ")}"
+                      s"One or more errors processing separator directive '$name': ${
+                          errs.mkString(", ")
+                        }"
                     )
                   )
               )
@@ -434,12 +436,16 @@ trait DirectiveBuilderContext[E <: Element] {
           val cnt = nameCounts(dir.name)
           (if (cnt > dir.max)
              Seq(
-               s"too many occurrences of separator directive '${dir.name}': expected max: ${dir.max}, actual: $cnt"
+               s"too many occurrences of separator directive '${
+                   dir.name
+                 }': expected max: ${dir.max}, actual: $cnt"
              )
            else Nil) ++
             (if (cnt < dir.min)
                Seq(
-                 s"too few occurrences of separator directive '${dir.name}': expected min: ${dir.min}, actual: $cnt"
+                 s"too few occurrences of separator directive '${
+                     dir.name
+                   }': expected min: ${dir.min}, actual: $cnt"
                )
              else Nil)
         }
