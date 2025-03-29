@@ -152,7 +152,9 @@ object ConfigDecoder {
           if (errors.nonEmpty)
             Left(
               DecodingFailed(
-                s"One or more errors decoding array elements: ${errors.map(_.message).mkString(", ")}"
+                s"One or more errors decoding array elements: ${
+                    errors.map(_.message).mkString(", ")
+                  }"
               )
             )
           else Right(results)

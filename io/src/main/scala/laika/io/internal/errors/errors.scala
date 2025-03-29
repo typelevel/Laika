@@ -12,7 +12,9 @@ private[laika] case class ConfigException(error: ConfigError) extends RuntimeExc
 
 private[laika] case class NoMatchingParser(path: Path, suffixes: Set[String])
     extends RuntimeException(
-      s"No matching parser available for path: $path - supported suffixes: ${suffixes.mkString(",")}"
+      s"No matching parser available for path: $path - supported suffixes: ${
+          suffixes.mkString(",")
+        }"
     )
 
 private[laika] case class DuplicatePath(path: Path, filePaths: Set[String] = Set.empty)
