@@ -18,7 +18,7 @@ package laika.internal.parse.hocon
 
 import laika.api.config.ConfigValue.SimpleValue
 import laika.api.config.Key
-import laika.parse.Failure
+import laika.parse.{ Failure, SourceCursor }
 
 /** The base trait of the interim configuration model (usually obtained from a HOCON parser).
   *
@@ -115,4 +115,5 @@ private[laika] case class IncludeClassPath(
 private[laika] case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false)
     extends IncludeResource
 
-private[laika] case class IncludeBuilderValue(resource: IncludeResource) extends ConfigBuilderValue
+private[laika] case class IncludeBuilderValue(resource: IncludeResource, cursor: SourceCursor)
+    extends ConfigBuilderValue

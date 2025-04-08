@@ -30,6 +30,9 @@ case class Key(segments: Seq[String]) {
 
   def local: Key = if (segments.isEmpty) this else Key(segments.last)
 
+  private[laika] def separateNextLevel: Option[(String, Key)] =
+    if (segments.isEmpty) None else Some((segments.head, Key(segments.tail)))
+
   override def toString: String = if (segments.isEmpty) "<RootKey>" else segments.mkString(".")
 }
 

@@ -287,7 +287,9 @@ private[laika] object HoconParsers {
         }
       }
 
-    "include " ~> (required | includeResource).map(IncludeBuilderValue.apply) <~ ws
+    ("include " ~> (required | includeResource)).withCursor.map { case (res, cursor) =>
+      IncludeBuilderValue.apply(res, cursor)
+    } <~ ws
   }
 
   /** Parses a comment. */
