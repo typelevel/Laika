@@ -16,9 +16,9 @@
 
 package laika.api.config
 
-import laika.internal.collection.TransitionalCollectionOps.*
-import ConfigValue.ObjectValue
-import laika.internal.parse.hocon.ResolvedRef
+import laika.internal.parse.hocon.{ FieldRef, ObjectRef, ResolvedRef }
+
+import scala.annotation.tailrec
 
 /** A builder for creating a Config instance programmatically.
   *
@@ -29,7 +29,11 @@ import laika.internal.parse.hocon.ResolvedRef
   *
   * @author Jens Halm
   */
-class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Config = EmptyConfig) {
+class ConfigBuilder private (
+    fields: Seq[FieldRef],
+    origin: Origin,
+    fallback: Config = EmptyConfig
+) {
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
@@ -39,7 +43,7 @@ class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Confi
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
   def withValue[T](key: Key, value: T)(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
-    new ConfigBuilder(fields :+ expandPath(key, encoder(value)), origin, fallback)
+    withValue(key)(localName => ResolvedRef.fromField(Field(localName, encoder(value), origin)))
 
   /** Returns a new builder instance adding the specified value to the existing set of values.
     */
@@ -59,6 +63,33 @@ class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Confi
     */
   def withValue[T](key: Key, value: Option[T])(implicit encoder: ConfigEncoder[T]): ConfigBuilder =
     value.fold(this)(withValue(key, _))
+
+  /** Returns a new builder instance adding the specified lazy or dependent value to the existing set of values.
+    */
+  def withValue[T](key: String, value: ConfigValue.Eval[T])(implicit
+      encoder: ConfigEncoder[T]
+  ): ConfigBuilder =
+    withValue(Key.parse(key), value)
+
+  /** Returns a new builder instance adding the specified lazy or dependent value to the existing set of values.
+    */
+  def withValue[T](key: Key, value: ConfigValue.Eval[T])(implicit
+      encoder: ConfigEncoder[T]
+  ): ConfigBuilder =
+    withValue(key) { localName =>
+      value match {
+        case lz @ ConfigValue.Eval.Lazy(_)      => FieldRef.deferred(localName, origin, lz)(encoder)
+        case dp @ ConfigValue.Eval.Dependent(_) =>
+          FieldRef.dependent(localName, origin, dp)(encoder)
+      }
+    }
+
+  private def withValue(key: Key)(fieldF: String => FieldRef): ConfigBuilder = {
+    val (localName, reverseParents) =
+      if (key.segments.nonEmpty) (key.segments.last, key.segments.init.reverse)
+      else ("", Nil)
+    new ConfigBuilder(fields :+ expandPath(reverseParents, fieldF(localName)), origin, fallback)
+  }
 
   /** Creates a builder with the specified fallback which will be used
     * for resolving keys which are not present in the configuration created
@@ -80,33 +111,18 @@ class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Confi
     */
   def build(newFallback: Config): Config =
     if (fields.isEmpty && origin == Origin.root && fallback == EmptyConfig) newFallback
-    else
-      new ObjectConfig(
-        ResolvedRef.fromRoot(asObjectValue, origin),
-        fallback.withFallback(newFallback)
-      )
+    else new ObjectConfig(createRoot, fallback.withFallback(newFallback))
 
-  private[laika] def asObjectValue: ObjectValue = mergeObjects(ObjectValue(fields))
-
-  private def expandPath(key: Key, value: ConfigValue): Field = {
-    key.segments.toList match {
-      case name :: Nil  => Field(name, value, origin)
-      case name :: rest => Field(name, ObjectValue(Seq(expandPath(Key(rest), value))), origin)
-      case Nil          => Field("", value, origin)
-    }
+  private[laika] def createRoot: FieldRef = {
+    FieldRef.objectRef("", origin, fields.toList).merge(ObjectRef("", origin, Nil))
   }
 
-  private def mergeObjects(obj: ObjectValue): ObjectValue = { // TODO - duplicate code with ObjectValue.merge
-
-    def mergeValues(cbv1: ConfigValue, cbv2: ConfigValue): ConfigValue = (cbv1, cbv2) match {
-      case (o1: ObjectValue, o2: ObjectValue) => mergeObjects(ObjectValue(o1.values ++ o2.values))
-      case (_, v2)                            => v2
+  @tailrec
+  private def expandPath(parents: Seq[String], value: FieldRef): FieldRef = {
+    parents.toList match {
+      case Nil          => value
+      case name :: rest => expandPath(rest, FieldRef.objectRef(name, origin, List(value)))
     }
-
-    val mergedFields = obj.values.groupBy(_.key).mapValuesStrict(_.map(_.value)).toSeq.map {
-      case (name, values) => Field(name, values.reduce(mergeValues), origin)
-    }
-    ObjectValue(mergedFields)
   }
 
 }
@@ -114,6 +130,8 @@ class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Confi
 /** Companion factory for ConfigBuilder instances.
   */
 object ConfigBuilder {
+
+  private[laika] case class BuilderField(key: Key, value: FieldRef)
 
   val empty: ConfigBuilder = new ConfigBuilder(Nil, Origin.root)
 

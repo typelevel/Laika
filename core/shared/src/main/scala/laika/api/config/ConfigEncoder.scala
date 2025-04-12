@@ -20,6 +20,7 @@ import cats.data.NonEmptyChain
 import laika.api.config.ConfigValue.*
 import laika.ast.{ Element, Path }
 import laika.config.PlatformDateTime
+import laika.internal.parse.hocon.ResolvedRef
 
 import java.net.URI
 
@@ -135,7 +136,16 @@ object ConfigEncoder {
     ): ObjectBuilder =
       value.fold(this)(withValue(key, _))
 
-    def build: ObjectValue = delegate.asObjectValue
+    def build: ObjectValue = delegate.createRoot match {
+      case rr: ResolvedRef =>
+        rr.cachedValue match {
+          case Right(ov: ObjectValue) => ov
+          case _                      =>
+            ObjectValue(Nil) // this builder does not support failure, we'll not end up here
+        }
+      case _               =>
+        ObjectValue(Nil) // this builder does not support lazy refs, we'll not end up here
+    }
 
   }
 
