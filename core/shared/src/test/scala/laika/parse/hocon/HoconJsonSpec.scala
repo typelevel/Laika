@@ -16,15 +16,18 @@
 
 package laika.parse.hocon
 
+import laika.api.config.ConfigValue.DoubleValue
 import laika.internal.parse.hocon.*
 import laika.internal.parse.hocon.HoconParsers.*
+import laika.parse.{ LineSource, SourceCursor }
 import munit.FunSuite
 
 /** @author Jens Halm
   */
 class HoconJsonSpec extends FunSuite with ResultBuilders {
 
-  private def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+  private def f(key: String, value: String, input: String): BuilderField =
+    BuilderField(key, stringValue(value, input))
 
   private def result(fields: BuilderField*): Either[String, ObjectBuilderValue] = Right(
     ObjectBuilderValue(fields)
@@ -35,16 +38,18 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
   }
 
   test("object with one property in") {
+    val input = """{ "a": "foo" }"""
     assertEquals(
-      objectValue.parse("""{ "a": "foo" }""").toEither,
-      result(BuilderField("a", stringValue("foo")))
+      objectValue.parse(input).toEither,
+      result(BuilderField("a", stringValue("foo", input)))
     )
   }
 
   test("object with two properties in") {
+    val input = """{ "a": "foo", "b": "bar" }"""
     assertEquals(
-      objectValue.parse("""{ "a": "foo", "b": "bar" }""").toEither,
-      result(f("a", "foo"), f("b", "bar"))
+      objectValue.parse(input).toEither,
+      result(f("a", "foo", input), f("b", "bar", input))
     )
   }
 
@@ -53,25 +58,25 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
       """{
         |  "str": "foo",
         |  "int": 27,
-        |  "null": null,
+        |  "none": null,
         |  "bool": true,
-        |  "arr": [ 1, 2, "bar" ],
+        |  "arr": [ 12, 13, "bar" ],
         |  "obj": { "inner": "xx", "num": 9.5 }
         |}""".stripMargin
     assertEquals(
       objectValue.parse(input).toEither,
       result(
-        BuilderField("str", stringValue("foo")),
-        BuilderField("int", longValue(27)),
-        BuilderField("null", nullValue),
-        BuilderField("bool", trueValue),
+        BuilderField("str", stringValue("foo", input)),
+        BuilderField("int", longValue(27, input)),
+        BuilderField("none", nullValue(input)),
+        BuilderField("bool", trueValue(input)),
         BuilderField(
           "arr",
           ArrayBuilderValue(
             Seq(
-              longValue(1),
-              longValue(2),
-              stringValue("bar")
+              longValue(12, input),
+              longValue(13, input),
+              stringValue("bar", input)
             )
           )
         ),
@@ -79,8 +84,8 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
           "obj",
           ObjectBuilderValue(
             Seq(
-              BuilderField("inner", stringValue("xx")),
-              BuilderField("num", doubleValue(9.5))
+              BuilderField("inner", stringValue("xx", input)),
+              BuilderField("num", doubleValue(9.5, input))
             )
           )
         )
@@ -88,47 +93,68 @@ class HoconJsonSpec extends FunSuite with ResultBuilders {
     )
   }
 
+  private def validQuoted(value: String): ValidString =
+    ValidString(value, LineSource(value, SourceCursor("\"" + value + "\"").consume(1)))
+
   test("empty string") {
-    assertEquals(quotedString.parse("\"\"").toEither, Right(ValidStringValue("")))
+    assertEquals(quotedString.parse("\"\"").toEither, Right(validQuoted("")))
   }
 
   test("string containing only whitespace") {
-    assertEquals(quotedString.parse("\"  \"").toEither, Right(ValidStringValue("  ")))
+    assertEquals(quotedString.parse("\"  \"").toEither, Right(validQuoted("  ")))
   }
 
   test("plain string") {
-    assertEquals(quotedString.parse("\"fooz\"").toEither, Right(ValidStringValue("fooz")))
+    assertEquals(quotedString.parse("\"fooz\"").toEither, Right(validQuoted("fooz")))
   }
 
   test("new line character") {
-    assertEquals(quotedString.parse("\"foo\\nbar\"").toEither, Right(ValidStringValue("foo\nbar")))
+    val input    = "\"foo\\nbar\""
+    val expected =
+      ValidString("foo\nbar", LineSource("foo\\nbar", SourceCursor(input).consume(1)))
+    assertEquals(quotedString.parse(input).toEither, Right(expected))
   }
 
   test("unicode character reference") {
+    val input = "\"foo \\u007B bar\""
     assertEquals(
-      quotedString.parse("\"foo \\u007B bar\"").toEither,
-      Right(ValidStringValue("foo { bar"))
+      quotedString.parse(input).toEither,
+      Right(
+        ValidString(
+          "foo { bar",
+          LineSource(input.drop(1).dropRight(1), SourceCursor(input).consume(1))
+        )
+      )
     )
   }
 
   test("long") {
-    assertEquals(numberValue.parse("123").toEither, Right(longValue(123)))
+    assertEquals(numberValue.parse("123").toEither, Right(longValue(123, "123")))
   }
 
   test("signed long") {
-    assertEquals(numberValue.parse("-123").toEither, Right(longValue(-123)))
+    assertEquals(numberValue.parse("-123").toEither, Right(longValue(-123, "-123")))
   }
 
   test("double") {
-    assertEquals(numberValue.parse("123.5").toEither, Right(doubleValue(123.5)))
+    assertEquals(numberValue.parse("123.5").toEither, Right(doubleValue(123.5, "123.5")))
   }
 
+  private def doubleValueWithExp(value: Double, input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(DoubleValue(value), cursor(input, input))
+
   test("double with an exponent") {
-    assertEquals(numberValue.parse("123.5E10").toEither, Right(doubleValue(1.235e12)))
+    assertEquals(
+      numberValue.parse("123.5E10").toEither,
+      Right(doubleValueWithExp(1.235e12, "123.5E10"))
+    )
   }
 
   test("double with a negative exponent") {
-    assertEquals(numberValue.parse("123.5E-2").toEither, Right(doubleValue(1.235)))
+    assertEquals(
+      numberValue.parse("123.5E-2").toEither,
+      Right(doubleValueWithExp(1.235, "123.5E-2"))
+    )
   }
 
 }

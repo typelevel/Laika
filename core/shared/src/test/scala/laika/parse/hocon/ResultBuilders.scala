@@ -18,16 +18,35 @@ package laika.parse.hocon
 
 import laika.api.config.ConfigValue.*
 import laika.internal.parse.hocon.*
+import laika.parse.{ LineSource, SourceCursor, SourceFragment }
 
 /** @author Jens Halm
   */
 trait ResultBuilders {
 
-  val nullValue: ConfigBuilderValue                  = ResolvedBuilderValue(NullValue)
-  val trueValue: ConfigBuilderValue                  = ResolvedBuilderValue(BooleanValue(true))
-  val falseValue: ConfigBuilderValue                 = ResolvedBuilderValue(BooleanValue(false))
-  def longValue(value: Long): ConfigBuilderValue     = ResolvedBuilderValue(LongValue(value))
-  def doubleValue(value: Double): ConfigBuilderValue = ResolvedBuilderValue(DoubleValue(value))
-  def stringValue(value: String): ConfigBuilderValue = ValidStringValue(value)
+  def nullValue(input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(NullValue, cursor("null", input))
+
+  def trueValue(input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(BooleanValue(true), cursor("true", input))
+
+  def falseValue(input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(BooleanValue(false), cursor("false", input))
+
+  def longValue(value: Long, input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(LongValue(value), cursor(value.toString, input))
+
+  def doubleValue(value: Double, input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(DoubleValue(value), cursor(value.toString, input))
+
+  def stringValue(value: String, input: String): ConfigBuilderValue =
+    ResolvedBuilderValue(StringValue(value), cursor(value, input))
+
+  def cursor(value: String): SourceFragment = cursor(value, value)
+
+  def cursor(value: String, input: String): SourceFragment = {
+    val index = input.indexOf(value)
+    LineSource(value, SourceCursor(input).consume(index))
+  }
 
 }

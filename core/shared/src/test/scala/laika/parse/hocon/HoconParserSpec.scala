@@ -25,28 +25,35 @@ import munit.FunSuite
   */
 class HoconParserSpec extends FunSuite with ResultBuilders {
 
-  private def f(key: String, value: String): BuilderField = BuilderField(key, stringValue(value))
+  private def f(key: String, value: String, input: String): BuilderField =
+    BuilderField(key, stringValue(value, input))
 
-  private val nestedObject = BuilderField(
-    "obj",
-    ObjectBuilderValue(
-      Seq(
-        BuilderField("inner", stringValue("xx")),
-        BuilderField("num", doubleValue(9.5))
+  private def nestedObject(stringVal: String, doubleVal: Double, input: String): BuilderField =
+    BuilderField(
+      "obj",
+      ObjectBuilderValue(
+        Seq(
+          BuilderField("inner", stringValue(stringVal, input)),
+          BuilderField("num", doubleValue(doubleVal, input))
+        )
       )
     )
-  )
 
-  private val arrayProperty = BuilderField(
-    "arr",
-    ArrayBuilderValue(
-      Seq(
-        longValue(1),
-        longValue(2),
-        stringValue("bar")
+  private def nestedObject(input: String): BuilderField = nestedObject("xx", 9.5, input)
+
+  private def arrayProperty(num1: Long, num2: Long, str: String, input: String): BuilderField =
+    BuilderField(
+      "arr",
+      ArrayBuilderValue(
+        Seq(
+          longValue(num1, input),
+          longValue(num2, input),
+          stringValue(str, input)
+        )
       )
     )
-  )
+
+  private def arrayProperty(input: String): BuilderField = arrayProperty(17, 18, "bar", input)
 
   def parse(input: String): Either[String, ObjectBuilderValue] = rootObject.parse(input).toEither
 
@@ -60,10 +67,11 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
   }
 
   test("root object with two properties that is not enclosed in braces") {
+    val input = """ "a": "foo", "b": "bar" """
     run(
-      """ "a": "foo", "b": "bar" """.stripMargin,
-      f("a", "foo"),
-      f("b", "bar")
+      input,
+      f("a", "foo", input),
+      f("b", "bar", input)
     )
   }
 
@@ -73,32 +81,33 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         |  inner = xx 
         |  num = 9.5 
         |}
-        |str1 = "foo"
+        |str1 = "fop"
         |str2 = foo
         |
         |int = 27
-        |"null": null
+        |"none": null
         |bool = true
-        |arr = [ 1, 2, "bar" ]
-        |"obj": { "inner": "xx", "num": 9.5 }""".stripMargin
+        |arr = [ 17, 18, "bar" ]
+        |"obj": { "inner": "yy", "num": 8.5 }""".stripMargin
     run(
       input,
-      nestedObject,
-      BuilderField("str1", stringValue("foo")),
-      BuilderField("str2", stringValue("foo")),
-      BuilderField("int", longValue(27)),
-      BuilderField("null", nullValue),
-      BuilderField("bool", trueValue),
-      arrayProperty,
-      nestedObject
+      nestedObject(input),
+      BuilderField("str1", stringValue("fop", input)),
+      BuilderField("str2", stringValue("foo", input)),
+      BuilderField("int", longValue(27, input)),
+      BuilderField("none", nullValue(input)),
+      BuilderField("bool", trueValue(input)),
+      arrayProperty(input),
+      nestedObject("yy", 8.5, input)
     )
   }
 
   test("root object with two properties that use '=' instead of ':'") {
+    val input = """ "a" = "foo", "b" = "bar" """
     run(
-      """ "a" = "foo", "b" = "bar" """.stripMargin,
-      f("a", "foo"),
-      f("b", "bar")
+      input,
+      f("a", "foo", input),
+      f("b", "bar", input)
     )
   }
 
@@ -109,7 +118,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         |  "inner": "xx", 
         |  "num": 9.5 
         |} """.stripMargin
-    run(input, f("a", "foo"), nestedObject)
+    run(input, f("a", "foo", input), nestedObject(input))
   }
 
   test("object property with a trailing comma") {
@@ -119,48 +128,50 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         |  "inner": "xx", 
         |  "num": 9.5,
         |} """.stripMargin
-    run(input, f("a", "foo"), nestedObject)
+    run(input, f("a", "foo", input), nestedObject(input))
   }
 
   test("array property with a trailing comma") {
     val input =
       """"a": "foo", 
-        |"arr": [ 1, 2, "bar", ]""".stripMargin
-    run(input, f("a", "foo"), arrayProperty)
+        |"arr": [ 17, 18, "bar", ]""".stripMargin
+    run(input, f("a", "foo", input), arrayProperty(input))
   }
 
   test("array property with elements separated by newline characters") {
     val input =
       """"a": "foo", 
         |"arr": [ 
-        |  1 
-        |  2 
+        |  17 
+        |  18 
         |  "bar"
         |]""".stripMargin
-    run(input, f("a", "foo"), arrayProperty)
+    run(input, f("a", "foo", input), arrayProperty(input))
   }
 
   test("root object with members separated by newline characters") {
+    val input = """"a": "foo"
+                  |"b": "bar" 
+                  |"c": "baz" """.stripMargin
     run(
-      """"a": "foo"
-        |"b": "bar" 
-        |"c": "baz" """.stripMargin,
-      f("a", "foo"),
-      f("b", "bar"),
-      f("c", "baz")
+      input,
+      f("a", "foo", input),
+      f("b", "bar", input),
+      f("c", "baz", input)
     )
   }
 
   test("root object with members separated by two newline characters") {
+    val input = """"a": "foo"
+                  |
+                  |"b": "bar"
+                  | 
+                  |"c": "baz" """.stripMargin
     run(
-      """"a": "foo"
-        |
-        |"b": "bar"
-        | 
-        |"c": "baz" """.stripMargin,
-      f("a", "foo"),
-      f("b", "bar"),
-      f("c", "baz")
+      input,
+      f("a", "foo", input),
+      f("b", "bar", input),
+      f("c", "baz", input)
     )
   }
 
@@ -170,7 +181,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         |"s": +++Line 1
         | Line 2
         | Line 3+++""".stripMargin.replace("+++", "\"\"\"")
-    run(input, f("a", "foo"), f("s", "Line 1\n Line 2\n Line 3"))
+    run(input, f("a", "foo", input), f("s", "Line 1\n Line 2\n Line 3", input))
   }
 
   test("multiline string property with more than 3 closing quotes") {
@@ -179,28 +190,28 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         |"s": +++Line 1
         | Line 2
         | Line 3+++++""".stripMargin.replace("+", "\"")
-    run(input, f("a", "foo"), f("s", "Line 1\n Line 2\n Line 3\"\""))
+    run(input, f("a", "foo", input), f("s", "Line 1\n Line 2\n Line 3\"\"", input))
   }
 
   test("multiline string property - ignore escapes") {
     val input =
       """"a": "foo", 
         |"s": +++Word 1 \n Word 2+++""".stripMargin.replace("+++", "\"\"\"")
-    run(input, f("a", "foo"), f("s", "Word 1 \\n Word 2"))
+    run(input, f("a", "foo", input), f("s", "Word 1 \\n Word 2", input))
   }
 
   test("object with unquoted keys") {
     val input =
       """a: "foo", 
-        |arr: [ 1, 2, "bar" ]""".stripMargin
-    run(input, f("a", "foo"), arrayProperty)
+        |arr: [ 17, 18, "bar" ]""".stripMargin
+    run(input, f("a", "foo", input), arrayProperty(input))
   }
 
   test("object with unquoted string values") {
     val input =
       """"a": foo, 
-        |"arr": [ 1, 2, bar ]""".stripMargin
-    run(input, f("a", "foo"), arrayProperty)
+        |"arr": [ 17, 18, bar ]""".stripMargin
+    run(input, f("a", "foo", input), arrayProperty(input))
   }
 
   test("object with the += field separator") {
@@ -209,10 +220,13 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         |a += bar""".stripMargin
     run(
       input,
-      BuilderField("a", ArrayBuilderValue(Seq(stringValue("foo")))),
+      BuilderField("a", ArrayBuilderValue(Seq(stringValue("foo", input)))),
       BuilderField(
         "a",
-        ConcatValue(SelfReference, Seq(ConcatPart("", ArrayBuilderValue(Seq(stringValue("bar"))))))
+        ConcatValue(
+          SelfReference,
+          Seq(ConcatPart("", ArrayBuilderValue(Seq(stringValue("bar", input)))))
+        )
       )
     )
   }
@@ -223,7 +237,10 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
       input,
       BuilderField(
         "a",
-        ConcatValue(trueValue, Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", falseValue)))
+        ConcatValue(
+          trueValue(input),
+          Seq(ConcatPart(" ", stringValue("is", input)), ConcatPart(" ", falseValue(input)))
+        )
       )
     )
   }
@@ -235,18 +252,24 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
       BuilderField(
         "a",
         ConcatValue(
-          longValue(9),
-          Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", longValue(7)))
+          longValue(9, input),
+          Seq(ConcatPart(" ", stringValue("is", input)), ConcatPart(" ", longValue(7, input)))
         )
       )
     )
   }
 
   test("object values on a single line") {
-    val input = """a = { "inner": "xx", "num": 9.5 } { "inner": "xx", "num": 9.5 }"""
+    val input = """a = { "inner": "xx", "num": 9.5 } { "inner": "yy", "num": 8.5 }"""
     run(
       input,
-      BuilderField("a", ConcatValue(nestedObject.value, Seq(ConcatPart(" ", nestedObject.value))))
+      BuilderField(
+        "a",
+        ConcatValue(
+          nestedObject(input).value,
+          Seq(ConcatPart(" ", nestedObject("yy", 8.5, input).value))
+        )
+      )
     )
   }
 
@@ -255,47 +278,65 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
                   |  "inner": "xx", 
                   |  "num": 9.5
                   |} { 
-                  |  "inner": "xx", 
-                  |  "num": 9.5
+                  |  "inner": "yy", 
+                  |  "num": 8.5
                   |}""".stripMargin
     run(
       input,
-      BuilderField("a", ConcatValue(nestedObject.value, Seq(ConcatPart(" ", nestedObject.value))))
+      BuilderField(
+        "a",
+        ConcatValue(
+          nestedObject(input).value,
+          Seq(ConcatPart(" ", nestedObject("yy", 8.5, input).value))
+        )
+      )
     )
   }
 
   test("array values on a single line") {
-    val input = """a = [ 1, 2, "bar", ] [ 1, 2, "bar", ]"""
+    val input = """a = [ 17, 18, "bar", ] [ 27, 28, "baz", ]"""
     run(
       input,
-      BuilderField("a", ConcatValue(arrayProperty.value, Seq(ConcatPart(" ", arrayProperty.value))))
+      BuilderField(
+        "a",
+        ConcatValue(
+          arrayProperty(input).value,
+          Seq(ConcatPart(" ", arrayProperty(27, 28, "baz", input).value))
+        )
+      )
     )
   }
 
   test("array values spanning multiple lines") {
     val input = """a = [ 
-                  | 1
-                  | 2 
+                  | 17
+                  | 18 
                   | "bar"
                   |] [ 
-                  | 1 
-                  | 2
-                  | "bar"
+                  | 27 
+                  | 28
+                  | "baz"
                   |]""".stripMargin
     run(
       input,
-      BuilderField("a", ConcatValue(arrayProperty.value, Seq(ConcatPart(" ", arrayProperty.value))))
+      BuilderField(
+        "a",
+        ConcatValue(
+          arrayProperty(input).value,
+          Seq(ConcatPart(" ", arrayProperty(27, 28, "baz", input).value))
+        )
+      )
     )
   }
 
   test("concatenated key consisting of unquoted strings") {
     val input = """a b c = foo"""
-    run(input, f("a b c", "foo"))
+    run(input, f("a b c", "foo", input))
   }
 
   test("concatenated key consisting of unquoted and quoted strings") {
     val input = """a "b" c = foo"""
-    run(input, f("a b c", "foo"))
+    run(input, f("a b c", "foo", input))
   }
 
   test("substitution as a simple value") {
@@ -316,7 +357,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
         "a",
         ConcatValue(
           SubstitutionValue(Key("foo", "bar"), optional = false),
-          Seq(ConcatPart(" ", stringValue("is")), ConcatPart(" ", nullValue))
+          Seq(ConcatPart(" ", stringValue("is", input)), ConcatPart(" ", nullValue(input)))
         )
       )
     )
@@ -329,9 +370,9 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
       BuilderField(
         "a",
         ConcatValue(
-          stringValue("Blue"),
+          stringValue("Blue", input),
           Seq(
-            ConcatPart(" ", stringValue("is")),
+            ConcatPart(" ", stringValue("is", input)),
             ConcatPart(" ", SubstitutionValue(Key("foo", "bar"), optional = false))
           )
         )
@@ -345,7 +386,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
                   | 
                   | a = 7
     """.stripMargin
-    run(input, BuilderField("a", longValue(7)))
+    run(input, BuilderField("a", longValue(7, input)))
   }
 
   test("comment at the end of the input") {
@@ -354,7 +395,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
                   |
                   | // comment
                 """.stripMargin
-    run(input, BuilderField("a", longValue(7)))
+    run(input, BuilderField("a", longValue(7, input)))
   }
 
   test("comment in the middle of the input") {
@@ -365,7 +406,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
                   | 
                   | b = 9
                 """.stripMargin
-    run(input, BuilderField("a", longValue(7)), BuilderField("b", longValue(9)))
+    run(input, BuilderField("a", longValue(7, input)), BuilderField("b", longValue(9, input)))
   }
 
   test("multiple comments in the middle of the input") {
@@ -378,7 +419,7 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
                   |
                   | b = 9
                 """.stripMargin
-    run(input, BuilderField("a", longValue(7)), BuilderField("b", longValue(9)))
+    run(input, BuilderField("a", longValue(7, input)), BuilderField("b", longValue(9, input)))
   }
 
   test("comment next to an object member") {
@@ -387,105 +428,122 @@ class HoconParserSpec extends FunSuite with ResultBuilders {
                   | 
                   | b = 9
                 """.stripMargin
-    run(input, BuilderField("a", longValue(7)), BuilderField("b", longValue(9)))
+    run(input, BuilderField("a", longValue(7, input)), BuilderField("b", longValue(9, input)))
   }
 
   test("comment next to an array property") {
     val input =
       """"a": "foo", 
         |"arr": [ 
-        |  1  // hello
-        |  2  # there
+        |  17  // hello
+        |  18  # there
         |  "bar"
         |]""".stripMargin
-    run(input, f("a", "foo"), arrayProperty)
+    run(input, f("a", "foo", input), arrayProperty(input))
   }
 
   test("unquoted path") {
-    run("foo.bar = 7", BuilderField(Key("foo", "bar"), longValue(7)))
+    val input = "foo.bar = 7"
+    run(input, BuilderField(Key("foo", "bar"), longValue(7, input)))
   }
 
   test("unquoted path with whitespace") {
-    run("foo.bar bar.baz = 7", BuilderField(Key("foo", "bar bar", "baz"), longValue(7)))
+    val input = "foo.bar bar.baz = 7"
+    run(input, BuilderField(Key("foo", "bar bar", "baz"), longValue(7, input)))
   }
 
   test("quoted path") {
-    run("\"foo.bar\" = 7", BuilderField(Key("foo.bar"), longValue(7)))
+    val input = "\"foo.bar\" = 7"
+    run(input, BuilderField(Key("foo.bar"), longValue(7, input)))
   }
 
   test("quoted and unquoted path combined") {
-    run("foo.\"bar.bar\".baz = 7", BuilderField(Key("foo", "bar.bar", "baz"), longValue(7)))
+    val input = "foo.\"bar.bar\".baz = 7"
+    run(input, BuilderField(Key("foo", "bar.bar", "baz"), longValue(7, input)))
   }
 
   test("quoted empty string as a path element") {
-    run("foo.\"\".baz = 7", BuilderField(Key("foo", "", "baz"), longValue(7)))
+    val input = " foo.\"\".baz = 7"
+    run(input, BuilderField(Key("foo", "", "baz"), longValue(7, input)))
   }
 
   test("optional file include") {
-    val input = """include file("foo.conf")"""
-    assertEquals(ConfigParser.parse(input).includes, Seq(IncludeFile(ValidStringValue("foo.conf"))))
+    val file  = "foo.conf"
+    val input = s"""include file("$file")"""
+    assertEquals(
+      ConfigParser.parse(input).includes,
+      Seq(IncludeFile(ValidString("foo.conf", cursor(file, input))))
+    )
   }
 
   test("optional classpath include") {
-    val input = """include classpath("foo.conf")"""
+    val cp    = "foo.conf"
+    val input = s"""include classpath("$cp")"""
     assertEquals(
       ConfigParser.parse(input).includes,
-      Seq(IncludeClassPath(ValidStringValue("foo.conf")))
+      Seq(IncludeClassPath(ValidString("foo.conf", cursor(cp, input))))
     )
   }
 
   test("optional URL include") {
-    val input = """include url("http://config.com/foo.conf")"""
+    val url   = "http://config.com/foo.conf"
+    val input = s"""include url("$url")"""
     assertEquals(
       ConfigParser.parse(input).includes,
-      Seq(IncludeUrl(ValidStringValue("http://config.com/foo.conf")))
+      Seq(IncludeUrl(ValidString("http://config.com/foo.conf", cursor(url, input))))
     )
   }
 
   test("optional heuristic include") {
-    val input = """include "http://config.com/foo.conf""""
+    val url   = "http://config.com/foo.conf"
+    val input = s"""include "$url""""
     assertEquals(
       ConfigParser.parse(input).includes,
-      Seq(IncludeAny(ValidStringValue("http://config.com/foo.conf")))
+      Seq(IncludeAny(ValidString("http://config.com/foo.conf", cursor(url, input))))
     )
   }
 
   test("required heuristic include") {
-    val input = """include required("http://config.com/foo.conf")"""
+    val url   = "http://config.com/foo.conf"
+    val input = s"""include required("$url")"""
     assertEquals(
       ConfigParser.parse(input).includes,
-      Seq(IncludeAny(ValidStringValue("http://config.com/foo.conf"), isRequired = true))
+      Seq(
+        IncludeAny(ValidString("http://config.com/foo.conf", cursor(url, input)), isRequired = true)
+      )
     )
   }
 
   test("required file include") {
-    val input = """include required(file("foo.conf"))"""
+    val file  = "foo.conf"
+    val input = s"""include required(file("$file"))"""
     assertEquals(
       ConfigParser.parse(input).includes,
-      Seq(IncludeFile(ValidStringValue("foo.conf"), isRequired = true))
+      Seq(IncludeFile(ValidString("foo.conf", cursor(file, input)), isRequired = true))
     )
   }
 
   test("multiple include statements on different nesting levels") {
+    val url   = "http://config.com/foo.conf"
     val input =
-      """
-        |include file("foo.conf")
-        |a {
-        |  include classpath("foo.conf")
-        |  
-        |  x = 5
-        |  
-        |  b {
-        |    include url("http://config.com/foo.conf")
-        |  }
-        |}
-        |""".stripMargin
+      s"""
+         |include file("foo.conf")
+         |a {
+         |  include classpath("bar.conf")
+         |  
+         |  x = 5
+         |  
+         |  b {
+         |    include url("$url")
+         |  }
+         |}
+         |""".stripMargin
     assertEquals(
       ConfigParser.parse(input).includes,
       Seq(
-        IncludeFile(ValidStringValue("foo.conf")),
-        IncludeClassPath(ValidStringValue("foo.conf")),
-        IncludeUrl(ValidStringValue("http://config.com/foo.conf"))
+        IncludeFile(ValidString("foo.conf", cursor("foo.conf", input))),
+        IncludeClassPath(ValidString("bar.conf", cursor("bar.conf", input))),
+        IncludeUrl(ValidString(url, cursor(url, input)))
       )
     )
   }

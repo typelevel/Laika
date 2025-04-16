@@ -25,6 +25,7 @@ import laika.api.config.ConfigParser
 import laika.api.config.ConfigError.ResourceLoadingFailed
 import laika.internal.parse.hocon.*
 import laika.io.internal.runtime.Batch
+import laika.parse.SourceCursor
 
 /** Internal utility that provides configuration files requested by include statements in other
   * configuration instances.
@@ -68,7 +69,10 @@ private[io] object IncludeHandler {
             case Some(parentFile) =>
               (
                 IncludeFile(
-                  ValidStringValue(new File(parentFile, include.resourceId.value).getPath),
+                  ValidString(
+                    new File(parentFile, include.resourceId.value).getPath,
+                    SourceCursor.Generated
+                  ),
                   include.isRequired
                 ),
                 requested
@@ -83,13 +87,24 @@ private[io] object IncludeHandler {
           parent: Option[IncludeResource]
       ): F[(IncludeResource, IncludeResource)] = Sync[F].pure {
         if (include.resourceId.value.startsWith("/"))
-          (include.copy(resourceId = ValidStringValue(include.resourceId.value.drop(1))), include)
+          (
+            include.copy(resourceId =
+              ValidString(include.resourceId.value.drop(1), SourceCursor.Generated)
+            ),
+            include
+          )
         else
           parent match {
             case Some(p: IncludeClassPath) if p.resourceId.value.contains("/") =>
               val parentPath = p.resourceId.value.substring(0, p.resourceId.value.lastIndexOf("/"))
               val childPath  = s"$parentPath/${include.resourceId.value}"
-              (IncludeClassPath(ValidStringValue(childPath), include.isRequired), requested)
+              (
+                IncludeClassPath(
+                  ValidString(childPath, SourceCursor.Generated),
+                  include.isRequired
+                ),
+                requested
+              )
             case _ => (include, requested)
           }
       }
@@ -103,7 +118,13 @@ private[io] object IncludeHandler {
           case Some(p: IncludeUrl) =>
             val parentUrl = new URL(p.resourceId.value)
             val childUrl  = new URL(parentUrl, include.resourceId.value)
-            (IncludeUrl(ValidStringValue(childUrl.toString), include.isRequired), requested)
+            (
+              IncludeUrl(
+                ValidString(childUrl.toString, SourceCursor.Generated),
+                include.isRequired
+              ),
+              requested
+            )
           case _                   => (include, requested)
         }
       }

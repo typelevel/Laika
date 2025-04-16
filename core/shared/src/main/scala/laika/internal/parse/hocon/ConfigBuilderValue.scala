@@ -18,7 +18,7 @@ package laika.internal.parse.hocon
 
 import laika.api.config.ConfigValue.SimpleValue
 import laika.api.config.Key
-import laika.parse.{ Failure, SourceCursor }
+import laika.parse.{ Failure, SourceCursor, SourceFragment }
 
 /** The base trait of the interim configuration model (usually obtained from a HOCON parser).
   *
@@ -49,14 +49,13 @@ private[laika] object SubstitutionValue {
   def apply(ref: String, optional: Boolean): SubstitutionValue = apply(Key(ref), optional)
 }
 
-private[laika] sealed trait StringBuilderValue extends ConfigBuilderValue {
+private[laika] sealed trait ParsedString {
   def value: String
 }
 
-private[laika] case class ValidStringValue(value: String) extends StringBuilderValue
+private[laika] case class ValidString(value: String, source: SourceFragment) extends ParsedString
 
-private[laika] case class InvalidStringValue(value: String, failure: Failure)
-    extends StringBuilderValue
+private[laika] case class InvalidString(value: String, failure: Failure) extends ParsedString
 
 /** A marker for a self reference, a reference to an earlier definition with the same key. */
 private[laika] case object SelfReference extends ConfigBuilderValue
@@ -70,7 +69,7 @@ private[laika] case class ObjectBuilderValue(values: Seq[BuilderField]) extends 
 
 /** A single field of an object value. */
 private[laika] case class BuilderField(
-    key: Either[InvalidStringValue, Key],
+    key: Either[InvalidString, Key],
     value: ConfigBuilderValue
 ) {
   def validKey: Key = key.getOrElse(Key.root)
@@ -85,11 +84,12 @@ private[laika] case class InvalidBuilderValue(value: ConfigBuilderValue, failure
     extends ConfigBuilderValue
 
 /** A simple configuration value that does not need to be recursively resolved. */
-private[laika] case class ResolvedBuilderValue(value: SimpleValue) extends ConfigBuilderValue
+private[laika] case class ResolvedBuilderValue(value: SimpleValue, source: SourceFragment)
+    extends ConfigBuilderValue
 
 /** Description of a resource to be included in the current configuration. */
 private[laika] sealed trait IncludeResource {
-  def resourceId: StringBuilderValue
+  def resourceId: ParsedString
   def isRequired: Boolean
 
   def asRequired: IncludeResource = this match {
@@ -101,18 +101,18 @@ private[laika] sealed trait IncludeResource {
 
 }
 
-private[laika] case class IncludeUrl(resourceId: StringBuilderValue, isRequired: Boolean = false)
+private[laika] case class IncludeUrl(resourceId: ParsedString, isRequired: Boolean = false)
     extends IncludeResource
 
-private[laika] case class IncludeFile(resourceId: StringBuilderValue, isRequired: Boolean = false)
+private[laika] case class IncludeFile(resourceId: ParsedString, isRequired: Boolean = false)
     extends IncludeResource
 
 private[laika] case class IncludeClassPath(
-    resourceId: StringBuilderValue,
+    resourceId: ParsedString,
     isRequired: Boolean = false
 ) extends IncludeResource
 
-private[laika] case class IncludeAny(resourceId: StringBuilderValue, isRequired: Boolean = false)
+private[laika] case class IncludeAny(resourceId: ParsedString, isRequired: Boolean = false)
     extends IncludeResource
 
 private[laika] case class IncludeBuilderValue(resource: IncludeResource, cursor: SourceCursor)

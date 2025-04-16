@@ -217,6 +217,11 @@ class LineSource private (
     else this
   }
 
+  def dropRight(numChars: Int): LineSource = {
+    val newInput = input.dropRight(numChars)
+    new LineSource(newInput, parentRef, Math.min(offset, newInput.length), nestLevel)
+  }
+
   lazy val parent: SourceCursor = parentRef.consume(offset)
 
   lazy val root: SourceCursor = parent.root

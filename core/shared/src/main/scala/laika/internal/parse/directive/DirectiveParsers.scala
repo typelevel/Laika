@@ -18,9 +18,11 @@ package laika.internal.parse.directive
 
 import cats.data.{ NonEmptyChain, NonEmptySet }
 import laika.api.bundle.{ AttributeKey, BlockParserBuilder, SpanParserBuilder }
+import laika.api.config.ConfigValue.StringValue
 import laika.api.config.Key
 import laika.ast.*
 import laika.internal.parse.hocon.*
+import laika.parse.SourceCursor.Generated
 import laika.parse.builders.*
 import laika.parse.syntax.*
 import laika.parse.markup.{ RecursiveParsers, RecursiveSpanParsers }
@@ -108,7 +110,9 @@ private[laika] object DirectiveParsers {
         .map(values =>
           BuilderField(
             AttributeKey.Positional.key,
-            ArrayBuilderValue(values.map(sv => ValidStringValue(sv.trim)))
+            ArrayBuilderValue(
+              values.map(sv => ResolvedBuilderValue(StringValue(sv.trim), Generated)) // TODO - 1.4
+            )
           )
         ) <~ ")"
     )

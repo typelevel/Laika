@@ -30,7 +30,7 @@ import laika.io.api.TreeParser
 import laika.io.internal.config.IncludeHandler
 import laika.io.internal.config.IncludeHandler.RequestedInclude
 import laika.io.model.{ FilePath, InputTree, ParsedTree, TextInput }
-import laika.internal.parse.hocon.{ IncludeFile, IncludeResource, ValidStringValue }
+import laika.internal.parse.hocon.{ IncludeFile, IncludeResource, ValidString }
 import laika.internal.parse.markup.DocumentParser.DocumentInput
 import laika.io.internal.errors.{
   DocumentParserError,
@@ -38,6 +38,7 @@ import laika.io.internal.errors.{
   NoMatchingParser,
   ParserErrors
 }
+import laika.parse.SourceCursor
 
 /** Internal runtime for parser operations, for parallel and sequential execution.
   *
@@ -45,13 +46,13 @@ import laika.io.internal.errors.{
   */
 private[io] object ParserRuntime {
 
-  import DocumentTreeBuilder._
+  import DocumentTreeBuilder.*
 
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
   def run[F[_]: Async: Batch](op: TreeParser.Op[F]): F[ParsedTree[F]] = {
 
-    import DocumentType.{ Config => ConfigType, _ }
+    import DocumentType.{ Config => ConfigType, * }
 
     def mergeInputs(userInputs: InputTree[F], themeInputs: InputTree[F]): F[InputTree[F]] = {
 
@@ -156,7 +157,7 @@ private[io] object ParserRuntime {
           res.includes.map { include =>
             RequestedInclude(
               include,
-              res.sourceFile.map(f => IncludeFile(ValidStringValue(f.toString)))
+              res.sourceFile.map(f => IncludeFile(ValidString(f.toString, SourceCursor.Generated)))
             )
           }
         }

@@ -24,7 +24,7 @@ import laika.parse.code.common.NumberLiteral.digits
 import laika.parse.text.{ CharGroup, Characters }
 import laika.parse.builders.*
 import laika.parse.syntax.*
-import laika.parse.{ Failure, Message, Parser, SourceCursor }
+import laika.parse.{ Failure, LineSource, Message, Parser, SourceCursor }
 
 import scala.annotation.nowarn
 import scala.util.Try
@@ -67,14 +67,14 @@ private[laika] object HoconParsers {
 
   }
 
-  case class PathFragments(fragments: Seq[StringBuilderValue]) {
+  case class PathFragments(fragments: Seq[Either[InvalidString, String]]) {
 
     def join(other: PathFragments): PathFragments = {
       if (fragments.isEmpty || other.fragments.isEmpty) PathFragments(fragments ++ other.fragments)
       else {
         val glue = (fragments.last, other.fragments.head) match {
-          case (ValidStringValue(v1), ValidStringValue(v2)) => Seq(ValidStringValue(v1 ++ v2))
-          case (v1, v2)                                     => Seq(v1, v2)
+          case (Right(v1), Right(v2)) => Seq(Right(v1 ++ v2))
+          case (v1, v2)               => Seq(v1, v2)
         }
         PathFragments(fragments.init ++ glue ++ other.fragments.tail)
       }
@@ -84,16 +84,20 @@ private[laika] object HoconParsers {
 
   object PathFragments {
 
-    def unquoted(key: StringBuilderValue): PathFragments = {
+    def unquoted(key: ParsedString): PathFragments = {
       val fragments = key match {
-        case ValidStringValue(value) => value.split("\\.", -1).toSeq.map(ValidStringValue.apply)
-        case invalid                 => Seq(invalid)
+        case ValidString(value, _)  => value.split("\\.", -1).toSeq.map(Right(_))
+        case invalid: InvalidString => Seq(Left(invalid))
       }
       apply(fragments)
     }
 
-    def quoted(key: StringBuilderValue): PathFragments = apply(Seq(key))
-    def whitespace(ws: String): PathFragments          = apply(Seq(ValidStringValue(ws)))
+    def quoted(key: ParsedString): PathFragments = key match {
+      case valid: ValidString     => apply(Seq(Right(valid.value)))
+      case invalid: InvalidString => apply(Seq(Left(invalid)))
+    }
+
+    def whitespace(ws: String): PathFragments = apply(Seq(Right(ws)))
   }
 
   def lazily[T](parser: => Parser[T]): Parser[T] = new Parser[T] {
@@ -105,15 +109,22 @@ private[laika] object HoconParsers {
   val wsOrNl: Characters[String] = anyOf(' ', '\t', '\n')
 
   /** Parses a null value. */
-  val nullValue: Parser[ConfigBuilderValue] = literal("null").as(ResolvedBuilderValue(NullValue))
+  val nullValue: Parser[ConfigBuilderValue] =
+    literal("null").withCursor.map { case (_, cursor) =>
+      ResolvedBuilderValue(NullValue, cursor)
+    }
 
   /** Parses a literal true value. */
   val trueValue: Parser[ConfigBuilderValue] =
-    literal("true").as(ResolvedBuilderValue(BooleanValue(true)))
+    literal("true").withCursor.map { case (_, cursor) =>
+      ResolvedBuilderValue(BooleanValue(true), cursor)
+    }
 
   /** Parses a literal false value. */
   val falseValue: Parser[ConfigBuilderValue] =
-    literal("false").as(ResolvedBuilderValue(BooleanValue(false)))
+    literal("false").withCursor.map { case (_, cursor) =>
+      ResolvedBuilderValue(BooleanValue(false), cursor)
+    }
 
   /** Parses a literal number value into a Long or Double depending on whether a fraction part is present. */
   val numberValue: Parser[ConfigBuilderValue] = {
@@ -129,20 +140,20 @@ private[laika] object HoconParsers {
     val fraction = opt((oneOf('.') ~ digits).source).source
     val exponent = opt((oneOf('E', 'e') ~ sign ~ digits).source).source
 
-    (integer ~ (fraction ~ exponent).source).evalMap {
-      case int ~ ""         =>
+    (integer ~ (fraction ~ exponent).source).withCursor.evalMap {
+      case (int ~ "", cursor)         =>
         Try(int.toLong).toEither
           .left.map(_.getMessage)
-          .map(v => ResolvedBuilderValue(LongValue(v)))
-      case int ~ doublePart =>
+          .map(v => ResolvedBuilderValue(LongValue(v), cursor))
+      case (int ~ doublePart, cursor) =>
         Try((int + doublePart).toDouble).toEither
           .left.map(_.getMessage)
-          .map(v => ResolvedBuilderValue(DoubleValue(v)))
+          .map(v => ResolvedBuilderValue(DoubleValue(v), cursor))
     }
   }
 
   /** Parses a string enclosed in quotes. */
-  val quotedString: Parser[StringBuilderValue] = {
+  val quotedString: Parser[ParsedString] = {
     val chars       = someNot('"', '\\', '\n').map(Right(_))
     val specialChar = oneOf('b', 'f', 'n', 'r', 't').map {
       case "b" => "\b"
@@ -158,34 +169,41 @@ private[laika] object HoconParsers {
         Left(_)
       ))
 
-    val value = (chars | escape).rep.map { parts =>
+    val value = (chars | escape).rep.withCursor.map { case (parts, cursor) =>
       parts.sequence.fold(
         error =>
-          InvalidStringValue(
+          InvalidString(
             parts.map(_.fold(_._1, identity)).mkString,
             Failure(Message.fixed(s"Invalid escape sequence: \\${error._1}"), error._2)
           ),
-        parts => ValidStringValue(parts.mkString)
+        parts => ValidString(parts.mkString, cursor)
       )
     }
-    ("\"" ~> value).closeWith('"')((v, f) => InvalidStringValue(v.value, f))
+    ("\"" ~> value).closeWith('"')((v, f) => InvalidString(v.value, f))
   }
 
   /** Parses a string enclosed in triple quotes. */
   val multilineString: Parser[ConfigBuilderValue] = {
     val msg      = "Expected closing triple quote"
     val fallback = failWith(anyChars.count, msg)(InvalidBuilderValue(SelfReference, _))
-    val content  = delimitedBy("\"\"\"") ~ anyOf('\"') ^^ { case text ~ extraQuotes =>
-      ValidStringValue(text + extraQuotes)
+    val content  = (delimitedBy("\"\"\"") ~ anyOf('\"')).withCursor ^^ {
+      case ((text ~ extraQuotes), cursor) =>
+        val source = cursor match {
+          case ls: LineSource => ls.dropRight(3)
+          case other          => other
+        }
+        ResolvedBuilderValue(StringValue(text + extraQuotes), source)
     }
     "\"\"\"" ~> (content | fallback)
   }
 
   /** Parses an unquoted string that is not allowed to contain any of the reserved characters listed in the HOCON spec. */
-  def unquotedString(delimiters: NonEmptySet[Char]): Parser[StringBuilderValue] = {
+  def unquotedString(delimiters: NonEmptySet[Char]): Parser[ParsedString] = {
     val unquotedChar  = anyNot('$', '"', '{', '}', '[', ']', ':', '=', ',', '+', '#', '`', '^', '?',
       '!', '@', '*', '&', '\\', ' ', '\t', '\n')
-    val mainParser    = unquotedChar.min(1).map(ValidStringValue.apply)
+    val mainParser    = unquotedChar.min(1).withCursor.map { case (str, source) =>
+      ValidString(str, source)
+    }
     val closingParser = lookAhead(
       ws ~ (oneOf(delimiters.add('"').add('$')) | unquotedChar.take(1) | eof)
     )
@@ -197,16 +215,23 @@ private[laika] object HoconParsers {
     }.mkString(", ")
     val msg                =
       s"Illegal character in unquoted string, expected delimiter$delimMsg $renderedDelimiters"
-    mainParser.closeWith[StringBuilderValue](
+    mainParser.closeWith[ParsedString](
       closingParser,
       ws.count <~ anyNot(delimiters.add('\n')),
       msg
-    )((v, f) => InvalidStringValue(v.value, f))
+    )((v, f) => InvalidString(v.value, f))
   }
 
   /** Parses any of the 3 string types (quoted, unquoted, triple-quoted). */
-  def stringBuilderValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] =
-    multilineString | quotedString | unquotedString(delimiter)
+  def stringBuilderValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] = {
+
+    def toBuilderValue(sbv: ParsedString): ConfigBuilderValue = sbv match {
+      case InvalidString(_, failure)  => InvalidBuilderValue(SelfReference, failure)
+      case ValidString(value, source) => ResolvedBuilderValue(StringValue(value), source)
+    }
+
+    multilineString | (quotedString | unquotedString(delimiter)).map(toBuilderValue)
+  }
 
   def concatenatedValue(delimiter: NonEmptySet[Char]): Parser[ConfigBuilderValue] = {
     lazy val parts = (ws ~ (not(comment) ~> anyValue(delimiter))).mapN(ConcatPart.apply).rep
@@ -219,24 +244,27 @@ private[laika] object HoconParsers {
   }
 
   /** Parses a key based on the HOCON rules where a '.' in a quoted string is not interpreted as a path separator. */
-  def concatenatedKey(delimiter: NonEmptySet[Char]): Parser[Either[InvalidStringValue, Key]] = {
+  def concatenatedKey(delimiter: NonEmptySet[Char]): Parser[Either[InvalidString, Key]] = {
     val string =
       quotedString.map(PathFragments.quoted) | unquotedString(delimiter).map(PathFragments.unquoted)
     val parts  = (ws.map(PathFragments.whitespace) ~ string).mapN(_ join _)
     (string ~ parts.rep).concat.map { allParts =>
       val fragments  = allParts.reduce(_ join _).fragments
-      val keyStrings = fragments.map(_.value)
-      fragments.toList.collect { case inv: InvalidStringValue => inv } match {
-        case error :: _ =>
+      val keyStrings = fragments.map {
+        case Left(inv)    => inv.value
+        case Right(value) => value
+      }
+      fragments.toList.collectFirst { case Left(inv) => inv } match {
+        case Some(error) =>
           Left(
-            InvalidStringValue(
+            InvalidString(
               keyStrings.mkString("."),
               error.failure.copy(
                 msgProvider = res => "Invalid key: " + error.failure.msgProvider.message(res)
               )
             )
           )
-        case _          => Right(Key(keyStrings.toList))
+        case _           => Right(Key(keyStrings.toList))
       }
     }
   }
@@ -245,11 +273,14 @@ private[laika] object HoconParsers {
   val substitutionValue: Parser[ConfigBuilderValue] = {
     val mainParser = ("${" ~> opt("?") ~ concatenatedKey(NonEmptySet.one('}'))).map {
       case opt ~ Right(key)  => SubstitutionValue(key, opt.isDefined)
-      case _ ~ Left(invalid) => invalid
+      case _ ~ Left(invalid) => InvalidBuilderValue(SelfReference, invalid.failure)
     }
-    def handleError(value: ConfigBuilderValue, failure: Failure): ConfigBuilderValue = value match {
-      case inv: InvalidStringValue => inv
-      case other                   => InvalidBuilderValue(other, failure)
+    def handleError(
+        value: ConfigBuilderValue,
+        failure: Failure
+    ): ConfigBuilderValue = value match {
+      case inv: InvalidBuilderValue => inv
+      case other                    => InvalidBuilderValue(other, failure)
     }
     mainParser.closeWith('}')(handleError)
   }
@@ -258,14 +289,14 @@ private[laika] object HoconParsers {
 
     def resource(
         kind: String,
-        f: StringBuilderValue => IncludeResource
+        f: ParsedString => IncludeResource
     ): Parser[IncludeResource] = {
       val noOpeningQuote =
-        failWith(anyNot('\n').as(0), "Expected quoted string")(InvalidStringValue("", _))
+        failWith(anyNot('\n').as(0), "Expected quoted string")(InvalidString("", _))
       val resourceId     = (quotedString | noOpeningQuote)
         .closeWith(')') {
-          case (inv: InvalidStringValue, _) => inv
-          case (v, failure)                 => InvalidStringValue(v.value, failure)
+          case (inv: InvalidString, _) => inv
+          case (v, failure)                 => InvalidString(v.value, failure)
         }
       ((kind + "(") ~> resourceId).map(f)
     }
@@ -275,15 +306,15 @@ private[laika] object HoconParsers {
       resource("classpath", IncludeClassPath(_)) |
       resource("url", IncludeUrl(_)) |
       failWith(anyNot('\n').as(0), "Expected quoted string")(f =>
-        IncludeAny(InvalidStringValue("", f))
+        IncludeAny(InvalidString("", f))
       )
 
     val required = "required(" ~> includeResource
       .map(_.asRequired)
       .closeWith(')') { (v, f) =>
         v.resourceId match {
-          case inv: InvalidStringValue => IncludeAny(inv)
-          case sv                      => IncludeAny(InvalidStringValue(sv.value, f))
+          case inv: InvalidString => IncludeAny(inv)
+          case sv                      => IncludeAny(InvalidString(sv.value, f))
         }
       }
 

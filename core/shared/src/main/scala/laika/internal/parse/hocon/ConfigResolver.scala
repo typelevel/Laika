@@ -86,7 +86,6 @@ private[laika] object ConfigResolver {
             }
             Some(FieldRef.arrayRef(key.name, origin, values.toList))
           case r: ResolvedBuilderValue => Some(ScalarRef(key.name, origin, r.value))
-          case s: ValidStringValue     => Some(ScalarRef(key.name, origin, StringValue(s.value)))
           case c: ConcatValue          =>
             val parts = c.allParts.toList.flatMap(resolveConcatPart(key))
             Some(FieldRef.concatRef(key.name, origin, parts))
@@ -131,8 +130,8 @@ private[laika] object ConfigResolver {
     val resolvedFields = obj.values.flatMap {
       case bf @ BuilderField(key, value @ IncludeBuilderValue(resource, source)) =>
         resource.resourceId match {
-          case _: InvalidStringValue => Seq(bf) // errors get extracted later
-          case _                     =>
+          case _: InvalidString => Seq(bf) // errors get extracted later
+          case _                =>
             includes.get(resource) match {
               case Some(Left(error))           =>
                 val msg = s"Error including '${resource.resourceId.value}': ${error.message}"
@@ -277,7 +276,6 @@ private[laika] object ConfigResolver {
         Seq(InvalidField(fieldName, failure))
       }
       value match {
-        case InvalidStringValue(_, failure)                          => wrap(failure)
         case InvalidBuilderValue(ArrayBuilderValue(values), failure) =>
           val nested = values.zipWithIndex.flatMap { case (arrValue, index) =>
             extract(field + "." + index, arrValue)
@@ -289,8 +287,8 @@ private[laika] object ConfigResolver {
         case InvalidBuilderValue(_, failure)                         => wrap(failure)
         case incl: IncludeBuilderValue                               =>
           incl.resource.resourceId match {
-            case InvalidStringValue(_, failure) => wrap(failure)
-            case _                              => Nil
+            case InvalidString(_, failure) => wrap(failure)
+            case _                         => Nil
           }
         case child: ObjectBuilderValue                               =>
           val fieldName = if (parentPath.isEmpty) field else s"$parentPath.$field"
@@ -306,11 +304,11 @@ private[laika] object ConfigResolver {
     }
 
     obj.values.flatMap {
-      case BuilderField(Left(InvalidStringValue(_, failure)), inv: InvalidBuilderValue)
+      case BuilderField(Left(InvalidString(_, failure)), inv: InvalidBuilderValue)
           if failure.message.contains("unquoted string") =>
         // keep the message of the value failure with the position of the key failure for more clarity
         Seq(InvalidField("<invalid>", failure.copy(msgProvider = inv.failure.msgProvider)))
-      case BuilderField(Left(InvalidStringValue(_, failure)), _) =>
+      case BuilderField(Left(InvalidString(_, failure)), _) =>
         Seq(InvalidField("<invalid>", failure))
       case BuilderField(name, value) => extract(name.map(_.toString).getOrElse("<invalid>"), value)
     }
