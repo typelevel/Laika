@@ -455,4 +455,55 @@ class ConfigSpec extends CatsEffectSuite
       .assertEquals(Some(Right("c")))
   }
 
+  test("decode a property in an array element in a document config header") {
+    val markup =
+      """{% foo: [{a = 1, b = 2}, {a = 3, b = 4}, {a = 5, b = 6}] %}
+        |aaa
+        |bbb""".stripMargin
+    val inputs = Seq(
+      Root / "dir" / "input.md" -> markup
+    )
+
+    parseMDTree(build(inputs))
+      .flatMap(p => resultTree(p.root).toIO)
+      .map { tree =>
+        tree
+          .selectDocument(RelativePath.CurrentTree / "dir" / "input.md")
+          .map(_.config.get[Int]("foo.2.b"))
+      }
+      .assertEquals(Some(Right(6)))
+  }
+
+  test("the value of a substitution reference must change when the document is re-homed") {
+    val markup =
+      """{% foo: ${bar} %}
+        |text""".stripMargin
+    val inputs = Seq(
+      Root / "tree-1" / "directory.conf" -> "bar = 1",
+      Root / "tree-2" / "directory.conf" -> "bar = 2",
+      Root / "tree-1" / "doc.md"         -> markup
+    )
+
+    parseMDTree(build(inputs))
+      .flatMap(p => resultTree(p.root).toIO)
+      .map { tree =>
+        val originalDoc  = tree
+          .selectDocument(RelativePath.CurrentTree / "tree-1" / "doc.md")
+        val modifiedTree = tree.modifyContent {
+          case t: DocumentTree if t.path == Root / "tree-2" => t.appendContent(originalDoc.get)
+          case other                                        => other
+        }
+        val modifiedDoc  = modifiedTree
+          .selectDocument(RelativePath.CurrentTree / "tree-2" / "doc.md")
+
+        (originalDoc, modifiedDoc).tupled.flatMap { case (doc1, doc2) =>
+          (
+            doc1.config.get[Int]("foo").toOption,
+            doc2.config.get[Int]("foo").toOption
+          ).tupled
+        }
+      }
+      .assertEquals(Some((1, 2)))
+  }
+
 }

@@ -18,6 +18,7 @@ package laika.api.config
 
 import laika.internal.collection.TransitionalCollectionOps.*
 import ConfigValue.ObjectValue
+import laika.internal.parse.hocon.ResolvedRef
 
 /** A builder for creating a Config instance programmatically.
   *
@@ -79,7 +80,11 @@ class ConfigBuilder private (fields: Seq[Field], origin: Origin, fallback: Confi
     */
   def build(newFallback: Config): Config =
     if (fields.isEmpty && origin == Origin.root && fallback == EmptyConfig) newFallback
-    else new ObjectConfig(asObjectValue, origin, fallback.withFallback(newFallback))
+    else
+      new ObjectConfig(
+        ResolvedRef.fromRoot(asObjectValue, origin),
+        fallback.withFallback(newFallback)
+      )
 
   private[laika] def asObjectValue: ObjectValue = mergeObjects(ObjectValue(fields))
 

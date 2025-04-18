@@ -18,14 +18,32 @@ package laika.parse.hocon
 
 import laika.api.config.Config.IncludeMap
 import munit.FunSuite
+import cats.syntax.all.*
 import laika.api.config.ConfigError.{ ResolverFailed, ValidationFailed }
 import laika.api.config.ConfigValue.*
-import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Field, Key, Origin }
+import laika.api.config.{
+  Config,
+  ConfigBuilder,
+  ConfigError,
+  ConfigParser,
+  Field,
+  Key,
+  ObjectConfig,
+  Origin
+}
 import laika.internal.parse.hocon.*
 
 /** @author Jens Halm
   */
 class ConfigResolverSpec extends FunSuite with ResultBuilders {
+
+  private def resolveRef(ref: FieldRef, fallback: Config): Either[ConfigError, ObjectValue] = {
+    val resolvedRef = ref match {
+      case rr: ResolvedRef   => rr
+      case ur: UnresolvedRef => ur.resolve(ResolverContext(fallback))
+    }
+    resolvedRef.cachedValue.map(_.asInstanceOf[ObjectValue])
+  }
 
   def parseAndResolve(
       input: String,
@@ -33,7 +51,8 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
       includes: IncludeMap = Map.empty
   ): Either[ConfigError, ObjectValue] = for {
     builder <- ConfigParser.parse(input).unresolved
-    result  <- ConfigResolver.resolve(builder, Origin.root, fallback, includes)
+    ref     <- ConfigResolver.resolve(builder, Origin.root, includes)
+    result  <- resolveRef(ref, new ObjectConfig(ref, fallback))
   } yield result
 
   def run(input: String, expectedFields: Field*)(implicit loc: munit.Location): Unit =
@@ -51,14 +70,19 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
 
   def runFailure(
       input: String,
-      expectedMessage: String,
-      includes: IncludeMap = Map.empty,
-      adjustMsg: String => String = identity
+      expectedError: ConfigError
   )(implicit loc: munit.Location): Unit = {
-    val res = parseAndResolve(input, includes = includes).left.map(e =>
-      ResolverFailed(adjustMsg(e.message))
-    )
-    assertEquals(res, Left(ResolverFailed(adjustMsg(expectedMessage))))
+    val res = parseAndResolve(input, includes = includes)
+    assertEquals(res, Left(expectedError))
+  }
+
+  def runFailure(
+      input: String,
+      expectedMessage: String,
+      includes: IncludeMap = Map.empty
+  )(implicit loc: munit.Location): Unit = {
+    val res = parseAndResolve(input, includes = includes).leftMap(_.message)
+    assertEquals(res, Left(expectedMessage))
   }
 
   test("resolve a simple object") {
@@ -305,23 +329,24 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
         |a = ${x}
         |b = 5
       """.stripMargin
-    runFailure(
-      input,
-      "One or more errors resolving configuration: 'a': Missing required reference: 'x'"
-    )
+    val msg   =
+      "One or more errors resolving fields of object value: Invalid Field 'a': Missing required reference: 'x'"
+    runFailure(input, ResolverFailed(msg))
   }
 
   test("fail with a circular reference") {
-    def adjustMsg(msg: String): String = msg.replaceAll("'.'", "'x'")
-    val input                          =
+    val input =
       """
         |a = ${c}
         |b = ${a}
         |c = ${b}
       """.stripMargin
-    val msg                            =
-      "One or more errors resolving configuration: 'c': Circular Reference involving path 'c'"
-    runFailure(input, msg, adjustMsg = adjustMsg)
+    val msg   =
+      "One or more errors resolving fields of object value: " +
+        "Invalid Field 'a': Circular Reference involving paths 'a','b','c', " +
+        "Invalid Field 'b': Circular Reference involving paths 'a','b','c', " +
+        "Invalid Field 'c': Circular Reference involving paths 'a','b','c'"
+    runFailure(input, ResolverFailed(msg))
   }
 
   test("fail with a circular reference to a parent node") {
@@ -329,10 +354,10 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
       """
         |a = { x = 5, y = ${a} }
       """.stripMargin
-    runFailure(
-      input,
-      "One or more errors resolving configuration: 'a': Circular Reference involving path 'a'"
-    )
+    val msg   =
+      "One or more errors resolving fields of object value: One or more errors resolving fields of object value: " +
+        "Invalid Field 'y': Circular Reference involving path 'a'"
+    runFailure(input, ResolverFailed(msg))
   }
 
   test("resolve a backward looking reference to a simple value with a common path segment") {
@@ -496,10 +521,9 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
       """
         |a = [1,2] ${x} [3,4]
       """.stripMargin
-    runFailure(
-      input,
-      "One or more errors resolving configuration: 'a': Missing required reference: 'x'"
-    )
+    val msg   =
+      "One or more errors resolving fields of object value: Invalid Field 'a': Missing required reference: 'x'"
+    runFailure(input, ResolverFailed(msg))
   }
 
   test("fail when the combination of types is invalid in concatenated field") {
@@ -509,8 +533,8 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
         |b = [1,2] ${a} [3,4]
       """.stripMargin
     val msg   =
-      "One or more errors resolving configuration: 'b': Invalid concatenation of values. It must contain either only objects, only arrays or only simple values"
-    runFailure(input, msg)
+      "One or more errors resolving fields of object value: Invalid Field 'b': Invalid concatenation of values. It must contain either only objects, only arrays or only scalar values"
+    runFailure(input, ResolverFailed(msg))
   }
 
   test("resolve a self reference in a concatenated array") {
@@ -811,10 +835,12 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
         |include required(file("foo.conf"))
         |
       """.stripMargin
-    runFailure(
-      input,
-      "One or more errors resolving configuration: '<RootKey>': Missing required include 'foo.conf'"
-    )
+    val msg   =
+      """|Multiple invalid fields in HOCON source: [3.1] failure: Missing required include 'foo.conf'
+         |
+         |include required(file("foo.conf"))
+         |^""".stripMargin
+    runFailure(input, msg)
   }
 
   test("fail when an include failed to load") {
@@ -829,7 +855,10 @@ class ConfigResolverSpec extends FunSuite with ResultBuilders {
       """.stripMargin
     }
     val msg                  =
-      "One or more errors resolving configuration: '<RootKey>': Error including 'foo.conf': This include is faulty"
+      """|Multiple invalid fields in HOCON source: [3.1] failure: Error including 'foo.conf': This include is faulty
+         |
+         |include file("foo.conf")
+         |^""".stripMargin
     runFailure(input, msg, includes)
   }
 

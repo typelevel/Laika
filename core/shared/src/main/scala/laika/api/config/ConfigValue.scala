@@ -18,6 +18,7 @@ package laika.api.config
 
 import laika.api.config.Origin.Scope
 import laika.ast.{ Element, Path }
+import laika.internal.parse.hocon.ResolvedRef
 
 /** The base trait for all configuration values.
   *
@@ -95,7 +96,7 @@ object ConfigValue {
       val origin =
         if (values.isEmpty) Origin.root
         else values.groupBy(_.origin).toSeq.maxBy(_._2.size)._1
-      new ObjectConfig(this, origin)
+      new ObjectConfig(ResolvedRef.fromRoot(this, origin))
     }
 
   }

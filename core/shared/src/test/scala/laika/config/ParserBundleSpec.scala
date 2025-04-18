@@ -32,6 +32,7 @@ import laika.api.bundle.{
   ExtensionBundle,
   SpanParserBuilder
 }
+import laika.api.config.Config.IncludeMap
 import laika.api.config.{ Config, ConfigBuilder, ConfigError, ConfigParser, Origin }
 import laika.ast.styles.{ StyleDeclaration, StylePredicate }
 import laika.internal.parse.css.CSSParsers
@@ -413,7 +414,7 @@ class ConfigProviderSpec extends FunSuite with BundleSetup {
     .markupConfigHeader
     .parse(input) match {
       case Success(builderRoot, _) =>
-        builderRoot.resolve(Origin.root, Config.empty, Map.empty)
+        builderRoot.resolve(Origin.root, Map.empty: IncludeMap)
       case f: Failure              => Left(ParsingFailed(f))
     }
 

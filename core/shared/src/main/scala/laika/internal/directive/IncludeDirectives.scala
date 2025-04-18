@@ -19,7 +19,7 @@ package laika.internal.directive
 import cats.syntax.all.*
 import laika.api.bundle.{ BlockDirectives, TemplateDirectives }
 import laika.api.config.ConfigValue.{ ASTValue, ObjectValue }
-import laika.api.config.{ Config, Field, ObjectConfig, Origin }
+import laika.api.config.{ Config, ConfigValue, Field, Key, Origin }
 import laika.ast.*
 import laika.parse.SourceFragment
 
@@ -36,11 +36,11 @@ import laika.parse.SourceFragment
   */
 private[laika] object IncludeDirectives {
 
-  private def config(attributes: Config, body: Option[Element], path: Path): ObjectValue = {
-    val attributeValues = attributes match {
-      case oc: ObjectConfig => oc.root.values
-      case _                => Nil
-    }
+  private def config(attributes: Config, body: Option[Element], path: Path): ConfigValue = {
+    val attributeValues = attributes.get[ConfigValue](Key.root).map {
+      case ov: ObjectValue => ov.values
+      case _               => Nil
+    }.getOrElse(Nil)
     val bodyValue       =
       body.map(b => Field("embeddedBody", ASTValue(b), Origin(Origin.DirectiveScope, path)))
     ObjectValue(attributeValues ++ bodyValue.toSeq)

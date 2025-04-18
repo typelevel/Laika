@@ -75,15 +75,14 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
 
   private def resolveAndBuildDocument(
       doc: UnresolvedDocument,
-      baseConfig: Config,
       parentContext: TreeNodeContext,
       includes: IncludeMap
   ): Either[ConfigError, Document] =
     doc.config
-      .resolve(Origin(DocumentScope, doc.document.path), baseConfig, includes)
+      .resolve(Origin(DocumentScope, doc.document.path), includes)
       .map(config =>
         doc.document
-          .withConfig(config.withoutFallback)
+          .withConfig(config)
           .withParent(parentContext)
       )
 
@@ -105,17 +104,17 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
   ): Either[ConfigError, DocumentTree] = {
 
     val resolvedConfig =
-      result.hocon.foldLeft[Either[ConfigError, Config]](Right(result.mergeConfigs)) {
-        case (acc, unresolved) =>
-          acc.flatMap(accConfig =>
-            unresolved.config
-              .resolve(
-                Origin(TreeScope, unresolved.path),
-                accConfig.withFallback(baseConfig),
-                includes
-              )
-              .map(_.withoutFallback.withFallback(accConfig))
-          )
+      result.hocon.foldLeft[Either[ConfigError, Config]](
+        Right(result.mergeConfigs.withFallback(baseConfig))
+      ) { case (acc, unresolved) =>
+        acc.flatMap(accConfig =>
+          unresolved.config
+            .resolve(
+              Origin(TreeScope, unresolved.path),
+              includes
+            )
+            .map(_.withFallback(accConfig))
+        )
       }
 
     def createContext(config: Config): TreeNodeContext = TreeNodeContext(
@@ -134,7 +133,6 @@ class DocumentTreeBuilder private[laika] (parts: List[DocumentTreeBuilder.Builde
         case markup: MarkupPart =>
           resolveAndBuildDocument(
             markup.doc,
-            treeConfig.withFallback(baseConfig),
             context,
             includes
           )

@@ -225,8 +225,8 @@ trait DirectiveBuilderContext[E <: Element] {
         factory.toRight(Seq(s"No $typeName directive registered with name: $name"))
 
       def attributes: Result[Config] = ConfigResolver
-        .resolve(parsedResult.attributes, origin, cursor.config, Map.empty)
-        .map(new ObjectConfig(_, origin, cursor.config))
+        .resolve(parsedResult.attributes, origin, Map.empty)
+        .map(new ObjectConfig(_, cursor.config))
         .left.map(e => Seq(e.message))
 
       val body = parsedResult.body.map(BodyContent.Source.apply)
@@ -263,8 +263,8 @@ trait DirectiveBuilderContext[E <: Element] {
         .fold(
           messages =>
             createInvalidElement(
-              s"One or more errors processing directive '$name': "
-                + messages.mkString(", ")
+              s"One or more errors processing directive '$name': " +
+                messages.mkString(", ")
             ),
           identity
         )

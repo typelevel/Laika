@@ -18,11 +18,8 @@ package laika.api.config
 
 import laika.api.config.Config.ConfigResult
 import ConfigError.{ DecodingFailed, NotFound }
-import ConfigValue.{ ArrayValue, ObjectValue }
-import laika.internal.parse.hocon.{ IncludeResource, ObjectBuilderValue }
-
-import scala.annotation.tailrec
-import scala.util.Try
+import ConfigValue.ObjectValue
+import laika.internal.parse.hocon.{ FieldRef, IncludeResource, ObjectBuilderValue, ResolverContext }
 
 /** API for retrieving configuration values based on a string key and a decoder.
   *
@@ -174,65 +171,42 @@ trait Config {
 /** The default implementation of the Config API.
   */
 private[laika] class ObjectConfig(
-    val root: ObjectValue,
-    val origin: Origin,
+    val root: FieldRef,
     val fallback: Config = EmptyConfig
 ) extends Config {
 
-  private def lookup(
-      keySegments: Seq[String],
-      target: ArrayValue,
-      targetOrigin: Origin
-  ): Option[Field] = {
-    Try(keySegments.head.toInt).toOption.flatMap { posKey =>
-      ((target.values.drop(posKey).headOption, keySegments.tail) match {
-        case (res, Nil)                    => res.map(Field("", _, targetOrigin))
-        case (Some(ov: ObjectValue), rest) => lookup(rest, ov)
-        case _                             => None
-      }): Option[Field]
-    }
-  }
+  val origin: Origin = root.origin
 
-  @tailrec
-  private def lookup(keySegments: Seq[String], target: ObjectValue): Option[Field] = {
-    (target.values.find(_.key == keySegments.head), keySegments.tail) match {
-      case (res, Nil)                                          => res
-      case (Some(Field(_, av: ArrayValue, fieldOrigin)), rest) => lookup(rest, av, fieldOrigin)
-      case (Some(Field(_, ov: ObjectValue, _)), rest)          => lookup(rest, ov)
-      case _                                                   => None
-    }
-  }
-
-  private def lookup(key: Key): Option[Field] =
-    if (key.segments.isEmpty) Some(Field("", root, origin)) else lookup(key.segments, root)
-
-  def hasKey(key: Key): Boolean = lookup(key).nonEmpty || fallback.hasKey(key)
+  def hasKey(key: Key): Boolean =
+    root.select(key, ResolverContext(this)).nonEmpty || fallback.hasKey(key)
 
   def get[T](key: Key)(implicit decoder: ConfigDecoder[T]): ConfigResult[T] = {
-    lookup(key).fold(fallback.get[T](key)) { field =>
-      val res = field match {
-        case Field(_, ov: ObjectValue, _) =>
+    root.select(key, ResolverContext(this)).fold(fallback.get[T](key)) { fieldRef =>
+      fieldRef.cachedValue.map {
+        case ov: ObjectValue =>
           fallback.get[ConfigValue](key).toOption match {
             case Some(parentOv: ObjectValue) => ov.merge(parentOv)
             case _                           => ov
           }
-        case _                            => field.value
-      }
-      decoder(Traced(res, field.origin)).left.map {
-        case de @ DecodingFailed(_, child) => de.withKey(child.fold(key)(key.child))
-        case other                         => other
+        case other           => other
+      }.flatMap { mergedValue =>
+        decoder(Traced(mergedValue, fieldRef.origin)).left.map {
+          case df @ DecodingFailed(_, child) => df.withKey(child.fold(key)(key.child))
+          case other                         => other
+        }
       }
     }
   }
 
   def withFallback(other: Config): Config = other match {
     case EmptyConfig => this
-    case _           => new ObjectConfig(root, origin, fallback.withFallback(other))
+    case _           => new ObjectConfig(root, fallback.withFallback(other))
   }
 
-  private[laika] def withoutFallback: Config = new ObjectConfig(root, origin)
+  private[laika] def withoutFallback: Config = new ObjectConfig(root)
 
-  def withOrigin(newOrigin: Origin): Config = new ObjectConfig(root, newOrigin, fallback)
+  // TODO - 1.5 - deprecate or properly propagate the new origin through all refs
+  def withOrigin(newOrigin: Origin): Config = new ObjectConfig(root, fallback)
 
   override def hashCode: Int = (root, origin, fallback).hashCode
 

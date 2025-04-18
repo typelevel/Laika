@@ -77,6 +77,11 @@ trait ConfigParser {
     */
   private[laika] def resolve(
       origin: Origin,
+      includes: IncludeMap
+  ): Either[ConfigError, Config] = resolve(origin, Config.empty, includes)
+
+  protected[this] def resolve(
+      origin: Origin,
       fallback: Config,
       includes: IncludeMap
   ): Either[ConfigError, Config]
@@ -107,23 +112,23 @@ object ConfigParser {
     private[laika] lazy val includes: Seq[IncludeResource] = {
 
       def extractIncludes(obj: ObjectBuilderValue): Seq[IncludeResource] = obj.values.flatMap {
-        case BuilderField(_, IncludeBuilderValue(resource)) => Seq(resource)
-        case BuilderField(_, child: ObjectBuilderValue)     => extractIncludes(child)
-        case _                                              => Nil
+        case BuilderField(_, IncludeBuilderValue(resource, _)) => Seq(resource)
+        case BuilderField(_, child: ObjectBuilderValue)        => extractIncludes(child)
+        case _                                                 => Nil
       }
 
       unresolved.fold(_ => Nil, extractIncludes)
     }
 
-    private[laika] def resolve(
+    protected[this] def resolve(
         origin: Origin,
         fallback: Config,
         includes: IncludeMap
     ): Either[ConfigError, Config] =
       unresolved.flatMap(
         ConfigResolver
-          .resolve(_, origin, fallback, includes)
-          .map(new ObjectConfig(_, origin, fallback))
+          .resolve(_, origin, includes)
+          .map(new ObjectConfig(_, fallback))
       )
 
   }
@@ -136,7 +141,7 @@ object ConfigParser {
 
     val unresolved: Either[ConfigError, ObjectBuilderValue] = Right(ObjectBuilderValue(Nil))
 
-    private[laika] def resolve(
+    protected[this] def resolve(
         origin: Origin,
         fallback: Config,
         includes: IncludeMap

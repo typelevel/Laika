@@ -439,10 +439,9 @@ class DocumentCursor private (
   ): Either[ConfigError, DocumentCursor] =
     template.config.resolve(
       Origin(Origin.TemplateScope, template.path),
-      config,
       root.target.includes
     ).map { templateConfig =>
-      val mergedTarget = target.withTemplateConfig(templateConfig.withoutFallback)
+      val mergedTarget = target.withTemplateConfig(templateConfig)
       new DocumentCursor(
         mergedTarget,
         parent,
