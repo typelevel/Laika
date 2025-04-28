@@ -346,7 +346,7 @@ ul.nav-list, #page-nav ul {
 #page-nav {
   display: none;
   position: fixed;
-  height: 80%;
+  max-height: calc(100% - 90px - var(--top-bar-height));
   overflow-y: auto;
   top: calc(45px + var(--top-bar-height));
   right: 45px;
