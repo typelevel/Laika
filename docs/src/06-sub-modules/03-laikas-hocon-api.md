@@ -267,6 +267,30 @@ They are in the companion, therefore do not require any imports.
 
 You can alternatively create your own encoder as shown above.
 
+The API also allows to define a value that will be evaluated lazily on first access.
+This can be an efficient option for library or theme authors who define values that are expensive to compute
+and might not even get accessed by the end user:
+
+```scala mdoc:compile-only
+import laika.api.config.ConfigValue
+
+def expensiveComputation: String = ???
+
+val config = ConfigBuilder.empty
+  .withValue("very.expensive", ConfigValue.delay(expensiveComputation))
+  .build
+```
+
+There is also a method called `eval` that allows to define values dependent on other configuration values:
+
+```scala mdoc:compile-only
+val config = ConfigBuilder.empty
+  .withValue("ten.more.pages", ConfigValue.eval { config => 
+    config.get[Int]("max.pages").map(_ + 10)
+  })
+  .build
+```
+
 If you have a fallback instance, you can pass it to the constructor:
 
 ```scala mdoc:compile-only
