@@ -16,6 +16,7 @@
 
 package laika.api.config
 
+import laika.api.config.Config.ConfigResult
 import laika.api.config.Origin.Scope
 import laika.ast.{ Element, Path }
 import laika.internal.parse.hocon.ResolvedRef
@@ -100,6 +101,19 @@ object ConfigValue {
     }
 
   }
+
+  sealed trait Eval[T]
+
+  private[laika] object Eval {
+    case class Lazy[T](value: () => ConfigResult[T])          extends Eval[T]
+    case class Dependent[T](value: Config => ConfigResult[T]) extends Eval[T]
+  }
+
+  def delay[T](value: => T): Eval[T] = Eval.Lazy(() => Right(value))
+
+  def eval[T](value: => ConfigResult[T]): Eval[T] = Eval.Lazy(() => value)
+
+  def eval[T](value: Config => ConfigResult[T]): Eval[T] = Eval.Dependent(value)
 
 }
 

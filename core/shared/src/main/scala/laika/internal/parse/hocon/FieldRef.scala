@@ -56,13 +56,32 @@ private[laika] sealed trait FieldRef {
    */
   def select(key: Key, context: ResolverContext): Option[ResolvedRef]
 
-  protected def selectChild(
+  def selectChild(
       name: String,
       subKey: Key,
       context: ResolverContext
   ): Option[ResolvedRef]
 
   def withName(name: String): FieldRef
+
+  /** Performs an eager deep merge as an optimization only if both,
+    * this value and the specified other value are instances of `ObjectRef`.
+    *
+    * If one of the two values is an unresolved reference, the merge will be deferred
+    * and executed on each access since it means one or more values depend on the
+    * `Config` instance which may change over time.
+    *
+    * Finally, if both objects are fully resolved, but one of them is not an object structure,
+    * overwrite semantics will be applied, with the other object taking precedence over this one.
+    */
+  def merge(other: FieldRef): FieldRef = {
+    (this, other) match {
+      case (ObjectFields(o1), ObjectFields(o2)) =>
+        FieldRef.objectRef(name, origin, FieldRef.deepMerge(o1 ++ o2)(_.merge(_)))
+      case (_: ResolvedRef, r2: ResolvedRef)    => r2
+      case (r1, r2)                             => FieldRef.mergedRef(name, origin, List(r1, r2))
+    }
+  }
 
 }
 
@@ -83,19 +102,14 @@ private[laika] sealed trait ResolvedRef extends FieldRef {
       selectChild(name, subKey, context)
     }
 
-  /** Performs a deep merge only if both, this value and the specified other value
-    * are instances of `ObjectRef`.
-    *
-    * In all other cases the other object will take precedence and overwrite this value.
-    */
+  def withName(name: String): ResolvedRef
+
   def merge(other: ResolvedRef): ResolvedRef = {
     (this, other) match {
       case (o1: ObjectRef, o2: ObjectRef) => o1.deepMerge(o2)
-      case (_, c2)                        => c2
+      case (_, r2)                        => r2
     }
   }
-
-  def withName(name: String): ResolvedRef
 
 }
 
@@ -119,7 +133,7 @@ private[laika] object ResolvedRef {
 
 private[laika] trait ResolvedLeafRef extends ResolvedRef {
 
-  protected def selectChild(
+  def selectChild(
       name: String,
       subKey: Key,
       context: ResolverContext
@@ -146,7 +160,7 @@ private[laika] sealed abstract class UnresolvedRef(val name: String, val origin:
 
 /**  Base trait for all fields that contain child nodes.
   */
-private[laika] sealed trait ContainerRef extends ResolvedRef {
+private[laika] sealed trait ResolvedContainerRef extends ResolvedRef {
 
   def valueDescription: String
 
@@ -180,13 +194,13 @@ private[hocon] case class ASTRef(name: String, origin: Origin, value: ASTValue)
   def withName(name: String): ResolvedRef = copy(name = name)
 }
 
-private[hocon] case class InvalidRef(name: String, origin: Origin, error: String)
+private[laika] case class InvalidRef(name: String, origin: Origin, error: String)
     extends ResolvedLeafRef {
   type ValueType = Nothing
   val cachedValue                         = Left(ResolverFailed(s"Invalid Field '$name': $error"))
   def withName(name: String): ResolvedRef = copy(name = name)
 
-  override protected def selectChild(
+  override def selectChild(
       name: String,
       subKey: Key,
       context: ResolverContext
@@ -203,7 +217,7 @@ private[hocon] case class MissingOptionalRef(name: String, origin: Origin, subst
 }
 
 private[laika] case class ArrayRef(name: String, origin: Origin, values: List[ResolvedRef])
-    extends ContainerRef {
+    extends ResolvedContainerRef {
 
   type ValueType = ArrayValue
 
@@ -212,7 +226,7 @@ private[laika] case class ArrayRef(name: String, origin: Origin, values: List[Re
   def createContainer(children: List[ConfigValue]): ConfigResult[ValueType] =
     Right(ArrayValue(children))
 
-  protected def selectChild(
+  def selectChild(
       name: String,
       subKey: Key,
       context: ResolverContext
@@ -223,7 +237,7 @@ private[laika] case class ArrayRef(name: String, origin: Origin, values: List[Re
 }
 
 private[laika] case class ObjectRef(name: String, origin: Origin, values: List[ResolvedRef])
-    extends ContainerRef {
+    extends ResolvedContainerRef {
 
   type ValueType = ObjectValue
 
@@ -236,7 +250,7 @@ private[laika] case class ObjectRef(name: String, origin: Origin, values: List[R
     Right(ObjectValue(fields))
   }
 
-  protected def selectChild(
+  def selectChild(
       name: String,
       subKey: Key,
       context: ResolverContext
@@ -244,55 +258,85 @@ private[laika] case class ObjectRef(name: String, origin: Origin, values: List[R
     values.find(_.name == name).flatMap(_.select(subKey, context))
 
   def deepMerge(other: ObjectRef): ObjectRef = {
-    val resolvedFields = (this.values ++ other.values)
-      .groupBy(_.name)
-      .values
-      .map(_.reduce(_.merge(_)))
-      .toList
-    ObjectRef(name, origin, resolvedFields.sortBy(_.name))
+    val resolvedFields = FieldRef.deepMerge(this.values ++ other.values)(_.merge(_))
+    ObjectRef(name, origin, resolvedFields)
   }
 
   def withName(name: String): ResolvedRef = copy(name = name)
 
 }
 
+private[laika] object ObjectFields {
+
+  def unapply(ref: FieldRef): Option[List[FieldRef]] = ref match {
+    case or: ObjectRef                               => Some(or.values)
+    case ucr: UnresolvedContainerRef if ucr.isObject => Some(ucr.values)
+    case _                                           => None
+  }
+
+}
+
+private[laika] abstract class UnresolvedContainerRef(
+    fieldName: String,
+    configOrigin: Origin,
+    val values: List[FieldRef],
+    selectResolved: Boolean,
+    val isObject: Boolean
+) extends UnresolvedRef(fieldName, configOrigin) { self =>
+
+  def resolve(context: ResolverContext): ResolvedRef = {
+    val resolvedValues = values.map {
+      case rr: ResolvedRef   => rr
+      case ur: UnresolvedRef => ur.resolve(context)
+    }
+    createContainer(resolvedValues)
+  }
+
+  def selectChild(
+      name: String,
+      subKey: Key,
+      context: ResolverContext
+  ): Option[ResolvedRef] = {
+    if (selectResolved) resolve(context).selectChild(name, subKey, context)
+    else values.find(_.name == name).flatMap(_.select(subKey, context))
+  }
+
+  def createContainer(values: List[ResolvedRef]): ResolvedRef
+
+  def withName(name: String): FieldRef =
+    new UnresolvedContainerRef(name, origin, values, selectResolved, isObject) {
+      def createContainer(values: List[ResolvedRef]) = self.createContainer(values)
+    }
+
+}
+
 private[laika] object FieldRef {
+
+  def deepMerge[F <: FieldRef](values: List[F])(mergeF: (F, F) => F): List[F] = values
+    .groupBy(_.name)
+    .values
+    .map(_.reduce(mergeF))
+    .toList
+    .sortBy(_.name)
 
   def container(
       fieldName: String,
       configOrigin: Origin,
       values: List[FieldRef],
-      selectResolved: Boolean
+      selectResolved: Boolean,
+      isObject: Boolean = false
   )(
-      createContainer: (String, Origin, List[ResolvedRef]) => ResolvedRef
+      containerF: (String, Origin, List[ResolvedRef]) => ResolvedRef
   ): FieldRef = {
     def filterOptional(resolvedValues: List[ResolvedRef]) =
       resolvedValues.filterNot(_.isInstanceOf[MissingOptionalRef]).sortBy(_.name)
     val resolved = values.collect { case r: ResolvedRef => r }
     if (resolved.size == values.size)
-      createContainer(fieldName, configOrigin, filterOptional(resolved))
+      containerF(fieldName, configOrigin, filterOptional(resolved))
     else
-      new UnresolvedRef(fieldName, configOrigin) {
-
-        def resolve(context: ResolverContext): ResolvedRef = {
-          val resolvedValues = values.map {
-            case rr: ResolvedRef   => rr
-            case ur: UnresolvedRef => ur.resolve(context)
-          }
-          createContainer(name, origin, filterOptional(resolvedValues))
-        }
-
-        protected def selectChild(
-            name: String,
-            subKey: Key,
-            context: ResolverContext
-        ): Option[ResolvedRef] = {
-          if (selectResolved) resolve(context).selectChild(name, subKey, context)
-          else values.find(_.name == name).flatMap(_.select(subKey, context))
-        }
-
-        def withName(name: String): FieldRef =
-          container(name, configOrigin, values, selectResolved)(createContainer)
+      new UnresolvedContainerRef(fieldName, configOrigin, values, selectResolved, isObject) {
+        def createContainer(values: List[ResolvedRef]): ResolvedRef =
+          containerF(fieldName, configOrigin, filterOptional(values))
       }
   }
 
@@ -300,7 +344,7 @@ private[laika] object FieldRef {
     container(name, origin, values, selectResolved = false)(ArrayRef.apply)
 
   def objectRef(name: String, origin: Origin, values: List[FieldRef]): FieldRef =
-    container(name, origin, values, selectResolved = false)(ObjectRef.apply)
+    container(name, origin, values, selectResolved = false, isObject = true)(ObjectRef.apply)
 
   def concatRef(name: String, origin: Origin, values: List[FieldRef]): FieldRef = {
     container(name, origin, values, selectResolved = true) { (_, _, resolvedValues) =>
@@ -336,7 +380,7 @@ private[laika] object FieldRef {
     }
   }
 
-  def deferred[T](fieldName: String, configOrigin: Origin, value: => T)(implicit
+  def deferred[T](fieldName: String, configOrigin: Origin, value: ConfigValue.Eval.Lazy[T])(implicit
       encoder: ConfigEncoder[T]
   ): ResolvedRef =
     new ResolvedLeafRef {
@@ -347,27 +391,25 @@ private[laika] object FieldRef {
 
       val origin = configOrigin
 
-      private lazy val encodedValue: ConfigValue = encoder(value)
-
-      lazy val cachedValue: ConfigResult[ValueType] = Right(encodedValue)
+      lazy val cachedValue: ConfigResult[ValueType] = value.value().map(encoder.apply)
 
       def withName(name: String): ResolvedRef = deferred(name, configOrigin, value)
     }
 
-  def dependent[T](fieldName: String, configOrigin: Origin)(f: ResolverContext => ConfigResult[T])(
+  def dependent[T](fieldName: String, configOrigin: Origin, value: ConfigValue.Eval.Dependent[T])(
       implicit encoder: ConfigEncoder[T]
   ): FieldRef = new UnresolvedRef(fieldName, configOrigin) {
-    def resolve(context: ResolverContext): ResolvedRef = f(context) match {
+    def resolve(context: ResolverContext): ResolvedRef = value.value(context.config) match {
       case Left(error)  => InvalidRef(name, origin, error.message)
       case Right(value) => ResolvedRef.fromField(Field(fieldName, encoder(value), origin))
     }
-    protected def selectChild(
+    def selectChild(
         name: String,
         subKey: Key,
         context: ResolverContext
     ): Option[ResolvedRef] =
       resolve(context).selectChild(name, subKey, context)
-    def withName(name: String): FieldRef               = dependent(name, configOrigin)(f)
+    def withName(name: String): FieldRef               = dependent(name, configOrigin, value)
   }
 
   def substitution(
@@ -400,7 +442,7 @@ private[laika] object FieldRef {
       else resolveSubstitution(context.config)
     }
 
-    protected def selectChild(
+    def selectChild(
         name: String,
         subKey: Key,
         context: ResolverContext
