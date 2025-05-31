@@ -18,13 +18,12 @@ package laika.parse.code.common
 
 import laika.ast.{ CodeSpan, CodeSpans }
 import laika.parse.Parser
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.code.common.Identifier.IdParser
-import laika.parse.code.syntax._
+import laika.parse.code.syntax.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.syntax._
+import laika.parse.syntax.*
 import laika.parse.text.PrefixedParser
-import laika.parse.text.TextParsers.{ delimitedBy, literal }
 
 /** Configurable base parsers for tag based formats like HTML or XML.
   *
@@ -32,7 +31,7 @@ import laika.parse.text.TextParsers.{ delimitedBy, literal }
   */
 object TagFormats {
 
-  import NumberLiteral._
+  import NumberLiteral.*
 
   private val nameParser: IdParser =
     Identifier.alphaNum.withIdStartChars('_', ':').withIdPartChars('-', '.')
