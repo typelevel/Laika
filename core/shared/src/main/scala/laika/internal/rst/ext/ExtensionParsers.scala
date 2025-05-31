@@ -32,7 +32,6 @@ import laika.internal.rst.ext.TextRoles.{
   TextRole
 }
 import laika.internal.rst.ext.Directives.*
-import laika.internal.rst.ext.Directives.DirectivePartBuilder
 import ExtensionParsers.Result
 
 /** Provides the parsers for all types of extensions (directives and text roles).
