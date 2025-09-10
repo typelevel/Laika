@@ -1,6 +1,6 @@
 import laika.ast.LengthUnit.px
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.helium.Helium
 import laika.helium.config.{
   Favicon,
@@ -43,8 +43,8 @@ object ManualSettings {
 
     val config = Versions
       .forCurrentVersion(current)
-      .withOlderVersions(all.dropWhile(_ != current).drop(1) *)
-      .withNewerVersions(all.takeWhile(_ != current) *)
+      .withOlderVersions(all.dropWhile(_ != current).drop(1)*)
+      .withNewerVersions(all.takeWhile(_ != current)*)
 
   }
 

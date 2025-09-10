@@ -18,11 +18,11 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.code.CodeCategory.BooleanLiteral
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{ Comment, Keywords, NumberLiteral, StringLiteral }
-import laika.parse.syntax._
+import laika.parse.syntax.*
 import laika.parse.text.CharGroup
 
 object ShellSyntax extends SyntaxHighlighter {
@@ -108,7 +108,7 @@ object ShellSyntax extends SyntaxHighlighter {
       singleQuoteEscape
     ),
     StringLiteral.singleLine('"').embed(
-      (substitutions :+ doubleQuoteEscape): _*
+      (substitutions :+ doubleQuoteEscape)*
     )
   ) ++ substitutions
 

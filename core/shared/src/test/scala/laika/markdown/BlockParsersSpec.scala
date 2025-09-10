@@ -17,7 +17,7 @@
 package laika.markdown
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.Markdown
 import laika.internal.parse.markup.RootParser

@@ -137,7 +137,7 @@ case class StaticDocument(path: Path, formats: TargetFormats = TargetFormats.All
 object StaticDocument {
 
   def apply(path: Path, format: String, formats: String*): StaticDocument =
-    StaticDocument(path, TargetFormats.Selected(NonEmptySet.of(format, formats: _*)))
+    StaticDocument(path, TargetFormats.Selected(NonEmptySet.of(format, formats*)))
 
 }
 

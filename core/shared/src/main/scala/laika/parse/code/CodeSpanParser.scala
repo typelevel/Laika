@@ -19,9 +19,9 @@ package laika.parse.code
 import laika.ast.{ CategorizedCode, CodeSpan, CodeSpanSequence }
 import laika.parse.Parser
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.syntax._
-import laika.parse.code.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
+import laika.parse.code.syntax.*
 
 /** A collection of code span parsers that are intended to be applied together.
   */

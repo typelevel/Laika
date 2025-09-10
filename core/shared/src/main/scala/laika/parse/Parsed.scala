@@ -110,7 +110,7 @@ case class Failure(msgProvider: Message, next: SourceCursor, maxOffset: Int)
   def toEither: Either[String, Nothing] = Left(message)
 
   def orElse[U >: Nothing](default: => Parsed[U]): Parsed[U] = default match {
-    case s: Success[_] => s
+    case s: Success[?] => s
     case f: Failure    => if (f.maxOffset > maxOffset) f else this
   }
 

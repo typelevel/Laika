@@ -51,7 +51,7 @@ abstract class TagFormatter extends Formatter {
     */
   def element(
       tagName: String,
-      container: ElementContainer[_ <: Element],
+      container: ElementContainer[? <: Element],
       attrs: (String, String)*
   ): String =
     s"<$tagName${attributes(tagName, container, attrs)}>${children(container.content)}</$tagName>"
@@ -61,7 +61,7 @@ abstract class TagFormatter extends Formatter {
     */
   def indentedElement(
       tagName: String,
-      container: ElementContainer[_ <: Element],
+      container: ElementContainer[? <: Element],
       attrs: (String, String)*
   ): String =
     s"<$tagName${attributes(tagName, container, attrs)}>${

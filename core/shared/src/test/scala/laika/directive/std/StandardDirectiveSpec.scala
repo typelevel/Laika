@@ -18,7 +18,7 @@ package laika.directive.std
 
 import cats.data.NonEmptySet
 import laika.api.config.{ Config, ConfigBuilder }
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.config.IconRegistry
 import munit.FunSuite

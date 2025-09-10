@@ -16,7 +16,7 @@
 
 package laika.internal.rst.bundle
 
-import laika.ast._
+import laika.ast.*
 import laika.internal.rst.ast.FieldList
 
 /** Responsible for extracting a docInfo block at the start of a reStructuredText document

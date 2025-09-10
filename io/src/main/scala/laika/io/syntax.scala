@@ -77,7 +77,7 @@ object syntax {
 
   }
 
-  implicit class TextRendererSyntax(builder: RendererBuilder[_])
+  implicit class TextRendererSyntax(builder: RendererBuilder[?])
       extends IOBuilderOps[TreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeRenderer.Builder[F] =
@@ -85,7 +85,7 @@ object syntax {
 
   }
 
-  implicit class TextTransformerSyntax(builder: TransformerBuilder[_])
+  implicit class TextTransformerSyntax(builder: TransformerBuilder[?])
       extends IOBuilderOps[TreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: TreeTransformer.Builder[F] = {
@@ -101,7 +101,7 @@ object syntax {
   }
 
   implicit class BinaryRendererSyntax(
-      builder: TwoPhaseRendererBuilder[_, BinaryPostProcessor.Builder]
+      builder: TwoPhaseRendererBuilder[?, BinaryPostProcessor.Builder]
   ) extends IOBuilderOps[BinaryTreeRenderer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeRenderer.Builder[F] = {
@@ -115,7 +115,7 @@ object syntax {
   }
 
   implicit class BinaryTransformerSyntax(
-      builder: TwoPhaseTransformerBuilder[_, BinaryPostProcessor.Builder]
+      builder: TwoPhaseTransformerBuilder[?, BinaryPostProcessor.Builder]
   ) extends IOBuilderOps[BinaryTreeTransformer.Builder] {
 
     protected def build[F[_]: Async: Batch]: BinaryTreeTransformer.Builder[F] = {

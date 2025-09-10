@@ -274,7 +274,7 @@ private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
       populate(version)(_.withVersion(_))
     ).reduce(_.andThen(_))
     withMetadata(
-      functions(currentMetadata.addAuthors(authors *))
+      functions(currentMetadata.addAuthors(authors*))
     )
   }
 
@@ -286,7 +286,7 @@ private[helium] trait AllFormatsOps extends CommonConfigOps {
   private val formats: Seq[Helium => CommonConfigOps] = Seq(_.site, _.epub, _.pdf)
 
   def addFontResources(defn: FontDefinition*): Helium = formats.foldLeft(helium) {
-    case (helium, format) => format(helium).addFontResources(defn *)
+    case (helium, format) => format(helium).addFontResources(defn*)
   }
 
   def clearFontResources: Helium = formats.foldLeft(helium) { case (helium, format) =>
@@ -879,7 +879,7 @@ private[helium] trait EPUBOps extends SingleConfigOps with CopyOps {
 
   def addFontResources(defn: FontDefinition*): Helium =
     copyWith(
-      helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.addFonts(defn *))
+      helium.epubSettings.copy(bookConfig = helium.epubSettings.bookConfig.addFonts(defn*))
     )
 
   def clearFontResources: Helium = copyWith(
@@ -1053,7 +1053,7 @@ private[helium] trait PDFOps extends SingleConfigOps with CopyOps {
   protected def currentColors: ColorSet           = helium.pdfSettings.colors
 
   def addFontResources(defn: FontDefinition*): Helium =
-    copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.addFonts(defn *)))
+    copyWith(helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.addFonts(defn*)))
 
   def clearFontResources: Helium = copyWith(
     helium.pdfSettings.copy(bookConfig = helium.pdfSettings.bookConfig.clearFonts)

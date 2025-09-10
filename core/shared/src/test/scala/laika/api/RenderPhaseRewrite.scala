@@ -8,15 +8,15 @@ import laika.ast.{ Document, RewritePhase }
 
 trait RenderPhaseRewrite {
 
-  def rewrite(format: RenderFormat[_])(doc: Document): Either[RendererError, Document] =
+  def rewrite(format: RenderFormat[?])(doc: Document): Either[RendererError, Document] =
     rewrite(OperationConfig.default, format)(doc)
 
-  def rewrite(parser: MarkupParser, format: RenderFormat[_])(
+  def rewrite(parser: MarkupParser, format: RenderFormat[?])(
       doc: Document
   ): Either[RendererError, Document] =
     rewrite(parser.config, format)(doc)
 
-  def rewrite(config: OperationConfig, format: RenderFormat[_])(
+  def rewrite(config: OperationConfig, format: RenderFormat[?])(
       doc: Document
   ): Either[RendererError, Document] = {
     config

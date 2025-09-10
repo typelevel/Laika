@@ -36,7 +36,7 @@ class BlockDirectiveAPISpec extends FunSuite
     with TestSourceBuilders {
 
   object DirectiveSetup {
-    import laika.api.bundle.BlockDirectives.dsl._
+    import laika.api.bundle.BlockDirectives.dsl.*
 
     trait Empty {
       val directive = BlockDirectives.create("dir")(BlockDirectives.dsl.empty(p("foo")))
@@ -128,8 +128,8 @@ class BlockDirectiveAPISpec extends FunSuite
 
     trait DirectiveWithCustomBodyParser {
 
-      import laika.parse.builders._
-      import laika.parse.syntax._
+      import laika.parse.builders.*
+      import laika.parse.syntax.*
 
       val directive = BlockDirectives.create("dir") {
         parsedBody(recParsers =>
@@ -204,7 +204,7 @@ class BlockDirectiveAPISpec extends FunSuite
 
   }
 
-  import DirectiveSetup._
+  import DirectiveSetup.*
 
   test("empty directive") {
     new BlockParser with Empty {

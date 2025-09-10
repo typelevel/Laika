@@ -18,7 +18,7 @@ package laika.parse
 
 import laika.parse.builders.~
 import laika.parse.combinator.Parsers
-import laika.parse.combinator.Parsers._
+import laika.parse.combinator.Parsers.*
 import laika.parse.text.TextParsers
 import munit.FunSuite
 
@@ -239,7 +239,7 @@ class ParserSpec extends FunSuite {
 
   object RepWith {
 
-    import TextParsers._
+    import TextParsers.*
 
     val parser: Parser[List[String]] = literal("1").repWith { (res: String) =>
       literal((res.toInt + 1).toString)
@@ -304,20 +304,20 @@ class ParserSpec extends FunSuite {
   }
 
   test("source parser produces the consumed string as a result") {
-    import TextParsers._
+    import TextParsers.*
     val p = anyOf('a') ~ opt(oneOf('d')) ~ oneOf('b').rep
     run(p.source, "aabbcc", "aabb")
   }
 
   test("count parser produces the length of the consumed string as a result") {
-    import TextParsers._
+    import TextParsers.*
     val p = anyOf('a') ~ opt(TextParsers.oneOf('d')) ~ TextParsers.oneOf('b').rep
     run(p.count, "aabbcc", 4)
   }
 
   object MaxOffset {
 
-    def validate(res: Parsed[_], expectedMaxOffset: Int): Unit = {
+    def validate(res: Parsed[?], expectedMaxOffset: Int): Unit = {
       assert(res.isFailure)
       assertEquals(res.asInstanceOf[Failure].maxOffset, expectedMaxOffset)
     }

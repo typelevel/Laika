@@ -17,7 +17,7 @@
 package laika.parse.text
 
 import laika.parse.Parser
-import laika.parse.builders._
+import laika.parse.builders.*
 import munit.FunSuite
 
 class TextParsersSpec extends FunSuite {
@@ -495,12 +495,12 @@ class TextParsersSpec extends FunSuite {
   }
 
   test("delimitedBy - succeed when the specified post condition is met") {
-    import laika.parse.syntax._
+    import laika.parse.syntax.*
     run(delimitedBy(">>>" <~ ws.min(1)), "123>>> ", "123")
   }
 
   test("delimitedBy - fail when the specified post condition is not met") {
-    import laika.parse.syntax._
+    import laika.parse.syntax.*
     expectFailure(delimitedBy(">>>" <~ ws.min(1)), "123>>>A")
   }
 

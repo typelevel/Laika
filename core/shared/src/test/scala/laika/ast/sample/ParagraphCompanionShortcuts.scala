@@ -16,7 +16,7 @@
 
 package laika.ast.sample
 
-import laika.ast._
+import laika.ast.*
 
 trait ParagraphCompanionShortcuts { self =>
 

@@ -420,7 +420,7 @@ class TreeTransformerSpec extends CatsEffectSuite
 
   test("tree with a template directive") {
 
-    import TemplateDirectives.dsl._
+    import TemplateDirectives.dsl.*
 
     val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
@@ -832,7 +832,7 @@ class TreeTransformerSpec extends CatsEffectSuite
   }
 
   test("read from and write to directories") {
-    import FileSystemTest._
+    import FileSystemTest.*
     val sourceName           = resourcePath("/trees/a/")
     val expectedFileContents = (1 to 6).map(fileContent).toList
     val res                  = for {
@@ -844,7 +844,7 @@ class TreeTransformerSpec extends CatsEffectSuite
   }
 
   test("directory with a custom document type matcher") {
-    import FileSystemTest._
+    import FileSystemTest.*
     val sourceName           = resourcePath("/trees/a/")
     val transformer          = transformerWithBundle(BundleProvider.forDocTypeMatcher {
       case Root / "doc1.md" => Ignored; case Root / "dir1" / _ => Ignored
@@ -863,7 +863,7 @@ class TreeTransformerSpec extends CatsEffectSuite
   }
 
   test("allow to specify custom exclude filter") {
-    import FileSystemTest._
+    import FileSystemTest.*
     val sourceName           = resourcePath("/trees/a/")
     val fileFilter           = FileFilter.lift(f => f.name == "doc1.md" || f.name == "dir1")
     val expectedFileContents = List(2, 5, 6).map(fileContent)
@@ -880,7 +880,7 @@ class TreeTransformerSpec extends CatsEffectSuite
   }
 
   test("read from two root directories") {
-    import FileSystemTest._
+    import FileSystemTest.*
     val source1              = FilePath.parse(resourcePath("/trees/a/"))
     val source2              = FilePath.parse(resourcePath("/trees/b/"))
     val expectedFileContents = (1 to 9).map(fileContent).toList

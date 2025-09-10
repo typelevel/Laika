@@ -17,7 +17,7 @@
 package laika.internal.rst
 
 import laika.api.builder.OperationConfig
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.{ ParagraphCompanionShortcuts, TestSourceBuilders }
 import laika.format.ReStructuredText
 import laika.internal.parse.markup.RootParser

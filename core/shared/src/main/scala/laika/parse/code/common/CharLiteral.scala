@@ -19,9 +19,9 @@ package laika.parse.code.common
 import laika.ast.{ CodeSpan, CodeSpans }
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.code.syntax._
-import laika.parse.syntax._
+import laika.parse.builders.*
+import laika.parse.code.syntax.*
+import laika.parse.syntax.*
 
 /** Configurable base parsers for character literals.
   *

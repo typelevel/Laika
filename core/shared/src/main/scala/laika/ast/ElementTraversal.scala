@@ -37,10 +37,10 @@ trait ElementTraversal { this: Element =>
       f(element)
     }
 
-    def foreachInIterable(t: Iterable[_], f: Element => Unit): Unit = {
+    def foreachInIterable(t: Iterable[?], f: Element => Unit): Unit = {
       t.foreach {
         case e: Element     => foreachInElement(e, f)
-        case t: Iterable[_] => foreachInIterable(t, f)
+        case t: Iterable[?] => foreachInIterable(t, f)
         case _              => ()
       }
     }

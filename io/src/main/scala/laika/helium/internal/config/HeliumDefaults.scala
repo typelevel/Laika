@@ -185,7 +185,7 @@ private[helium] object HeliumDefaults {
 
   private val defaultEPUBSettings = EPUBSettings(
     bookConfig = BookConfig.empty
-      .addFonts(defaultFonts *)
+      .addFonts(defaultFonts*)
       .withNavigationDepth(
         2 // chosen as default as iBooks messes with the hierarchy of entries when using more than 2 levels
       ),
@@ -210,7 +210,7 @@ private[helium] object HeliumDefaults {
   )
 
   private val defaultPDFSettings = PDFSettings(
-    bookConfig = BookConfig.empty.addFonts(defaultFonts *),
+    bookConfig = BookConfig.empty.addFonts(defaultFonts*),
     themeFonts = defaultThemeFonts,
     fontSizes = FontSizes(
       body = pt(10),

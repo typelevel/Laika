@@ -132,7 +132,7 @@ class BulletListSpec extends FunSuite with ListParserRunner {
 
 class EnumListSpec extends FunSuite with ListParserRunner {
 
-  import EnumType._
+  import EnumType.*
 
   test("arabic enumeration style") {
     val input =

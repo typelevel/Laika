@@ -21,9 +21,9 @@ import laika.api.bundle.SyntaxHighlighter
 import laika.ast.CodeSpan
 import laika.internal.rst.BaseParsers
 import laika.parse.Parser
-import laika.parse.builders._
-import laika.parse.syntax._
-import laika.parse.code.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
+import laika.parse.code.syntax.*
 import laika.parse.code.common.StringLiteral
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.internal.rst.InlineParsers.{ markupEnd, markupStart }

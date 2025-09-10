@@ -29,7 +29,7 @@ import cats.data.NonEmptySet
 object CharGroup {
 
   private def setForRange(range: Seq[Char]): NonEmptySet[Char] =
-    NonEmptySet.of(range.head, range.tail: _*)
+    NonEmptySet.of(range.head, range.tail*)
 
   /** All decimal digits (0 to 9).
     */

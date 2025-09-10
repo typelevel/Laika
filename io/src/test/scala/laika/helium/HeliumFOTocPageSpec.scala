@@ -23,8 +23,8 @@ import laika.ast.Path.Root
 import laika.format.{ Markdown, XSLFO }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.syntax._
-import laika.theme._
+import laika.io.syntax.*
+import laika.theme.*
 import munit.CatsEffectSuite
 
 class HeliumFOTocPageSpec extends CatsEffectSuite with InputBuilder with ResultExtractor

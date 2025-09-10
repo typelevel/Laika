@@ -151,7 +151,7 @@ private[rst] class StandardTextRoles {
     TextRole("raw", (Nil: List[String], Options.empty)) {
       (field("format") ~ classOption).map { case format ~ opt => (format.split(" ").toList, opt) }
     } { case ((formats, opt), content) =>
-      NonEmptySet.fromSet(TreeSet(formats: _*)) match {
+      NonEmptySet.fromSet(TreeSet(formats*)) match {
         case Some(set) => RawContent(set, content, opt)
         case None      => InvalidSpan("no format specified", SourceCursor.Generated)
       }

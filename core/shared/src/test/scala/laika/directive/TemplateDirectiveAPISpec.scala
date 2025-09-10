@@ -36,7 +36,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
   )
 
   object DirectiveSetup {
-    import laika.api.bundle.TemplateDirectives.dsl._
+    import laika.api.bundle.TemplateDirectives.dsl.*
 
     trait Empty {
 
@@ -143,8 +143,8 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
     trait DirectiveWithCustomBodyParser {
 
-      import laika.parse.builders._
-      import laika.parse.syntax._
+      import laika.parse.builders.*
+      import laika.parse.syntax.*
 
       val directive = TemplateDirectives.create("dir") {
         parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))
@@ -211,7 +211,7 @@ class TemplateDirectiveAPISpec extends FunSuite with TestSourceBuilders {
 
   }
 
-  import DirectiveSetup._
+  import DirectiveSetup.*
 
   test("parse an empty directive") {
     new Empty with TemplateParser {

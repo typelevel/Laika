@@ -46,7 +46,7 @@ class ThemeBundleSpec extends FunSuite {
     Transformer
       .from(Markdown)
       .to(HTML)
-      .using(appBundles: _*)
+      .using(appBundles*)
       .parallel[IO]
       .withTheme(theme)
       .build

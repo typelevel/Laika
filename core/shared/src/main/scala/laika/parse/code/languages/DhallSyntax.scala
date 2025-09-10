@@ -20,13 +20,13 @@ import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
 import laika.ast.CodeSpan
 import laika.parse.code.common.NumberLiteral.digits
-import laika.parse.code.common._
-import laika.parse.code.syntax._
+import laika.parse.code.common.*
+import laika.parse.code.syntax.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.builders.~
-import laika.parse.syntax._
+import laika.parse.syntax.*
 import laika.parse.text.{ CharGroup, PrefixedParser }
-import laika.parse.text.TextParsers._
+import laika.parse.text.TextParsers.*
 
 /** https://github.com/dhall-lang/dhall-lang/blob/master/standard/dhall.abnf
   * @author Michał Sitko

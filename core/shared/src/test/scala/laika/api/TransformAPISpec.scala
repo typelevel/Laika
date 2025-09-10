@@ -16,10 +16,10 @@
 
 package laika.api
 
-import laika.ast._
+import laika.ast.*
 import laika.ast.RewriteAction.Replace
 import laika.config.LaikaKeys
-import laika.format._
+import laika.format.*
 import munit.FunSuite
 
 class TransformAPISpec extends FunSuite {

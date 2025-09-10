@@ -95,7 +95,7 @@ private[laika] class RootParser(markupParser: MarkupFormat, markupExtensions: Ma
       case BlockPosition.NestedOnly => lazily(nestedInterruptions)
     }
 
-  private def createAndSortParsers[T <: ParserDefinition[_]](
+  private def createAndSortParsers[T <: ParserDefinition[?]](
       mainParsers: Seq[ParserBuilder[T]],
       extParsers: Seq[ParserBuilder[T]]
   ): Seq[T] = {

@@ -48,7 +48,7 @@ private[internal] trait DefaultEscapedTextParsers extends EscapedTextParsers {
     *  spans. The final character is not included in the result.
     */
   def escapedUntil(char: Char, chars: Char*): Parser[String] = escapedText(
-    TextParsers.delimitedBy(char, chars: _*).nonEmpty
+    TextParsers.delimitedBy(char, chars*).nonEmpty
   )
 
 }

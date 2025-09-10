@@ -75,9 +75,9 @@ class ConfigCodecSpec extends FunSuite {
   object links {
 
     def sort(config: LinkConfig): LinkConfig = LinkConfig.empty
-      .addTargets(config.targets.sortBy(_.id) *)
-      .addApiLinks(config.apiLinks *)
-      .addSourceLinks(config.sourceLinks *)
+      .addTargets(config.targets.sortBy(_.id)*)
+      .addApiLinks(config.apiLinks*)
+      .addSourceLinks(config.sourceLinks*)
 
     val fullyPopulatedInstance = LinkConfig.empty
       .addTargets(

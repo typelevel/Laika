@@ -89,7 +89,7 @@ object Settings {
         configBuilder = userConfig.configBuilder,
         compactRendering = parser.config.compactRendering
       )
-      parser.withConfig(mergedConfig).using(laikaExtensions.value *)
+      parser.withConfig(mergedConfig).using(laikaExtensions.value*)
     }
 
     createParser(Markdown)

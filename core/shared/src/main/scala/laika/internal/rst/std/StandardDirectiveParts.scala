@@ -55,7 +55,7 @@ private[std] object StandardDirectiveParts {
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
     */
   def image(p: RecursiveParsers): DirectivePartBuilder[Span] = {
-    import TextParsers._
+    import TextParsers.*
 
     def multilineURI(text: SourceFragment) = Right(
       text.input.split("\n").map(_.trim).mkString("\n").trim

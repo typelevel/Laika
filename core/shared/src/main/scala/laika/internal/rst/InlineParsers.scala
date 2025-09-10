@@ -18,14 +18,14 @@ package laika.internal.rst
 
 import cats.data.NonEmptySet
 import laika.api.bundle.SpanParserBuilder
-import laika.ast._
-import laika.internal.collection.TransitionalCollectionOps._
+import laika.ast.*
+import laika.internal.collection.TransitionalCollectionOps.*
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
 import laika.parse.{ Failure, LineSource, Parser, Success }
-import BaseParsers._
+import BaseParsers.*
 import laika.internal.parse.uri.AutoLinkParsers
 import laika.internal.rst.ast.{ InterpretedText, ReferenceName, RstStyle, SubstitutionReference }
 

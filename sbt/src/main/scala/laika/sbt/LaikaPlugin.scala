@@ -153,9 +153,9 @@ object LaikaPlugin extends AutoPlugin {
 
   }
 
-  import autoImport._
+  import autoImport.*
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[?]] = Seq(
     Laika / sourceDirectories   := Seq(sourceDirectory.value / "docs"),
     Laika / excludeFilter       := HiddenFileFilter,
     laikaInputs                 := Settings.defaultInputs.value,

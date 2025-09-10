@@ -16,7 +16,7 @@
 
 package laika.internal.rewrite
 
-import laika.ast._
+import laika.ast.*
 import laika.ast.RewriteAction.Replace
 
 private[laika] object RecursiveResolverRules {
@@ -32,7 +32,7 @@ private[laika] object RecursiveResolverRules {
       phase: RewritePhase
   ): RewriteRules = {
 
-    def rulesForScope(scope: ElementScope[_]): RewriteRules =
+    def rulesForScope(scope: ElementScope[?]): RewriteRules =
       applyTo(cursor.withReferenceContext(scope.context), baseRules, phase)
 
     lazy val rules: RewriteRules = RewriteRules.forBlocks {

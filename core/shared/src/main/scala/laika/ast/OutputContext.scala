@@ -45,9 +45,9 @@ object OutputContext {
     override def productPrefix: String = "OutputContext"
   }
 
-  def apply(format: RenderFormat[_]): OutputContext =
+  def apply(format: RenderFormat[?]): OutputContext =
     Impl(format.fileSuffix, format.description.toLowerCase)
 
-  def apply(format: TwoPhaseRenderFormat[_, _]): OutputContext = apply(format.interimFormat)
+  def apply(format: TwoPhaseRenderFormat[?, ?]): OutputContext = apply(format.interimFormat)
 
 }

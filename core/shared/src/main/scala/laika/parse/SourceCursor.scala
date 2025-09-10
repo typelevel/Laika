@@ -360,7 +360,7 @@ class BlockSource(
   */
 object BlockSource {
 
-  import cats.syntax.all._
+  import cats.syntax.all.*
 
   /** Creates a new block source for the specified lines.
     * Each line can have a different x- and y-offset from the root input as they may have been obtained
@@ -379,7 +379,7 @@ object BlockSource {
     * by a previously applied block parser that stripped some decoration.
     */
   def apply(firstLine: LineSource, rest: LineSource*): BlockSource = {
-    apply(NonEmptyChain(firstLine, rest: _*))
+    apply(NonEmptyChain(firstLine, rest*))
   }
 
 }

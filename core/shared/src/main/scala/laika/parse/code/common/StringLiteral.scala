@@ -18,10 +18,10 @@ package laika.parse.code.common
 
 import laika.ast.{ CodeSpan, CodeSpans }
 import laika.parse.Parser
-import laika.parse.builders._
-import laika.parse.code.syntax._
+import laika.parse.builders.*
+import laika.parse.code.syntax.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.syntax._
+import laika.parse.syntax.*
 import laika.parse.text.{ PrefixedParser, TextParsers }
 
 /** Configurable base parsers for string literals.
@@ -30,7 +30,7 @@ import laika.parse.text.{ PrefixedParser, TextParsers }
   */
 object StringLiteral {
 
-  import NumberLiteral._
+  import NumberLiteral.*
 
   /** Base parsers for escape sequences.
     */

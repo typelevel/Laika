@@ -25,10 +25,10 @@ trait HTMLModelBuilder {
     attributes.toList map (a => HTMLAttribute(a._1, List(a._2), Some('\"')))
 
   def emptyTag(name: String, attributes: (String, Span with TextContainer)*): HTMLEmptyElement =
-    html.HTMLEmptyElement(name, toAttributes(attributes: _*))
+    html.HTMLEmptyElement(name, toAttributes(attributes*))
 
   def startTag(name: String, attributes: (String, Span with TextContainer)*): HTMLStartTag =
-    html.HTMLStartTag(name, toAttributes(attributes: _*))
+    html.HTMLStartTag(name, toAttributes(attributes*))
 
   def startTag(name: String, attribute: HTMLAttribute): HTMLStartTag =
     HTMLStartTag(name, List(attribute))

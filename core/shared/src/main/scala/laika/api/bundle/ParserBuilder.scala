@@ -23,7 +23,7 @@ import laika.parse.text.PrefixedParser
 
 /** Base trait for `SpanParserBuilder` and `BlockParserBuilder` APIs.
   */
-sealed trait ParserBuilder[T <: ParserDefinition[_]] {
+sealed trait ParserBuilder[T <: ParserDefinition[?]] {
 
   /** Builds a block parser definition lazily by passing the recursive parsers
     * of the host language.
@@ -105,7 +105,7 @@ class BlockParserBuilder private (
   def createParser(recursiveParsers: RecursiveParsers): BlockParserDefinition = {
     val p          = parserFactory(recursiveParsers)
     val startChars = p match {
-      case pp: PrefixedParser[_] => pp.startChars.toSortedSet
+      case pp: PrefixedParser[?] => pp.startChars.toSortedSet
       case _                     => Set.empty[Char]
     }
     new BlockParserDefinition(startChars, p, recursive, position, precedence, paragraphLineCheck)

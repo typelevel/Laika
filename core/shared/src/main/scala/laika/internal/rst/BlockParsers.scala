@@ -17,9 +17,9 @@
 package laika.internal.rst
 
 import cats.data.NonEmptyChain
-import laika.ast._
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.ast.*
+import laika.parse.builders.*
+import laika.parse.syntax.*
 import laika.parse.text.Characters
 import laika.parse.{
   BlockSource,
@@ -30,7 +30,7 @@ import laika.parse.{
   SourceFragment,
   Success
 }
-import BaseParsers._
+import BaseParsers.*
 import laika.api.bundle.BlockParserBuilder
 import laika.internal.rst.ast.{ DoctestBlock, OverlineAndUnderline, Underline }
 

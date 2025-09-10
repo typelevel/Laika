@@ -18,7 +18,7 @@ package laika.internal.nav
 
 import laika.api.config.Config
 import laika.config.LaikaKeys
-import laika.ast._
+import laika.ast.*
 import laika.api.config.Config.ConfigResult
 
 /** Responsible for applying the navigation order to the contents of a document tree,

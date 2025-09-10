@@ -18,7 +18,7 @@ package laika.helium
 
 import cats.effect.{ IO, Resource }
 import laika.api.Transformer
-import laika.ast.LengthUnit._
+import laika.ast.LengthUnit.*
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.{ CoverImage, SyntaxHighlighting }
@@ -26,7 +26,7 @@ import laika.format.{ Markdown, XSLFO }
 import laika.helium.config.ColorQuintet
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.syntax._
+import laika.io.syntax.*
 import laika.theme.ThemeProvider
 import laika.theme.config.Color
 import munit.CatsEffectSuite
@@ -232,7 +232,7 @@ class HeliumFORendererSpec extends CatsEffectSuite with InputBuilder with Result
   }
 
   test("custom color scheme for syntax highlighting") {
-    import Color._
+    import Color.*
     val markup   =
       """
         |```scala

@@ -52,7 +52,7 @@ private[helium] object HeliumDirectives {
   }
 
   val initPreview: TemplateDirectives.Directive = TemplateDirectives.eval("heliumInitPreview") {
-    import TemplateDirectives.dsl._
+    import TemplateDirectives.dsl.*
     (positionalAttributes.as[String].widen, cursor).mapN { (targetIds, cursor) =>
       val res = for {
         enabled <- cursor.config.get(LaikaKeys.preview.enabled, false)

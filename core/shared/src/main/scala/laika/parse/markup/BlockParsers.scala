@@ -16,9 +16,9 @@
 
 package laika.parse.markup
 
-import laika.parse.builders._
-import laika.parse.syntax._
-import laika.parse._
+import laika.parse.builders.*
+import laika.parse.syntax.*
+import laika.parse.*
 
 /** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
   *
@@ -66,7 +66,7 @@ trait BlockParsers {
     lazy val nextBlock: Parser[LineSource] = blankLines.mkLines.line <~ lookAhead(nextBlockPrefix)
 
     (firstLine ~ (line | nextBlock).rep).map { case first ~ rest =>
-      BlockSource(first, rest: _*)
+      BlockSource(first, rest*)
     }
   }
 
@@ -118,7 +118,7 @@ trait BlockParsers {
       maxIndent: Int = Int.MaxValue
   ): Parser[(BlockSource, Int)] = {
 
-    import scala.math._
+    import scala.math.*
 
     sealed trait Line extends Product {
       def curIndent: Int
@@ -166,7 +166,7 @@ trait BlockParsers {
           val extraIndent = indent - minIndent
           LineSource(" " * extraIndent + src.input, src.parent.consume(extraIndent * -1))
       }
-      (BlockSource(adjustedLines.head, adjustedLines.tail: _*), minIndent)
+      (BlockSource(adjustedLines.head, adjustedLines.tail*), minIndent)
     }
 
     lookAhead(firstLineGuard) ~> firstLine.repWith(nextLine) ^^ result

@@ -16,7 +16,7 @@
 
 package laika.parse.code.common
 
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
 
@@ -28,7 +28,7 @@ object Keywords {
 
   /** Parses the specified list of keywords. */
   def apply(keyword: String, keywords: String*): CodeSpanParser =
-    apply(CodeCategory.Keyword)(keyword, keywords: _*)
+    apply(CodeCategory.Keyword)(keyword, keywords*)
 
   /** Parses the specified list of keywords, but associates it with the specified
     * code category and not with the `Keyword` category.

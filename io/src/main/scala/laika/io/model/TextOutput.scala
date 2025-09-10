@@ -20,7 +20,7 @@ import cats.Applicative
 import cats.effect.{ Async, Concurrent }
 import fs2.io.file.Files
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 
 import java.io.OutputStream
 import scala.io.Codec

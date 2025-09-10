@@ -19,7 +19,7 @@ package laika.parse.code.common
 import cats.data.NonEmptySet
 import laika.ast.{ CategorizedCode, CodeSpan }
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.text.{ CharGroup, PrefixedParser }
 
 /** Configurable base parsers for identifiers in code blocks.
@@ -62,7 +62,7 @@ object Identifier {
       * Will also be added to the set of characters for the parser of the rest of the identifier.
       */
     def withIdStartChars(char: Char, chars: Char*): IdParser = {
-      val startChars = idStartChars ++ NonEmptySet.of(char, chars: _*)
+      val startChars = idStartChars ++ NonEmptySet.of(char, chars*)
       new IdParser(startChars, nonStartChars, category, prefixParser, digitBeforeStart)
     }
 
@@ -70,7 +70,7 @@ object Identifier {
       * but not allowed as the first character.
       */
     def withIdPartChars(char: Char, chars: Char*): IdParser = {
-      val partChars = nonStartChars ++ NonEmptySet.of(char, chars: _*)
+      val partChars = nonStartChars ++ NonEmptySet.of(char, chars*)
       new IdParser(idStartChars, partChars, category, prefixParser, digitBeforeStart)
     }
 

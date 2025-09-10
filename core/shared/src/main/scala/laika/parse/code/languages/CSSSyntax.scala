@@ -20,13 +20,13 @@ import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
 import laika.ast.CodeSpan
 import laika.parse.Parser
-import laika.parse.code.common._
+import laika.parse.code.common.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.Characters
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.code.common.NumberLiteral.digits
-import laika.parse.code.syntax._
-import laika.parse.syntax._
+import laika.parse.code.syntax.*
+import laika.parse.syntax.*
 
 /** @author Jens Halm
   */

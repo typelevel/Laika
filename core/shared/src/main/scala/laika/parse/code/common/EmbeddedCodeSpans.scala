@@ -22,8 +22,8 @@ import laika.parse.Parser
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.markup.InlineParsers
 import laika.parse.text.DelimitedText
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
 
 /** Factories for creating a span parser that detects other syntax as part of the span.
   *

@@ -108,7 +108,7 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
               fmt.element(
                 "a",
                 sl.withStyles("reference", "external"),
-                fmt.optAttributes("href" -> Some(url), "title" -> title) *
+                fmt.optAttributes("href" -> Some(url), "title" -> title)*
               )
             case it: InternalTarget  =>
               val relativePath = it.relativeTo(fmt.path).relativePath
@@ -122,7 +122,7 @@ class ReStructuredTextToHTMLSpec extends FunSuite {
                   fmt.optAttributes(
                     "href"  -> Some("#" + relativePath.fragment.get),
                     "title" -> title
-                  ) *
+                  )*
                 )
           }
 

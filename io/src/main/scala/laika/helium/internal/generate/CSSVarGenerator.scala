@@ -115,7 +115,7 @@ private[helium] object CSSVarGenerator {
   private def ref(name: String): String = s"var(--$name)"
 
   def colorSet(colors: ColorSet, darkMode: Boolean): Seq[(String, String)] = {
-    import colors._
+    import colors.*
     Seq(
       "primary-color"          -> theme.primary.displayValue,
       "primary-light"          -> theme.primaryLight.displayValue,

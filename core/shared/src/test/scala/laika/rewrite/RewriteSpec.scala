@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.ast._
+import laika.ast.*
 import laika.ast.CellType.BodyCell
 import laika.ast.RewriteAction.Replace
 import laika.ast.sample.ParagraphCompanionShortcuts

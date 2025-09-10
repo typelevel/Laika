@@ -45,7 +45,7 @@ private[helium] object HeliumInputBuilder {
 
   def build[F[_]: Async](helium: Helium): F[InputTreeBuilder[F]] = {
 
-    import helium._
+    import helium.*
 
     val fontResources =
       (siteSettings.fontResources ++ epubSettings.bookConfig.fonts ++ pdfSettings.bookConfig.fonts)

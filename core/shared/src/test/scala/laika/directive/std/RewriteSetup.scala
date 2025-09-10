@@ -55,7 +55,7 @@ object RewriteSetup extends TemplateParserSetup with MarkupParserSetup with Asse
     val docContent    = docUnderTest.getOrElse(SampleContent.fourSections(BuilderKey.Doc(6)))
 
     val builder = SampleTrees.sixDocuments.builder
-      .titleDocuments(titleDocPaths *)
+      .titleDocuments(titleDocPaths*)
       .docContent(SampleContent.fourSections)
       .docContent(targetPath, docContent)
       .docConfig(targetPath, docConfigUnderTest)

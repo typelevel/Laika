@@ -104,8 +104,8 @@ private[preview] class SourceChangeWatcher[F[_]: Async](
 
   @tailrec
   private def collectEvents(
-      acc: List[(WatchEvent[_], WatchKey)]
-  ): List[(WatchEvent[_], WatchKey)] = {
+      acc: List[(WatchEvent[?], WatchKey)]
+  ): List[(WatchEvent[?], WatchKey)] = {
     val key = service.poll()
     if (key == null) acc
     else {
@@ -118,7 +118,7 @@ private[preview] class SourceChangeWatcher[F[_]: Async](
   private case class ProcessedEvent(triggersUpdate: Boolean, newDirectory: Option[FilePath])
 
   private def processEvent(
-      event: WatchEvent[_],
+      event: WatchEvent[?],
       watchKey: WatchKey,
       targets: Map[WatchKey, ObservedTarget]
   ): F[ProcessedEvent] = {

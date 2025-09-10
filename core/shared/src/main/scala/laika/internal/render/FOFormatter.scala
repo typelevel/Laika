@@ -38,7 +38,7 @@ private[laika] class FOFormatter private (
     def localId(ref: String): String = FOFormatter.localId(path, ref, pathTranslator)
     val idAttr                       = element.options.id.map(id => "id" -> localId(id)).toSeq
 
-    attributes(filterAttributes(tag, idAttr ++ combinedAttrs) *)
+    attributes(filterAttributes(tag, idAttr ++ combinedAttrs)*)
   }
 
 }
@@ -119,31 +119,31 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
 
       /** Renders an FO `block` element and its children on the same line.
         */
-      def block(container: ElementContainer[_ <: Element], attr: (String, String)*): String =
-        fmt.element("fo:block", container, attr *)
+      def block(container: ElementContainer[? <: Element], attr: (String, String)*): String =
+        fmt.element("fo:block", container, attr*)
 
       /** Renders an FO `block` element and the specified nested spans,
         * preserving all whitespace within the text elements of those spans.
         */
-      def blockWithWS(container: ElementContainer[_ <: Element], attr: (String, String)*): String =
-        fmt.withoutIndentation(_.element("fo:block", container, attr *))
+      def blockWithWS(container: ElementContainer[? <: Element], attr: (String, String)*): String =
+        fmt.withoutIndentation(_.element("fo:block", container, attr*))
 
       /** Renders an FO `inline` element and its children on the same line.
         */
-      def inline(container: ElementContainer[_ <: Element], attr: (String, String)*): String =
-        fmt.element("fo:inline", container, attr *)
+      def inline(container: ElementContainer[? <: Element], attr: (String, String)*): String =
+        fmt.element("fo:inline", container, attr*)
 
       /** Renders an FO `block` element, containing nested blocks.
         * The content will be rendered indented one level to the right.
         */
       def blockContainer(styleHint: Element, content: Seq[Block], attr: (String, String)*): String =
-        fmt.indentedElement("fo:block", styleHint, content, attr *)
+        fmt.indentedElement("fo:block", styleHint, content, attr*)
 
       /** Renders an FO `list-block` element, and the specified list items.
         * The content will be rendered indented one level to the right.
         */
       def listBlock(container: ListContainer, attr: (String, String)*): String =
-        fmt.indentedElement("fo:list-block", container, attr *)
+        fmt.indentedElement("fo:list-block", container, attr*)
 
       /** Renders an FO `list-item` element with the specified label and body.
         * The content will be rendered indented one level to the right.
@@ -155,7 +155,7 @@ private[laika] object FOFormatter extends (Formatter.Context[TagFormatter] => Ta
           attr: (String, String)*
       ): String = {
         val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
-        fmt.indentedElement("fo:list-item", styleHint, content, attr: _*)
+        fmt.indentedElement("fo:list-item", styleHint, content, attr*)
       }
 
     }

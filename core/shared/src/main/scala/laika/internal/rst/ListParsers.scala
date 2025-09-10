@@ -105,7 +105,7 @@ private[laika] object ListParsers {
   }
 
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
-    import EnumType._
+    import EnumType.*
     val firstLowerRoman = (someOf('i', 'v', 'x', 'l', 'c', 'd', 'm').min(2) | oneOf('i')).evalMap {
       num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> LowerRoman)
     }
@@ -136,7 +136,7 @@ private[laika] object ListParsers {
   }
 
   lazy val enumList: BlockParserBuilder = BlockParserBuilder.recursive { implicit recParsers =>
-    import EnumType._
+    import EnumType.*
 
     val lowerRoman = someOf('i', 'v', 'x', 'l', 'c', 'd', 'm')
     val upperRoman = someOf('I', 'V', 'X', 'L', 'C', 'D', 'M')

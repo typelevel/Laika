@@ -29,10 +29,10 @@ import laika.parse.code.common.{
   StringLiteral
 }
 import laika.parse.text.{ CharGroup, PrefixedParser }
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
 import laika.parse.code.common.Identifier.IdParser
-import laika.parse.code.syntax._
+import laika.parse.code.syntax.*
 
 /** @author Jens Halm
   */

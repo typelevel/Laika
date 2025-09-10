@@ -29,7 +29,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
   object BlockTestDirectives {
 
     import laika.api.bundle.BlockDirectives
-    import BlockDirectives.dsl._
+    import BlockDirectives.dsl.*
 
     object Registry extends DirectiveRegistry {
 
@@ -71,7 +71,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
   object SpanTestDirectives {
 
     import laika.api.bundle.SpanDirectives
-    import SpanDirectives.dsl._
+    import SpanDirectives.dsl.*
 
     object Registry extends DirectiveRegistry {
 

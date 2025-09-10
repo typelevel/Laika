@@ -18,7 +18,7 @@ package laika.parse.text
 
 import cats.data.NonEmptySet
 import laika.parse.Parser
-import laika.parse.builders._
+import laika.parse.builders.*
 import munit.FunSuite
 
 /** @author Jens Halm

@@ -390,7 +390,7 @@ private[laika] object FORenderer extends ((TagFormatter, Element) => String) {
           fmt.optAttributes(
             "number-columns-spanned" -> noneIfDefault(colspan, 1),
             "number-rows-spanned"    -> noneIfDefault(rowspan, 1)
-          ): _*
+          )*
         )
     }
 

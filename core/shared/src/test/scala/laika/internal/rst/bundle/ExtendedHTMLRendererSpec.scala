@@ -37,7 +37,7 @@ import munit.FunSuite
 class ExtendedHTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   def render(elem: Element): Either[RendererError, String] =
-    Renderer.of(HTML).using(ReStructuredText.extensions: _*).build.render(elem)
+    Renderer.of(HTML).using(ReStructuredText.extensions*).build.render(elem)
 
   test("render a doctest block") {
     val elem = DoctestBlock("some text")

@@ -94,8 +94,8 @@ class InputTreeBuilder[F[_]] private[model] (
     private[laika] val fileRoots: Vector[FilePath]
 )(implicit F: Async[F]) {
 
-  import cats.syntax.all._
-  import DocumentTreeBuilder._
+  import cats.syntax.all.*
+  import DocumentTreeBuilder.*
 
   private def addStep(step: BuilderStep[F]): InputTreeBuilder[F] =
     addStep(None)(step)

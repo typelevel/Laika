@@ -102,7 +102,7 @@ private[laika] object NavigationTreeDirectives {
             val noRoot  = optExcludeRoot.getOrElse(excludeRoot)
             val context = NavigationBuilderContext.defaults
               .withRefPath(cursor.path)
-              .withItemStyles(itemStyles.toSeq *)
+              .withItemStyles(itemStyles.toSeq*)
               .withMaxLevels(depth.getOrElse(defaultDepth))
               .withExcludeSections(optExcludeSections.getOrElse(excludeSections))
               .withExcludeSelf(excludeSelf)

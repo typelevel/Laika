@@ -69,7 +69,7 @@ class LinkDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with T
                      |bb""".stripMargin
       assertEquals(
         parse(configInput(input)).map(_.content),
-        Right(RootElement(p("aa"), p(expected: _*), p("bb")))
+        Right(RootElement(p("aa"), p(expected*), p("bb")))
       )
     }
 

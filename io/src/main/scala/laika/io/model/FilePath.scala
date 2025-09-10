@@ -96,7 +96,7 @@ class FilePath private (private val root: Option[String], private[FilePath] val 
     case sp: Path.Segments =>
       val last     = sp.name + fragment.fold("")("#" + _)
       val segments = root.toList ++: sp.segments.init.append(last).toList
-      Paths.get(segments.head, segments.tail: _*)
+      Paths.get(segments.head, segments.tail*)
   }
 
   /** Converts this `FilePath` to an `fs2.io.file.Path`.

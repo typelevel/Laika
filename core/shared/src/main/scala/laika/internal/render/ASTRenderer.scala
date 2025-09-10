@@ -123,7 +123,7 @@ private[laika] object ASTRenderer extends ((Formatter, Element) => String) {
       case tsc: TemplateSpanContainer        => elementContainerDesc(tsc, "TemplateSpans")
       case tc: TextContainer                 => textContainerDesc(tc)
       case Content(content, desc, _)         => desc + fmt.indentedChildren(content)
-      case ec: ElementContainer[_]           => elementContainerDesc(ec, "Elements")
+      case ec: ElementContainer[?]           => elementContainerDesc(ec, "Elements")
       case e                                 => renderElement(e)
     }
 

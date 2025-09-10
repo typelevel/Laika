@@ -21,7 +21,7 @@ import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
 import laika.parse.code.CodeSpanParser
 import laika.parse.code.common.StringLiteral.StringParser
-import laika.parse.code.common._
+import laika.parse.code.common.*
 
 /** @author Jens Halm
   */

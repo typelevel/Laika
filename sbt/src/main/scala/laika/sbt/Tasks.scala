@@ -339,14 +339,14 @@ object Tasks {
 
     def createParser(format: MarkupFormat): ParserBuilder = {
       val parser = MarkupParser.of(format)
-      parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value *)
+      parser.withConfig(mergedConfig(parser.config)).using(laikaExtensions.value*)
     }
 
     val transformer = Transformer
       .from(Markdown)
       .to(HTML)
       .withConfig(mergedConfig(createParser(Markdown).config))
-      .using(laikaExtensions.value *)
+      .using(laikaExtensions.value*)
       .parallel[IO]
       .withTheme(laikaTheme.value)
       .withAlternativeParser(createParser(ReStructuredText))

@@ -115,7 +115,7 @@ private[helium] case class LandingPage(
     teasers: Seq[Teaser] = Nil
 ) {
 
-  import LengthUnit._
+  import LengthUnit.*
 
   val subtitleFontSize: Length =
     if (subtitle.exists(_.length > 75)) px(22)

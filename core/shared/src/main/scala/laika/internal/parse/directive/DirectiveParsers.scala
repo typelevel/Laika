@@ -94,7 +94,7 @@ private[laika] object DirectiveParsers {
   def declarationParser(
       supportsCustomFence: Boolean = false
   ): Parser[(String, ObjectBuilderValue, String)] = {
-    import HoconParsers._
+    import HoconParsers.*
 
     val defaultFence = success("@:@")
     val fence        =
@@ -161,7 +161,7 @@ private[laika] object DirectiveParsers {
   */
 private[laika] object SpanDirectiveParsers {
 
-  import DirectiveParsers._
+  import DirectiveParsers.*
   import laika.api.bundle.SpanDirectives
 
   val contextRef: SpanParserBuilder =
@@ -174,7 +174,7 @@ private[laika] object SpanDirectiveParsers {
       directives: Map[String, SpanDirectives.Directive]
   )(recParsers: RecursiveSpanParsers): PrefixedParser[Span] = {
 
-    import recParsers._
+    import recParsers.*
 
     val separators              = directives.values.flatMap(_.separators).toSet
     val body: BodyParserBuilder = spec =>
@@ -198,7 +198,7 @@ private[laika] object SpanDirectiveParsers {
   */
 private[laika] object BlockDirectiveParsers {
 
-  import DirectiveParsers._
+  import DirectiveParsers.*
   import laika.api.bundle.BlockDirectives
 
   def blockDirective(directives: Map[String, BlockDirectives.Directive]): BlockParserBuilder =

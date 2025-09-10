@@ -29,7 +29,7 @@ import laika.parse.code.common.{
   NumberLiteral,
   StringLiteral
 }
-import laika.parse.code.syntax._
+import laika.parse.code.syntax.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
 import laika.parse.text.TextParsers.*
@@ -61,7 +61,7 @@ object HOCONSyntax extends SyntaxHighlighter {
       Character.toChars(i)(0)
     })
       .filterNot(c => invalidUnquotedChar.contains(c) || Character.isWhitespace(c))
-    NonEmptySet.fromSetUnsafe(SortedSet(startChars: _*))
+    NonEmptySet.fromSetUnsafe(SortedSet(startChars*))
   }
 
   private val unquotedChar = {

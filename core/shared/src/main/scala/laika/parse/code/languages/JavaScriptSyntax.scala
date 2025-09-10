@@ -20,9 +20,9 @@ import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.CodeCategory.{ BooleanLiteral, LiteralValue }
 import laika.parse.code.common.NumberLiteral.{ digits, NumericParser }
-import laika.parse.code.common._
+import laika.parse.code.common.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
-import laika.parse.syntax._
+import laika.parse.syntax.*
 
 /** @author Jens Halm
   */
@@ -110,7 +110,7 @@ object JavaScriptSyntax extends SyntaxHighlighter {
 
   object JSX extends SyntaxHighlighter {
 
-    import TagFormats._
+    import TagFormats.*
 
     val language: NonEmptyList[String] = NonEmptyList.of("jsx")
 

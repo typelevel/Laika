@@ -34,7 +34,7 @@ import laika.parse.text.PrefixedParser
   */
 private[laika] class ExplicitBlockParsers(recParsers: RecursiveParsers) {
 
-  import recParsers._
+  import recParsers.*
 
   private val explicitStart = ".." ~ ws.min(1)
 

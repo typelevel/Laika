@@ -114,7 +114,7 @@ trait PrefixedParser[+T] extends Parser[T] { self =>
   */
 object PrefixedParser {
 
-  import cats.syntax.all._
+  import cats.syntax.all.*
 
   /** Creates a new parser that is only triggered when a character in the specified
     * set is seen on the input.
@@ -128,7 +128,7 @@ object PrefixedParser {
     * is seen on the input.
     */
   def apply[U](char: Char, chars: Char*)(p: Parser[U]): PrefixedParser[U] = new PrefixedParser[U] {
-    def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars: _*)
+    def startChars: NonEmptySet[Char] = NonEmptySet.of(char, chars*)
     override def underlying           = p
   }
 

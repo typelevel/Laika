@@ -112,7 +112,7 @@ private[laika] object BlockParsers {
     def paragraph(firstLine: LineSource, restLines: Seq[LineSource]): Paragraph =
       Paragraph(
         recParsers.recursiveSpans.parseAndRecover(
-          BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks): _*)
+          BlockSource(processLineBreaks(firstLine), restLines.map(processLineBreaks)*)
         )
       )
 
@@ -127,7 +127,7 @@ private[laika] object BlockParsers {
   }
 
   val linkTarget: BlockParserBuilder = BlockParserBuilder.withEscapedText { escapedParsers =>
-    import escapedParsers._
+    import escapedParsers.*
 
     val id  = "[" ~> escapedUntil(']').map(_.toLowerCase) <~ ":" <~ ws.void
     val url =

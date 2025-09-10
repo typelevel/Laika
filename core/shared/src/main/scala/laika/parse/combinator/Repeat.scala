@@ -16,7 +16,7 @@
 
 package laika.parse.combinator
 
-import laika.parse._
+import laika.parse.*
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

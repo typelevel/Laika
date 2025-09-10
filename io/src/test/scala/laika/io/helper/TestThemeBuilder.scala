@@ -37,7 +37,7 @@ object TestThemeBuilder {
   }
 
   def forBundles(bundles: Seq[ExtensionBundle]): ThemeProvider = new ThemeProvider {
-    def build[F[_]: Async] = ThemeBuilder("test").addExtensions(bundles: _*).build
+    def build[F[_]: Async] = ThemeBuilder("test").addExtensions(bundles*).build
   }
 
   def forDocumentMapper(f: Document => Document): ThemeProvider = new ThemeProvider {

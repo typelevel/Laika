@@ -46,7 +46,7 @@ private[rst] class ExtensionParsers(
     defaultTextRole: String
 ) {
 
-  import recParsers._
+  import recParsers.*
 
   private val explicitStart = ".." ~ ws.min(1)
 

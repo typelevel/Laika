@@ -17,10 +17,10 @@
 package laika.internal.rst
 
 import cats.data.NonEmptySet
-import laika.ast._
+import laika.ast.*
 import laika.parse.Parser
-import laika.parse.syntax._
-import laika.parse.builders._
+import laika.parse.syntax.*
+import laika.parse.builders.*
 import laika.parse.text.{ CharGroup, Characters }
 
 /** @author Jens Halm

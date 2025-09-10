@@ -510,7 +510,7 @@ class TreeParserSpec
 
   test("template directive") {
     import laika.api.bundle.TemplateDirectives
-    import TemplateDirectives.dsl._
+    import TemplateDirectives.dsl.*
 
     val directive = TemplateDirectives.create("foo") {
       attribute(0).as[String] map {
@@ -620,8 +620,8 @@ class TreeParserSpec
 
   object CustomSpanParsers {
 
-    import TextParsers._
-    import laika.parse.syntax._
+    import TextParsers.*
+    import laika.parse.syntax.*
 
     case class DecoratedSpan(deco: Char, text: String) extends Span {
       val options: Options = Options.empty
@@ -663,7 +663,7 @@ class TreeParserSpec
   }
 
   test("use a span parser from a theme") {
-    import CustomSpanParsers._
+    import CustomSpanParsers.*
 
     val themeParsers = Seq(spanFor('+'))
 
@@ -679,7 +679,7 @@ class TreeParserSpec
   }
 
   test("let a span parser from an app extension override a span parser from a theme") {
-    import CustomSpanParsers._
+    import CustomSpanParsers.*
 
     val themeParsers = Seq(spanFor('+'))
     val appParsers   = Seq(spanFor('+', '!'))
@@ -696,7 +696,7 @@ class TreeParserSpec
   }
 
   test("let a span parser from a theme extension override a span parser from a base theme") {
-    import CustomSpanParsers._
+    import CustomSpanParsers.*
 
     val themeParsers    = Seq(spanFor('+'))
     val themeExtParsers = Seq(spanFor('+', '!'))

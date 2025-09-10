@@ -435,7 +435,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("custom web fonts - added to default fonts") {
-    val helium   = heliumBase.site.addFontResources(testFonts *)
+    val helium   = heliumBase.site.addFontResources(testFonts*)
     val expected =
       meta ++ """
                 |<title></title>
@@ -451,7 +451,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
   }
 
   test("custom web fonts - replacing default fonts") {
-    val helium   = heliumBase.site.clearFontResources.site.addFontResources(testFonts *)
+    val helium   = heliumBase.site.clearFontResources.site.addFontResources(testFonts*)
     val expected =
       meta ++ """
                 |<title></title>

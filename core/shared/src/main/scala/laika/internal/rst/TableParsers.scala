@@ -18,12 +18,12 @@ package laika.internal.rst
 
 import cats.data.NonEmptyChain
 import laika.api.bundle.BlockParserBuilder
-import laika.ast._
+import laika.ast.*
 import laika.internal.collection.Stack
 import laika.internal.collection.TransitionalCollectionOps.Zip3Iterator
-import laika.parse.builders._
-import laika.parse.syntax._
-import laika.parse._
+import laika.parse.builders.*
+import laika.parse.syntax.*
+import laika.parse.*
 import laika.parse.markup.RecursiveParsers
 
 import scala.annotation.nowarn
@@ -360,7 +360,7 @@ private[laika] object TableParsers {
         val rowBuffer = rows.foldLeft((ListBuffer[List[TableElement]](), 0, false)) {
           case ((acc, blanks, rowOpen), row) =>
             row match {
-              case result: ~[_, _] =>
+              case result: ~[?, ?] =>
                 val row = flattenElements(result)
                 row.head match {
                   case RowSeparator      => (acc += row, 0, false)

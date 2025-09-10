@@ -43,7 +43,7 @@ import scala.util.Try
 class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderPhaseRewrite {
 
   object DirectiveSetup {
-    import laika.api.bundle.SpanDirectives.dsl._
+    import laika.api.bundle.SpanDirectives.dsl.*
 
     trait Empty {
       val directive = SpanDirectives.create("dir")(SpanDirectives.dsl.empty(Text("foo")))
@@ -135,8 +135,8 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
     trait DirectiveWithCustomBodyParser {
 
-      import laika.parse.builders._
-      import laika.parse.syntax._
+      import laika.parse.builders.*
+      import laika.parse.syntax.*
 
       val directive = SpanDirectives.create("dir") {
         parsedBody(recParsers => anyChars.take(3) ~> recParsers.recursiveSpans(anyChars.line))
@@ -253,7 +253,7 @@ class SpanDirectiveAPISpec extends FunSuite with TestSourceBuilders with RenderP
 
   }
 
-  import DirectiveSetup._
+  import DirectiveSetup.*
 
   test("empty directive") {
     new SpanParser with Empty {

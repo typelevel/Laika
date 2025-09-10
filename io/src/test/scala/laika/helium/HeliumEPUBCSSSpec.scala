@@ -309,7 +309,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                  |--syntax-wheel5: #210055;""".stripMargin
 
   test("custom colors - via 'epub' selector") {
-    import laika.theme.config.Color._
+    import laika.theme.config.Color.*
     val helium = Helium.defaults
       .epub.themeColors(
         primary = rgb(1, 1, 1),
@@ -338,7 +338,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("custom colors - via 'all' selector") {
-    import laika.theme.config.Color._
+    import laika.theme.config.Color.*
     val helium = Helium.defaults
       .all.themeColors(
         primary = rgb(1, 1, 1),
@@ -367,7 +367,7 @@ class HeliumEPUBCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("custom colors in dark mode") {
-    import laika.theme.config.Color._
+    import laika.theme.config.Color.*
     val helium = Helium.defaults
       .epub.themeColors(
         primary = rgb(1, 1, 1),

@@ -17,7 +17,7 @@
 package laika.ast.sample
 
 import laika.ast.Path.Root
-import laika.ast._
+import laika.ast.*
 import laika.parse.{ LineSource, SourceCursor, SourceFragment }
 
 /** @author Jens Halm

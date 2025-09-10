@@ -368,8 +368,8 @@ case object RewritePhase {
   case class Render(context: OutputContext) extends RewritePhase
 
   object Render {
-    def apply(format: RenderFormat[_]): Render            = apply(OutputContext(format))
-    def apply(format: TwoPhaseRenderFormat[_, _]): Render = apply(OutputContext(format))
+    def apply(format: RenderFormat[?]): Render            = apply(OutputContext(format))
+    def apply(format: TwoPhaseRenderFormat[?, ?]): Render = apply(OutputContext(format))
   }
 
 }

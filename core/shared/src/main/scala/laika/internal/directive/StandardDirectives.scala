@@ -187,7 +187,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
 
     (positionalAttributes.as[String].widen, parsedBody.map(asBlock(_))).mapN { (formats, body) =>
       NonEmptySet
-        .fromSet(TreeSet(formats: _*))
+        .fromSet(TreeSet(formats*))
         .fold[Either[String, Block]](Left("no formats provided"))(set =>
           Right(TargetFormat(set, body))
         )
@@ -199,7 +199,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   lazy val blockStyle: BlockDirectives.Directive = BlockDirectives.create("style") {
     import laika.api.bundle.BlockDirectives.dsl.*
 
-    (parsedBody, positionalAttributes.as[String].map(Styles(_: _*))).mapN(asBlock)
+    (parsedBody, positionalAttributes.as[String].map(Styles(_*))).mapN(asBlock)
   }
 
   /** Implementation of the `style` directive for span elements in markup documents.
@@ -207,7 +207,7 @@ private[laika] object StandardDirectives extends DirectiveRegistry {
   lazy val spanStyle: SpanDirectives.Directive = SpanDirectives.create("style") {
     import laika.api.bundle.SpanDirectives.dsl.*
 
-    (parsedBody, positionalAttributes.as[String].map(Styles(_: _*))).mapN(asSpan)
+    (parsedBody, positionalAttributes.as[String].map(Styles(_*))).mapN(asSpan)
   }
 
   /** Implementation of the `icon` directive for span elements in markup documents.

@@ -221,7 +221,7 @@ private[rst] object TextRoles {
     */
   object Parts {
 
-    import Directives.Converters._
+    import Directives.Converters.*
 
     private def requiredPart[T](
         build: RoleDirectiveParserBuilder => (Key, RoleDirectiveParserBuilder),

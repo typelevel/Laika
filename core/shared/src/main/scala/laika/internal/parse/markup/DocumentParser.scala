@@ -42,7 +42,7 @@ private[laika] object DocumentParser {
 
   }
 
-  private def create[D, R <: ElementContainer[_]](
+  private def create[D, R <: ElementContainer[?]](
       rootParser: Parser[R],
       configParser: Parser[ConfigParser]
   )(docFactory: (Path, ConfigParser, R) => D): DocumentInput => Either[ParserError, D] = {

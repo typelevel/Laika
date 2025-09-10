@@ -334,6 +334,6 @@ object ThemeNavigationSection {
   }
 
   def apply(title: String, link: TextLink, links: TextLink*): ThemeNavigationSection =
-    Impl(title, NonEmptyList.of(link, links *))
+    Impl(title, NonEmptyList.of(link, links*))
 
 }

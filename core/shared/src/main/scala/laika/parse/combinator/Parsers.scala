@@ -19,7 +19,7 @@ package laika.parse.combinator
 import laika.parse.*
 import laika.parse.text.TextParsers
 
-import scala.util.{ Try, Failure => TFailure, Success => TSuccess }
+import scala.util.{ Try, Failure as TFailure, Success as TSuccess }
 
 /** Generic base parsers which are not specifically tailored for parsing of text markup.
   *

@@ -76,7 +76,7 @@ object BinaryTreeRenderer {
       private[io] val description: String
   )
 
-  type BinaryRenderFormat = TwoPhaseRenderFormat[_, BinaryPostProcessor.Builder]
+  type BinaryRenderFormat = TwoPhaseRenderFormat[?, BinaryPostProcessor.Builder]
 
   private[laika] def buildRenderer[F[_]: Async](
       format: BinaryRenderFormat,

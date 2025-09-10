@@ -18,7 +18,7 @@ package laika.parse.code.languages
 
 import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
-import laika.parse.builders._
+import laika.parse.builders.*
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{ Comment, Identifier, Keywords, NumberLiteral, StringLiteral }
 
@@ -36,8 +36,8 @@ object SQLSyntax extends SyntaxHighlighter {
 
   private def caseInsensitiveKeywords(category: CodeCategory)(kws: String*): CodeSpanParser = {
     val upper = kws.map(_.toUpperCase) // mixed case rare enough in practice to get ignored here
-    Keywords(category)(kws.head, kws.tail: _*) ++
-      Keywords(category)(upper.head, upper.tail: _*)
+    Keywords(category)(kws.head, kws.tail*) ++
+      Keywords(category)(upper.head, upper.tail*)
   }
 
   private val keywords: CodeSpanParser = caseInsensitiveKeywords(CodeCategory.Keyword)(

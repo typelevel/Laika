@@ -322,7 +322,7 @@ private[rst] object Directives {
     */
   object Parts {
 
-    import Converters._
+    import Converters.*
 
     private def requiredPart[T](
         build: DirectiveParserBuilder => (Key, DirectiveParserBuilder),

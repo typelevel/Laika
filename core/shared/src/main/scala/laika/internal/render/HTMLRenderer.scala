@@ -43,10 +43,10 @@ private[laika] class HTMLRenderer(format: String)
         attrs: (String, String)*
     ): String = container.content match {
       case Seq(ss: SpanSequence)      =>
-        fmt.element(tagName, ss.withOptions(container.options), attrs: _*)
+        fmt.element(tagName, ss.withOptions(container.options), attrs*)
       case Seq(Paragraph(spans, opt)) =>
-        fmt.element(tagName, SpanSequence(spans, opt), attrs: _*)
-      case _                          => fmt.indentedElement(tagName, container, attrs: _*)
+        fmt.element(tagName, SpanSequence(spans, opt), attrs*)
+      case _                          => fmt.indentedElement(tagName, container, attrs*)
     }
 
     def renderTable(table: Table): String = {
@@ -186,7 +186,7 @@ private[laika] class HTMLRenderer(format: String)
         case i: Inserted   => fmt.element("ins", i)
 
         case sl: SpanLink =>
-          fmt.element("a", sl, linkAttributes(sl.target, sl.title) *)
+          fmt.element("a", sl, linkAttributes(sl.target, sl.title)*)
         case h: Header    =>
           fmt.newLine + fmt.element("h" + h.level.toString, h)
 
@@ -223,7 +223,7 @@ private[laika] class HTMLRenderer(format: String)
           fmt.optAttributes(
             "class" -> Some(enumFormat.enumType.toString.toLowerCase),
             "start" -> noneIfDefault(start, 1)
-          ) *
+          )*
         )
       case bl: BulletList                         => fmt.indentedElement("ul", bl)
       case dl: DefinitionList                     => fmt.indentedElement("dl", dl)
@@ -247,7 +247,7 @@ private[laika] class HTMLRenderer(format: String)
         }
         else ""
       case cs: CodeSpan                     =>
-        fmt.textElement("span", cs.mergeOptions(Styles(cs.categories.map(_.name).toSeq *)))
+        fmt.textElement("span", cs.mergeOptions(Styles(cs.categories.map(_.name).toSeq*)))
       case l: Literal                       => fmt.withoutIndentation(_.textElement("code", l))
       case LiteralBlock(content, opt)       =>
         fmt.element("pre", SpanSequence(Literal(content)).withOptions(opt))
@@ -293,7 +293,7 @@ private[laika] class HTMLRenderer(format: String)
         tagName,
         icon.withOptions(options),
         content,
-        fmt.optAttributes("title" -> icon.title): _*
+        fmt.optAttributes("title" -> icon.title)*
       )
     }
 
@@ -325,7 +325,7 @@ private[laika] class HTMLRenderer(format: String)
           "height" -> heightAttr,
           "style"  -> styleAttr
         )
-        fmt.emptyElement("img", img, allAttr: _*)
+        fmt.emptyElement("img", img, allAttr*)
 
       case icon: Icon                       => renderIcon(icon)
       case lb: LineBreak                    => fmt.emptyElement("br", lb)
@@ -351,7 +351,7 @@ private[laika] class HTMLRenderer(format: String)
           "colspan" -> noneIfDefault(c.colspan, 1),
           "rowspan" -> noneIfDefault(c.rowspan, 1)
         )
-        renderBlocks(tagName, c, attributes *)
+        renderBlocks(tagName, c, attributes*)
     }
 
     def renderUnresolvedReference(ref: Reference): String =

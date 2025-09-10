@@ -16,7 +16,7 @@
 
 package laika.internal.rst.bundle
 
-import laika.ast._
+import laika.ast.*
 
 import scala.collection.mutable.ListBuffer
 

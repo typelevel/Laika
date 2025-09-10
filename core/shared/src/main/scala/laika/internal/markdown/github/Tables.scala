@@ -17,12 +17,12 @@
 package laika.internal.markdown.github
 
 import laika.api.bundle.BlockParserBuilder
-import laika.ast._
-import laika.internal.markdown.BlockParsers._
+import laika.ast.*
+import laika.internal.markdown.BlockParsers.*
 import laika.parse.{ LineSource, Parser }
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
 
 /** Parser for the table extension of GitHub Flavored Markdown.
   *

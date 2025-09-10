@@ -16,8 +16,8 @@
 
 package laika.parse.text
 
-import laika.parse._
-import laika.parse.text.DelimiterResult._
+import laika.parse.*
+import laika.parse.text.DelimiterResult.*
 
 import scala.annotation.tailrec
 

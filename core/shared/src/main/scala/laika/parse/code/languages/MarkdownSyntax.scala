@@ -22,9 +22,9 @@ import laika.ast.CodeSpan
 import laika.parse.code.common.StringLiteral
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.text.PrefixedParser
-import laika.parse.builders._
-import laika.parse.syntax._
-import laika.parse.code.syntax._
+import laika.parse.builders.*
+import laika.parse.syntax.*
+import laika.parse.code.syntax.*
 
 /** @author Jens Halm
   */

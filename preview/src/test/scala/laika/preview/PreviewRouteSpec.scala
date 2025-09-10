@@ -21,11 +21,11 @@ import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.format.Markdown
 import laika.io.helper.InputBuilder
-import laika.io.syntax._
+import laika.io.syntax.*
 import laika.theme.Theme
 import munit.CatsEffectSuite
 import org.http4s.headers.`Content-Type`
-import org.http4s.implicits._
+import org.http4s.implicits.*
 import org.http4s.{ MediaType, Method, Request, Response, Status, Uri }
 
 class PreviewRouteSpec extends CatsEffectSuite with InputBuilder {

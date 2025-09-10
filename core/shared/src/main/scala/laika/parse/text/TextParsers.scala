@@ -38,7 +38,7 @@ trait TextParsers extends Parsers {
     */
   def range(fromChar: Char, toChar: Char): NonEmptySet[Char] = {
     val range = if (fromChar > toChar) toChar to fromChar else fromChar to toChar
-    NonEmptySet.of(range.head, range.tail: _*)
+    NonEmptySet.of(range.head, range.tail*)
   }
 
   /**  A parser that matches only the specified literal string.
@@ -111,7 +111,7 @@ trait TextParsers extends Parsers {
     * Succeeds at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevNot(char: Char, chars: Char*): Parser[Unit] = prevNot(NonEmptySet.of(char, chars: _*))
+  def prevNot(char: Char, chars: Char*): Parser[Unit] = prevNot(NonEmptySet.of(char, chars*))
 
   /** Verifies that the previous character is not one of those specified.
     * Succeeds at the start of the input and does not consume any input
@@ -138,7 +138,7 @@ trait TextParsers extends Parsers {
     * Succeeds at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextNot(char: Char, chars: Char*): Parser[Unit] = nextNot(NonEmptySet.of(char, chars: _*))
+  def nextNot(char: Char, chars: Char*): Parser[Unit] = nextNot(NonEmptySet.of(char, chars*))
 
   /** Verifies that the next character is not one of those specified.
     * Succeeds at the end of the input and does not consume any input
@@ -165,7 +165,7 @@ trait TextParsers extends Parsers {
     * Fails at the start of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def prevIn(char: Char, chars: Char*): Parser[Unit] = prevIn(NonEmptySet.of(char, chars: _*))
+  def prevIn(char: Char, chars: Char*): Parser[Unit] = prevIn(NonEmptySet.of(char, chars*))
 
   /** Verifies that the previous character is one of those specified.
     * Fails at the start of the input and does not consume any input
@@ -193,7 +193,7 @@ trait TextParsers extends Parsers {
     * Fails at the end of the input and does not consume any input
     * or produce a result when it succeeds.
     */
-  def nextIn(char: Char, chars: Char*): Parser[Unit] = nextIn(NonEmptySet.of(char, chars: _*))
+  def nextIn(char: Char, chars: Char*): Parser[Unit] = nextIn(NonEmptySet.of(char, chars*))
 
   /** Verifies that the next character is one of those specified.
     * Fails at the end of the input and does not consume any input
@@ -253,7 +253,7 @@ trait TextParsers extends Parsers {
   /** Consumes one character if it matches one of the specified characters, fails otherwise.
     */
   def oneOf(char: Char, chars: Char*): PrefixedParser[String] = {
-    val startChars = NonEmptySet.of(char, chars: _*)
+    val startChars = NonEmptySet.of(char, chars*)
     new PrefixCharacters(anyOf(startChars).take(1), startChars)
   }
 
@@ -283,7 +283,7 @@ trait TextParsers extends Parsers {
     * fails if the first character does not match.
     */
   def someOf(char: Char, chars: Char*): PrefixCharacters[String] = {
-    val startChars = NonEmptySet.of(char, chars: _*)
+    val startChars = NonEmptySet.of(char, chars*)
     new PrefixCharacters(anyOf(startChars).min(1), startChars)
   }
 
@@ -314,7 +314,7 @@ trait TextParsers extends Parsers {
     * is encountered on the input string.
     */
   def delimitedBy(char: Char, chars: Char*): DelimitedText = new DelimitedText(
-    TextDelimiter(oneOf(char, chars: _*))
+    TextDelimiter(oneOf(char, chars*))
   )
 
   /** Consumes any number of consecutive characters until one of the specified characters
@@ -348,7 +348,7 @@ trait TextParsers extends Parsers {
     * preceding or following the delimiter, a common task in markup parsing.
     */
   def delimiter(char: Char, chars: Char*): DelimiterParser = new DelimiterParser(
-    oneOf(char, chars: _*)
+    oneOf(char, chars*)
   )
 
   /** Creates a parser for a delimiter based on a literal string with an API that

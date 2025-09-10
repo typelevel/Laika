@@ -17,16 +17,16 @@
 package laika.internal.rst
 
 import cats.syntax.all.*
-import laika.api._
+import laika.api.*
 import laika.api.bundle.{ BlockDirectives, DirectiveRegistry, SpanDirectives }
-import laika.ast._
+import laika.ast.*
 import laika.ast.sample.ParagraphCompanionShortcuts
 import laika.format.{ AST, ReStructuredText }
 import laika.parse.builders.~
-import laika.internal.rst.ext.Directives.Parts._
-import laika.internal.rst.ext.Directives._
+import laika.internal.rst.ext.Directives.Parts.*
+import laika.internal.rst.ext.Directives.*
 import laika.internal.rst.ext.ExtensionProvider
-import laika.internal.rst.ext.TextRoles._
+import laika.internal.rst.ext.TextRoles.*
 import munit.FunSuite
 
 class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhaseRewrite {
@@ -76,7 +76,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
   }
 
   test("registration of text roles") {
-    import laika.internal.rst.ext.TextRoles.{ Parts => P }
+    import laika.internal.rst.ext.TextRoles.Parts as P
     val roles  = List(
       TextRole("oneArg", "foo1")(P.field("name")) { (res, text) =>
         Text(res + text)
@@ -105,7 +105,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
   }
 
   object BlockTestDirectives {
-    import BlockDirectives.dsl._
+    import BlockDirectives.dsl.*
 
     object Registry extends DirectiveRegistry {
 
@@ -126,7 +126,7 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
   }
 
   object SpanTestDirectives {
-    import SpanDirectives.dsl._
+    import SpanDirectives.dsl.*
 
     object Registry extends DirectiveRegistry {
 

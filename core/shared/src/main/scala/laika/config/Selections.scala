@@ -165,7 +165,7 @@ object Selections {
           }
 
         combinations.fold(NonEmptyChain.one(value))(_.map { combined =>
-          Selections((combined.toChain.toList ++ nonSeparated) *)
+          Selections((combined.toChain.toList ++ nonSeparated)*)
         })
       }
 

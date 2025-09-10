@@ -16,7 +16,7 @@
 
 package laika.parse.text
 
-import laika.parse._
+import laika.parse.*
 
 import scala.annotation.tailrec
 

@@ -55,7 +55,7 @@ private[helium] class HeliumThemeBuilder(helium: Helium) extends ThemeProvider {
 
   def build[F[_]: Async]: Resource[F, Theme[F]] = {
 
-    import helium._
+    import helium.*
 
     val treeProcessor = new HeliumTreeProcessor[F](helium)
 

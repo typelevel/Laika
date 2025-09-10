@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.ast.Path._
+import laika.ast.Path.*
 import laika.ast.RelativePath.{ CurrentDocument, CurrentTree, Parent }
 import munit.{ FunSuite, Location }
 

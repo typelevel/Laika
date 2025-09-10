@@ -20,9 +20,9 @@ import cats.data.NonEmptyList
 import laika.api.bundle.SyntaxHighlighter
 import laika.parse.code.{ CodeCategory, CodeSpanParser }
 import laika.parse.code.common.{ Identifier, StringLiteral }
-import laika.parse.code.syntax._
-import laika.parse.builders._
-import laika.parse.syntax._
+import laika.parse.code.syntax.*
+import laika.parse.builders.*
+import laika.parse.syntax.*
 
 /** This highlighter is very loosely defined with the aim to work for most of
   * the dozens of flavors of EBNF that are widely used.

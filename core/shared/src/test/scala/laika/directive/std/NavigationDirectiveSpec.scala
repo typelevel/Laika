@@ -164,7 +164,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
 
   }
 
-  import NavModel._
+  import NavModel.*
 
   val defaultNavOptions: NavOptions = NavOptions()
 
@@ -189,7 +189,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
     )
     assertEquals(
       res,
-      Right(NavModel.blockResult(expectedNav: _*)(options))
+      Right(NavModel.blockResult(expectedNav*)(options))
     )
   }
 
@@ -201,7 +201,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
         includeTargetFormatConfig = options.includeTargetFormatConfig,
         additionalDocuments = options.additionalDocuments
       ),
-      Right(NavModel.templateResult(expectedNav: _*)(options))
+      Right(NavModel.templateResult(expectedNav*)(options))
     )
 
   def runTemplateError(input: String, directive: String, expectedMessage: String): Unit =
@@ -379,7 +379,7 @@ class NavigationDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
         |  ] 
         |} bbb ${cursor.currentDocument.content}""".stripMargin
 
-    runTemplate(template, treeList(2, 5, 0).content: _*)
+    runTemplate(template, treeList(2, 5, 0).content*)
   }
 
   test("template nav - an entry generated from the current tree with the self link excluded") {

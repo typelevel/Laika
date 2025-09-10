@@ -59,7 +59,7 @@ class RewriteRulesSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   def fnLinks(labels: (String, String)*): Paragraph = p(labels.map { label =>
     FootnoteLink(label._1, label._2)
-  }: _*)
+  }*)
 
   def fn(label: FootnoteLabel, num: Any) =
     FootnoteDefinition(label, List(p(s"footnote$num")), SourceCursor.Generated)

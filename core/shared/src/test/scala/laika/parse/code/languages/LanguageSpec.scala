@@ -519,7 +519,7 @@ class LanguageSpec extends FunSuite {
         |}
         |```""".stripMargin
 
-    import TagFormats._
+    import TagFormats.*
     val expected = result(
       "jsx",
       keyword("class"),
@@ -1068,7 +1068,7 @@ class LanguageSpec extends FunSuite {
         |```
       """.stripMargin
 
-    import TagFormats._
+    import TagFormats.*
     val expected = result(
       "tsx",
       keyword("import"),
@@ -1307,7 +1307,7 @@ class LanguageSpec extends FunSuite {
         |```
       """.stripMargin
 
-    import TagFormats._
+    import TagFormats.*
     val expected = result(
       "xml",
       punct("<?"),
@@ -1424,7 +1424,7 @@ class LanguageSpec extends FunSuite {
         |``` 
       """.stripMargin
 
-    import TagFormats._
+    import TagFormats.*
     val expected = result(
       "html",
       punct("<!"),
@@ -2271,7 +2271,7 @@ class LanguageSpec extends FunSuite {
         |```
       """.stripMargin
 
-    import MarkupFormats._
+    import MarkupFormats.*
     val expected = result(
       "md",
       txt("Some "),
@@ -2326,7 +2326,7 @@ class LanguageSpec extends FunSuite {
         |``` 
       """.stripMargin
 
-    import MarkupFormats._
+    import MarkupFormats.*
     val expected = result(
       "laika-md",
       keyword("{%"),
@@ -2394,7 +2394,7 @@ class LanguageSpec extends FunSuite {
         |``` 
       """.stripMargin
 
-    import MarkupFormats._
+    import MarkupFormats.*
     val expected = result(
       "rst",
       txt("Some "),
@@ -2458,7 +2458,7 @@ class LanguageSpec extends FunSuite {
         |``` 
       """.stripMargin
 
-    import MarkupFormats._
+    import MarkupFormats.*
     val expected = result(
       "laika-rst",
       keyword("{%"),
@@ -2519,7 +2519,7 @@ class LanguageSpec extends FunSuite {
         |``` 
       """.stripMargin
 
-    import TagFormats._
+    import TagFormats.*
     val expected = result(
       "laika-html",
       keyword("{%"),
@@ -2590,7 +2590,7 @@ class LanguageSpec extends FunSuite {
         |```
       """.stripMargin
 
-    import TagFormats._
+    import TagFormats.*
     def header(content: String): CodeSpan = CodeSpan(content, CodeCategory.Markup.Headline)
     val nl                                = other("\n")
     val expected                          = result(

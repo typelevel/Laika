@@ -25,7 +25,7 @@ import laika.format.{ HTML, Markdown }
 import laika.helium.config.{ AnchorPlacement, ColorQuintet }
 import laika.io.api.TreeTransformer
 import laika.io.helper.{ InputBuilder, ResultExtractor, StringOps }
-import laika.io.syntax._
+import laika.io.syntax.*
 import laika.theme.ThemeProvider
 import munit.CatsEffectSuite
 
@@ -261,7 +261,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
                                    |$darkInverted""".stripMargin
 
   test("custom colors - via 'site' selector") {
-    import laika.theme.config.Color._
+    import laika.theme.config.Color.*
     val helium = heliumBase
       .site.themeColors(
         primary = rgb(1, 1, 1),
@@ -291,7 +291,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("custom colors - via 'all' selector") {
-    import laika.theme.config.Color._
+    import laika.theme.config.Color.*
     val helium = heliumBase
       .all.themeColors(
         primary = rgb(1, 1, 1),
@@ -321,7 +321,7 @@ class HeliumSiteCSSSpec extends CatsEffectSuite with InputBuilder with ResultExt
   }
 
   test("custom colors in dark mode") {
-    import laika.theme.config.Color._
+    import laika.theme.config.Color.*
     val helium = heliumBase
       .site.themeColors(
         primary = rgb(1, 1, 1),

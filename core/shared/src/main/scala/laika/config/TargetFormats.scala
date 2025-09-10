@@ -54,13 +54,13 @@ object TargetFormats {
   object Selected {
 
     def apply(format: String, formats: String*): Selected = apply(
-      NonEmptySet.of(format, formats *)
+      NonEmptySet.of(format, formats*)
     )
 
   }
 
   implicit val decoder: ConfigDecoder[TargetFormats] = ConfigDecoder.seq[String].map { formats =>
-    NonEmptySet.fromSet(TreeSet(formats *)).fold[TargetFormats](TargetFormats.None)(fs =>
+    NonEmptySet.fromSet(TreeSet(formats*)).fold[TargetFormats](TargetFormats.None)(fs =>
       if (fs == NonEmptySet.one("*")) TargetFormats.All
       else {
         val pdfExtra  = if (fs.contains("pdf")) Seq("fo", "xsl-fo") else Nil

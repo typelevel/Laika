@@ -45,13 +45,13 @@ import laika.io.internal.errors.{
   */
 private[io] object ParserRuntime {
 
-  import DocumentTreeBuilder._
+  import DocumentTreeBuilder.*
 
   /** Run the specified parser operation for an entire input tree, producing an AST tree.
     */
   def run[F[_]: Async: Batch](op: TreeParser.Op[F]): F[ParsedTree[F]] = {
 
-    import DocumentType.{ Config => ConfigType, _ }
+    import DocumentType.{ Config as ConfigType, * }
 
     def mergeInputs(userInputs: InputTree[F], themeInputs: InputTree[F]): F[InputTree[F]] = {
 

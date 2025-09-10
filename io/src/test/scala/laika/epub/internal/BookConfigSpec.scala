@@ -86,7 +86,7 @@ class BookConfigSpec extends FunSuite {
           .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
       )
       .withNavigationDepth(4)
-      .addFonts(TestTheme.fonts *)
+      .addFonts(TestTheme.fonts*)
       .withCoverImage(Root / "cover.jpg")
     assertEquals(actual, Right(expected))
   }
@@ -95,7 +95,7 @@ class BookConfigSpec extends FunSuite {
     val input   = BookConfig.empty
       .withMetadata(DocumentMetadata.empty.withIdentifier("XX-33-FF-01"))
       .withNavigationDepth(3)
-      .addFonts(TestTheme.fonts *)
+      .addFonts(TestTheme.fonts*)
       .withCoverImage(Root / "cover.jpg")
     val encoded = ConfigBuilder.empty.withValue(testKey, input).build
     val actual  = decode[BookConfig](encoded)

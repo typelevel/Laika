@@ -41,7 +41,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     Row(cells.map(c => CellType.BodyCell(c)))
 
   def paddedBodyRow(count: Int, cells: String*): Row = {
-    val cellsWithText = bodyRow(cells *).content
+    val cellsWithText = bodyRow(cells*).content
     Row(cellsWithText.padTo(count, CellType.BodyCell.empty))
   }
 

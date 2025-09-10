@@ -17,7 +17,7 @@
 package laika.parse.text
 
 import cats.data.NonEmptySet
-import laika.parse._
+import laika.parse.*
 
 /** A parser that matches a literal string.
   *

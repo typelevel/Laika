@@ -112,7 +112,7 @@ class ThemeConfigCodecSpec extends FunSuite {
           .withDatePublished(PlatformDateTime.parse("2002-10-10T12:00:00").toOption.get)
       )
       .withNavigationDepth(3)
-      .addFonts(TestTheme.fonts *)
+      .addFonts(TestTheme.fonts*)
       .withCoverImage(Root / "cover.jpg")
     assertEquals(decode[BookConfig](input, LaikaKeys.root), Right(expected))
   }
@@ -143,7 +143,7 @@ class ThemeConfigCodecSpec extends FunSuite {
           .withIdentifier("XX-33-FF-01")
       )
       .withNavigationDepth(3)
-      .addFonts(TestTheme.fonts *)
+      .addFonts(TestTheme.fonts*)
       .withCoverImage(Root / "cover.jpg")
     val encoded = ConfigBuilder.empty.withValue(testKey, input).build
     assertEquals(decode[BookConfig](encoded), Right(input))

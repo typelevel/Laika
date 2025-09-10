@@ -16,7 +16,7 @@
 
 package laika.internal.rewrite
 
-import laika.ast._
+import laika.ast.*
 import laika.ast.RewriteAction.Replace
 import laika.ast.RewriteRules.RewriteRulesBuilder
 import laika.api.config.Config.ConfigResult

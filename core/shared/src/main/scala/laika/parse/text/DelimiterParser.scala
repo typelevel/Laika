@@ -87,7 +87,7 @@ class DelimiterParser private[text] (
   /** Ensures that the character immediately preceding the delimiter
     * is not one of the specified characters.
     */
-  def prevNot(char: Char, chars: Char*): DelimiterParser = prevNot(NonEmptySet.of(char, chars: _*))
+  def prevNot(char: Char, chars: Char*): DelimiterParser = prevNot(NonEmptySet.of(char, chars*))
 
   /** Ensures that the character immediately preceding the delimiter
     * is not in the specified set.
@@ -103,7 +103,7 @@ class DelimiterParser private[text] (
   /** Ensures that the character immediately following the delimiter
     * is not one of the specified characters.
     */
-  def nextNot(char: Char, chars: Char*): DelimiterParser = nextNot(NonEmptySet.of(char, chars: _*))
+  def nextNot(char: Char, chars: Char*): DelimiterParser = nextNot(NonEmptySet.of(char, chars*))
 
   /** Ensures that the character immediately following the delimiter
     * is not in the specified set.
