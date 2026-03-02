@@ -24,6 +24,7 @@ import laika.api.Renderer
 import laika.api.bundle.{ BundleOrigin, ExtensionBundle, PathTranslator }
 import laika.api.config.Origin.TreeScope
 import laika.api.config.{ Config, ConfigBuilder, Origin }
+import laika.api.config.Origin.DocumentScope
 import laika.api.errors.{ InvalidDocument, InvalidDocuments }
 import laika.api.format.{ Formatter, TagFormatter }
 import laika.ast
@@ -1305,6 +1306,80 @@ class TreeRendererSpec extends CatsEffectSuite
     } yield res
 
     res.assertEquals(expected)
+  }
+
+  test("render internal targets as absolute when per-document baseUrl is configured") {
+
+    val cfgRoot =
+      ConfigBuilder
+        .withOrigin(Origin(DocumentScope, Root / "404"))
+        .withValue("laika.renderTarget.absolute.baseUrl", "/")
+        .build
+
+    val doc404Root =
+      Document(
+        Root / "404",
+        RootElement(
+          p(SpanLink.internal("/doc.html")("to-doc"))
+        )
+      ).withConfig(cfgRoot)
+
+    val cfgProject =
+      ConfigBuilder
+        .withOrigin(Origin(DocumentScope, Root / "404-project"))
+        .withValue("laika.renderTarget.absolute.baseUrl", "/project")
+        .build
+
+    val doc404Project =
+      Document(
+        Root / "404-project",
+        RootElement(
+          p(
+            SpanLink.internal("/doc.html")("to-doc"),
+            Text(" "),
+            SpanLink.internal("/index.html")("home"),
+            Text(" "),
+            SpanLink.internal("/guide/index.html#install")("install")
+          )
+        )
+      ).withConfig(cfgProject)
+
+    val normalDoc =
+      Document(
+        Root / "doc",
+        RootElement(
+          p(SpanLink.internal("/other.html")("to-other"))
+        )
+      )
+
+    val inputTree =
+      DocumentTree.builder
+        .addDocument(doc404Root)
+        .addDocument(doc404Project)
+        .addDocument(normalDoc)
+        .buildRoot
+
+    val renderer =
+      Renderer.of(HTML).parallel[IO].build
+
+    renderer.use(
+      _.from(inputTree)
+        .toMemory
+        .render
+    ).map { result =>
+      val rendered404Root    =
+        result.allDocuments.find(_.path == Root / "404.html").get
+      val rendered404Project =
+        result.allDocuments.find(_.path == Root / "404-project.html").get
+      val renderedDoc        =
+        result.allDocuments.find(_.path == Root / "doc.html").get
+
+      assert(rendered404Root.content.contains("""href="/doc.html""""))
+      assert(rendered404Project.content.contains("""href="/project/doc.html""""))
+      assert(rendered404Project.content.contains("""href="/project/index.html""""))
+      assert(rendered404Project.content.contains("""href="/project/guide/index.html#install""""))
+      assert(renderedDoc.content.contains("""href="other.html""""))
+    }
   }
 
 }

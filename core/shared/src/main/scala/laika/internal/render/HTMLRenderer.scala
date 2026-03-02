@@ -152,15 +152,27 @@ private[laika] class HTMLRenderer(format: String)
       }
     }
 
-    def renderTarget(target: Target): String = fmt.pathTranslator.translate(target) match {
-      case ext: ExternalTarget => ext.url
-      case int: InternalTarget =>
-        val relPath = int.relativeTo(fmt.path).relativePath
-        if (relPath.withoutFragment.toString.endsWith("/index.html"))
-          relPath.withBasename("").withoutSuffix.toString
-        else
-          relPath.toString
-    }
+    def renderTarget(target: Target): String =
+      fmt.pathTranslator.translate(target) match {
+        case ext: ExternalTarget => ext.url
+        case int: InternalTarget =>
+          fmt.internalTargetsAbsoluteBaseUrl match {
+
+            case Some(base) =>
+              val abs            = int.render(internalTargetsAbsolute = true)
+              val normalizedBase =
+                if (base == "/") ""
+                else "/" + base.stripPrefix("/").stripSuffix("/")
+              if (normalizedBase.isEmpty) abs else normalizedBase + abs
+
+            case None =>
+              val relPath = int.relativeTo(fmt.path).relativePath
+              if (relPath.withoutFragment.toString.endsWith("/index.html"))
+                relPath.withBasename("").withoutSuffix.toString
+              else
+                relPath.toString
+          }
+      }
 
     def renderSpanContainer(con: SpanContainer): String = {
 
