@@ -61,8 +61,54 @@ function initMenuToggles () {
   });
 }
 
+function initColorModeToggle () {
+  const btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+
+  function currentMode () {
+    const attr = document.documentElement.getAttribute("data-color-mode");
+    return (attr === "light" || attr === "dark") ? attr : "auto";
+  }
+
+  function applyMode (mode) {
+    if (mode === "light" || mode === "dark") {
+      document.documentElement.setAttribute("data-color-mode", mode);
+      try { localStorage.setItem("laika-color-mode", mode); } catch (e) {}
+    } else {
+      document.documentElement.removeAttribute("data-color-mode");
+      try { localStorage.removeItem("laika-color-mode"); } catch (e) {}
+    }
+    updateUi(mode);
+  }
+
+  function updateUi (mode) {
+    if (mode === "light") {
+      btn.textContent = "Light";
+      btn.title = "Switch to dark mode";
+      btn.setAttribute("aria-label", "Switch to dark mode");
+    } else if (mode === "dark") {
+      btn.textContent = "Dark";
+      btn.title = "Switch to system mode";
+      btn.setAttribute("aria-label", "Switch to system mode");
+    } else {
+      btn.textContent = "Auto";
+      btn.title = "Switch to light mode";
+      btn.setAttribute("aria-label", "Switch to light mode");
+    }
+  }
+
+  updateUi(currentMode());
+
+  btn.addEventListener("click", () => {
+    const mode = currentMode();
+    const next = (mode === "auto") ? "light" : (mode === "light") ? "dark" : "auto";
+    applyMode(next);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initNavToggle();
   initMenuToggles();
   initTabs();
+  initColorModeToggle();
 });

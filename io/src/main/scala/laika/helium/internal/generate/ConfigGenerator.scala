@@ -206,6 +206,10 @@ private[laika] object ConfigGenerator {
         "helium.site.includePDF",
         helium.siteSettings.content.downloadPage.fold(false)(_.includePDF)
       )
+      .withValue(
+        "helium.site.darkModeEnabled",
+        helium.siteSettings.darkMode.map(_ => "enabled")
+      )
       .withValue("helium.site.fontFamilies", helium.siteSettings.themeFonts)
       .withValue("helium.epub.fontFamilies", helium.epubSettings.themeFonts)
       .withValue("helium.pdf.fontFamilies", helium.pdfSettings.themeFonts)

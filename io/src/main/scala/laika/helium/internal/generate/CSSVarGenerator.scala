@@ -39,6 +39,24 @@ private[helium] object CSSVarGenerator {
        |  src: url("$path");
        |}""".stripMargin
 
+  private def renderManualOverride(
+      mode: String,
+      vars: Seq[(String, String)]
+  ): String = {
+    val rendered =
+      vars.map { case (name, value) =>
+        s"$name: $value;"
+      }.mkString("\n  ")
+
+    s"""
+  :root[data-color-mode="$mode"] {
+    $rendered
+    color-scheme: $mode;
+  }
+
+  """
+  }
+
   def generate(settings: SiteSettings): String = {
     import settings.layout.*
     val layoutStyles = Seq(
@@ -183,13 +201,20 @@ private[helium] object CSSVarGenerator {
 
     val (colorScheme, darkModeStyles) = common.darkMode match {
       case Some(darkModeColors) =>
-        (
-          Seq(("color-scheme", "light dark")),
+        val darkVars  = toVars(colorSet(darkModeColors, darkMode = true))
+        val lightVars = toVars(colorSet(common.colors, darkMode = false))
+
+        val darkMedia   =
           renderStyles(
-            toVars(colorSet(darkModeColors, darkMode = true)),
+            darkVars,
             includeInverted,
             darkMode = true
           )
+        val manualLight = renderManualOverride("light", lightVars)
+        val manualDark  = renderManualOverride("dark", darkVars)
+        (
+          Seq(("color-scheme", "light dark")),
+          darkMedia + manualLight + manualDark
         )
       case None                 => (Nil, "")
     }

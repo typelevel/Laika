@@ -19,6 +19,20 @@
   @:for(helium.webFonts)
   <link rel="stylesheet" href="${_}">
   @:@
+    <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("laika-color-mode");
+        if (stored === "light" || stored === "dark") {
+          document.documentElement.setAttribute("data-color-mode", stored);
+        } else {
+          document.documentElement.removeAttribute("data-color-mode");
+        }
+      } catch (e) {
+        document.documentElement.removeAttribute("data-color-mode");
+      }
+    })();
+  </script>
   @:includeCSS
   @:includeJS
   @:heliumInitVersions

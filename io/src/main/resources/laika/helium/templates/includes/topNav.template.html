@@ -6,6 +6,11 @@
     </a>
     
     ${helium.site.topNavigation.versionMenu}
+    @:for(helium.site.darkModeEnabled)
+    <button id="theme-toggle" class="theme-toggle" type="button">
+      Auto
+    </button>
+    @:@
   </div>
 
   ${?helium.site.topNavigation.home}
