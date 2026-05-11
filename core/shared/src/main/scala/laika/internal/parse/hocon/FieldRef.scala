@@ -407,7 +407,7 @@ private[laika] object FieldRef {
         name: String,
         subKey: Key,
         context: ResolverContext
-    ): Option[ResolvedRef] =
+    ): Option[ResolvedRef]                             =
       resolve(context).selectChild(name, subKey, context)
     def withName(name: String): FieldRef               = dependent(name, configOrigin, value)
   }
@@ -446,7 +446,7 @@ private[laika] object FieldRef {
         name: String,
         subKey: Key,
         context: ResolverContext
-    ): Option[ResolvedRef] =
+    ): Option[ResolvedRef]               =
       resolve(context).selectChild(name, subKey, context)
     def withName(name: String): FieldRef =
       substitution(name, configOrigin, substitutionRef, optional)
