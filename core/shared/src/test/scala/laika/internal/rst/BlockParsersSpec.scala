@@ -177,14 +177,14 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts with Te
 
   test("headers with varying levels") {
     val h1    = """==========
-               | Header 1
-               |==========""".stripMargin
+                  | Header 1
+                  |==========""".stripMargin
     val h2    = """Header 2
-               |========""".stripMargin
+                  |========""".stripMargin
     val h3    = """Header 3
-               |--------""".stripMargin
+                  |--------""".stripMargin
     val h4    = """Header 2b
-               |=========""".stripMargin
+                  |=========""".stripMargin
     val input =
       s"""$h1
          |
@@ -228,8 +228,8 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     val header = """Header
                    |======""".stripMargin
     val input  = s""".. _target:
-                   |
-                   |$header""".stripMargin
+                    |
+                    |$header""".stripMargin
     run(
       input,
       DecoratedHeader(
