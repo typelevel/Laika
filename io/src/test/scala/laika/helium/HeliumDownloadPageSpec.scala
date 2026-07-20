@@ -183,14 +183,14 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
       )
       .site.landingPage()
     val expected                = """<h1 class="title">Downloads</h1>
-                     |<p>EPUB &amp; PDF</p>
-                     |<div class="downloads">
-                     |<div>
-                     |<p class="title">EPUB</p>
-                     |<p><a href="downloads/download.epub">Download</a></p>
-                     |</div>
-                     |</div>
-                     |<hr class="footer-rule"/>""".stripMargin
+                                    |<p>EPUB &amp; PDF</p>
+                                    |<div class="downloads">
+                                    |<div>
+                                    |<p class="title">EPUB</p>
+                                    |<p><a href="downloads/download.epub">Download</a></p>
+                                    |</div>
+                                    |</div>
+                                    |<hr class="footer-rule"/>""".stripMargin
     transformAndExtract(singleDoc, heliumWithEPUBDownloads, "<main class=\"content\">", "<footer>")
       .assertEquals(expected)
   }
@@ -206,20 +206,20 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
       .pdf.coverImages(CoverImage(Root / "cover.png"))
       .epub.coverImages(CoverImage(Root / "cover.png"))
     val expected                     = """<h1 class="title">Downloads</h1>
-                     |<p>EPUB &amp; PDF</p>
-                     |<div class="downloads">
-                     |<div>
-                     |<p class="title">EPUB</p>
-                     |<p><img src="cover.png" alt="EPUB"></p>
-                     |<p><a href="downloads/download.epub">Download</a></p>
-                     |</div>
-                     |<div>
-                     |<p class="title">PDF</p>
-                     |<p><img src="cover.png" alt="PDF"></p>
-                     |<p><a href="downloads/download.pdf">Download</a></p>
-                     |</div>
-                     |</div>
-                     |<hr class="footer-rule"/>""".stripMargin
+                                         |<p>EPUB &amp; PDF</p>
+                                         |<div class="downloads">
+                                         |<div>
+                                         |<p class="title">EPUB</p>
+                                         |<p><img src="cover.png" alt="EPUB"></p>
+                                         |<p><a href="downloads/download.epub">Download</a></p>
+                                         |</div>
+                                         |<div>
+                                         |<p class="title">PDF</p>
+                                         |<p><img src="cover.png" alt="PDF"></p>
+                                         |<p><a href="downloads/download.pdf">Download</a></p>
+                                         |</div>
+                                         |</div>
+                                         |<hr class="footer-rule"/>""".stripMargin
     transformAndExtract(
       singleDoc,
       heliumWithDownloadsAndCovers,
@@ -246,32 +246,32 @@ class HeliumDownloadPageSpec extends CatsEffectSuite with InputBuilder with Resu
         CoverImage(Root / "cover-library.png", "library")
       )
     val expected                        = """<h1 class="title">Downloads</h1>
-                     |<p>EPUB &amp; PDF</p>
-                     |<div class="downloads">
-                     |<div>
-                     |<p class="title">sbt Plugin (EPUB)</p>
-                     |<p><img src="cover-sbt.png" alt="sbt Plugin (EPUB)"></p>
-                     |<p><a href="downloads/download-sbt.epub">Download</a></p>
-                     |</div>
-                     |<div>
-                     |<p class="title">sbt Plugin (PDF)</p>
-                     |<p><img src="cover-sbt.png" alt="sbt Plugin (PDF)"></p>
-                     |<p><a href="downloads/download-sbt.pdf">Download</a></p>
-                     |</div>
-                     |</div>
-                     |<div class="downloads">
-                     |<div>
-                     |<p class="title">Library API (EPUB)</p>
-                     |<p><img src="cover-library.png" alt="Library API (EPUB)"></p>
-                     |<p><a href="downloads/download-library.epub">Download</a></p>
-                     |</div>
-                     |<div>
-                     |<p class="title">Library API (PDF)</p>
-                     |<p><img src="cover-library.png" alt="Library API (PDF)"></p>
-                     |<p><a href="downloads/download-library.pdf">Download</a></p>
-                     |</div>
-                     |</div>
-                     |<hr class="footer-rule"/>""".stripMargin
+                                            |<p>EPUB &amp; PDF</p>
+                                            |<div class="downloads">
+                                            |<div>
+                                            |<p class="title">sbt Plugin (EPUB)</p>
+                                            |<p><img src="cover-sbt.png" alt="sbt Plugin (EPUB)"></p>
+                                            |<p><a href="downloads/download-sbt.epub">Download</a></p>
+                                            |</div>
+                                            |<div>
+                                            |<p class="title">sbt Plugin (PDF)</p>
+                                            |<p><img src="cover-sbt.png" alt="sbt Plugin (PDF)"></p>
+                                            |<p><a href="downloads/download-sbt.pdf">Download</a></p>
+                                            |</div>
+                                            |</div>
+                                            |<div class="downloads">
+                                            |<div>
+                                            |<p class="title">Library API (EPUB)</p>
+                                            |<p><img src="cover-library.png" alt="Library API (EPUB)"></p>
+                                            |<p><a href="downloads/download-library.epub">Download</a></p>
+                                            |</div>
+                                            |<div>
+                                            |<p class="title">Library API (PDF)</p>
+                                            |<p><img src="cover-library.png" alt="Library API (PDF)"></p>
+                                            |<p><a href="downloads/download-library.pdf">Download</a></p>
+                                            |</div>
+                                            |</div>
+                                            |<hr class="footer-rule"/>""".stripMargin
     val configure: ConfigureTransformer = _.withConfigValue(
       Selections(
         SelectionConfig(
