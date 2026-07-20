@@ -43,4 +43,11 @@ private[helium] object SVGIcons {
       |  </g>
       |</svg>""".stripMargin
 
+  val mavenCentralIcon =
+    """<svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      |  <g class="svg-shape">
+      |    <path fill-rule="evenodd" d="M50 4 L89.8 27 L89.8 73 L50 96 L10.2 73 L10.2 27 Z M50 18 L77.7 34 L77.7 66 L50 82 L22.3 66 L22.3 34 Z"/>
+      |  </g>
+      |</svg>""".stripMargin
+
 }
