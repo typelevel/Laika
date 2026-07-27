@@ -593,10 +593,10 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
   test("header - creates a fragment in the document") {
     val input     = """.. header:: 
-                  | This is
-                  | a header
-                  |
-                  |This isn't""".stripMargin
+                      | This is
+                      | a header
+                      |
+                      |This isn't""".stripMargin
     val fragments = Map("header" -> BlockSequence("This is\na header"))
     val rootElem  = RootElement(p("This isn't"))
     runFragments(input, fragments, rootElem)
@@ -604,10 +604,10 @@ class StandardBlockDirectivesSpec extends FunSuite with ParagraphCompanionShortc
 
   test("footer - creates a fragment in the document") {
     val input     = """.. footer:: 
-                  | This is
-                  | a footer
-                  |
-                  |This isn't""".stripMargin
+                      | This is
+                      | a footer
+                      |
+                      |This isn't""".stripMargin
     val fragments = Map("footer" -> BlockSequence("This is\na footer"))
     val rootElem  = RootElement(p("This isn't"))
     runFragments(input, fragments, rootElem)
