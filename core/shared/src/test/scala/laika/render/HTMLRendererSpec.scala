@@ -415,18 +415,18 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
         caption
       )
     val html    = """<table>
-                 |  <caption>caption</caption>
-                 |  <tbody>
-                 |    <tr>
-                 |      <td>a</td>
-                 |      <td>b</td>
-                 |    </tr>
-                 |    <tr>
-                 |      <td>c</td>
-                 |      <td>d</td>
-                 |    </tr>
-                 |  </tbody>
-                 |</table>""".stripMargin
+                    |  <caption>caption</caption>
+                    |  <tbody>
+                    |    <tr>
+                    |      <td>a</td>
+                    |      <td>b</td>
+                    |    </tr>
+                    |    <tr>
+                    |      <td>c</td>
+                    |      <td>d</td>
+                    |    </tr>
+                    |  </tbody>
+                    |</table>""".stripMargin
     run(elem, html)
   }
 
@@ -490,13 +490,13 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     val elem   =
       RootElement(Section(Header(1, Text("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val html   = """
-                 |<h1>Title 1</h1>
-                 |<p>Line 1</p>
-                 |<p>Line 2</p>
-                 |
-                 |<h2>Title 2</h2>
-                 |<p>Line 1</p>
-                 |<p>Line 2</p>""".stripMargin
+                   |<h1>Title 1</h1>
+                   |<p>Line 1</p>
+                   |<p>Line 2</p>
+                   |
+                   |<h2>Title 2</h2>
+                   |<p>Line 1</p>
+                   |<p>Line 2</p>""".stripMargin
     run(elem, html)
   }
 
@@ -510,15 +510,15 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     )
     val elem  = RootElement(p("aaa"), group, p("bbb"))
     val html  = """<p>aaa</p>
-                 |<p><strong>label-a</strong></p>
-                 |<p>common</p>
-                 |<p>11
-                 |22</p>
-                 |<p><strong>label-b</strong></p>
-                 |<p>common</p>
-                 |<p>33
-                 |44</p>
-                 |<p>bbb</p>""".stripMargin
+                  |<p><strong>label-a</strong></p>
+                  |<p>common</p>
+                  |<p>11
+                  |22</p>
+                  |<p><strong>label-b</strong></p>
+                  |<p>common</p>
+                  |<p>33
+                  |44</p>
+                  |<p>bbb</p>""".stripMargin
     run(elem, html)
   }
 
@@ -532,23 +532,23 @@ class HTMLRendererSpec extends FunSuite with ParagraphCompanionShortcuts with Te
     )
     val elem  = RootElement(p("aaa"), group, p("bbb"))
     val html  = """<p>aaa</p>
-                 |<div class="tab-container" data-tab-group="config">
-                 |  <ul class="tab-group">
-                 |    <li class="tab" data-choice-name="name-a">label-a</li>
-                 |    <li class="tab" data-choice-name="name-b">label-b</li>
-                 |  </ul>
-                 |  <div class="tab-content" data-choice-name="name-a">
-                 |    <p>common</p>
-                 |    <p>11
-                 |    22</p>
-                 |  </div>
-                 |  <div class="tab-content" data-choice-name="name-b">
-                 |    <p>common</p>
-                 |    <p>33
-                 |    44</p>
-                 |  </div>
-                 |</div>
-                 |<p>bbb</p>""".stripMargin
+                  |<div class="tab-container" data-tab-group="config">
+                  |  <ul class="tab-group">
+                  |    <li class="tab" data-choice-name="name-a">label-a</li>
+                  |    <li class="tab" data-choice-name="name-b">label-b</li>
+                  |  </ul>
+                  |  <div class="tab-content" data-choice-name="name-a">
+                  |    <p>common</p>
+                  |    <p>11
+                  |    22</p>
+                  |  </div>
+                  |  <div class="tab-content" data-choice-name="name-b">
+                  |    <p>common</p>
+                  |    <p>33
+                  |    44</p>
+                  |  </div>
+                  |</div>
+                  |<p>bbb</p>""".stripMargin
     run(elem, html)
   }
 

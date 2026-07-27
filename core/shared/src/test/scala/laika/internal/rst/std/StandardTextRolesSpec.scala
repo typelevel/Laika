@@ -169,7 +169,7 @@ class StandardTextRolesSpec extends FunSuite with ParagraphCompanionShortcuts
 
   test("raw - disabled by default") {
     val role  = """.. role:: foo(raw)
-                 | :format: AML BML CML""".stripMargin
+                  | :format: AML BML CML""".stripMargin
     val input = s"""$role
                    |
                    |some :foo:`text`""".stripMargin

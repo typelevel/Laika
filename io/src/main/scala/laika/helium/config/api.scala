@@ -264,7 +264,7 @@ private[helium] trait SingleConfigOps extends CommonConfigOps with ColorOps {
     ): DocumentMetadata => DocumentMetadata = { meta =>
       value.fold(meta)(f(meta, _))
     }
-    val functions = Seq(
+    val functions                           = Seq(
       populate(title)(_.withTitle(_)),
       populate(description)(_.withDescription(_)),
       populate(identifier)(_.withIdentifier(_)),

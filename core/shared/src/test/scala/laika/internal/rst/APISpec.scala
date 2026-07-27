@@ -39,8 +39,8 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
       })
     )
     val input      = """.. oneArg:: arg
-                  |
-                  |.. twoArgs:: arg arg""".stripMargin
+                       |
+                       |.. twoArgs:: arg arg""".stripMargin
     val parser     = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(blocks = directives))
@@ -60,10 +60,10 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
       })
     )
     val input      = """foo |one| foo |two|
-                  |
-                  |.. |one| oneArg:: arg
-                  |
-                  |.. |two| twoArgs:: arg arg""".stripMargin
+                       |
+                       |.. |one| oneArg:: arg
+                       |
+                       |.. |two| twoArgs:: arg arg""".stripMargin
     val parser     = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(spans = directives))
@@ -86,13 +86,13 @@ class APISpec extends FunSuite with ParagraphCompanionShortcuts with RenderPhase
       }) { (res, text) => Text(res + text) }
     )
     val input  = """foo `one`:one: foo :two:`two`
-                  |
-                  |.. role::one(oneArg)
-                  | :name: val
-                  |
-                  |.. role::two(twoArgs)
-                  | :name1: val1
-                  | :name2: val2""".stripMargin
+                   |
+                   |.. role::one(oneArg)
+                   | :name: val
+                   |
+                   |.. role::two(twoArgs)
+                   | :name1: val1
+                   | :name2: val2""".stripMargin
     val parser = MarkupParser
       .of(ReStructuredText)
       .using(ExtensionProvider.forExtensions(roles = roles))

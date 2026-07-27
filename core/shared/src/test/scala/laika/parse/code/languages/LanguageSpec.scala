@@ -1921,27 +1921,27 @@ class LanguageSpec extends FunSuite {
 
   test("shell/bash") {
     val input    = """# Doc
-                  |
-                  |```sh
-                  |# this is a comment
-                  |export KEY=value # this is a trailing comment
-                  |echo 'hello world'
-                  |
-                  |echo hello $(whoami)
-                  |
-                  |echo $(( 3+5 ))
-                  |
-                  |echo $FOO $?
-                  |
-                  |for i in ${array[@]}; do
-                  |  read -p "" input
-                  |  echo "\"${input}\""
-                  |done
-                  |
-                  |exit
-                  |```
-                  |
-                  |""".stripMargin
+                     |
+                     |```sh
+                     |# this is a comment
+                     |export KEY=value # this is a trailing comment
+                     |echo 'hello world'
+                     |
+                     |echo hello $(whoami)
+                     |
+                     |echo $(( 3+5 ))
+                     |
+                     |echo $FOO $?
+                     |
+                     |for i in ${array[@]}; do
+                     |  read -p "" input
+                     |  echo "\"${input}\""
+                     |done
+                     |
+                     |exit
+                     |```
+                     |
+                     |""".stripMargin
     val parsed   = parse(input)
     val expected = result(
       "sh",

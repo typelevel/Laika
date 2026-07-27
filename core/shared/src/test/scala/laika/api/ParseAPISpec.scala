@@ -71,8 +71,8 @@ class ParseAPISpec extends FunSuite
 
   test("parse Markdown into a raw document, without applying the default rewrite rules") {
     val input  = """[link][id]
-                  |
-                  |[id]: http://foo/""".stripMargin
+                   |
+                   |[id]: http://foo/""".stripMargin
     val parser = MarkupParser.of(Markdown).build
     assertEquals(
       parser.parseUnresolved(input).map(_.document.content),
@@ -92,15 +92,15 @@ class ParseAPISpec extends FunSuite
                   |
                   |[invalid2]""".stripMargin
     val msg   = """One or more error nodes in result:
-                |  [1]: unresolved link id reference: invalid1
-                |
-                |  [invalid1]
-                |  ^
-                |
-                |  [5]: unresolved link id reference: invalid2
-                |
-                |  [invalid2]
-                |  ^""".stripMargin
+                  |  [1]: unresolved link id reference: invalid1
+                  |
+                  |  [invalid1]
+                  |  ^
+                  |
+                  |  [5]: unresolved link id reference: invalid2
+                  |
+                  |  [invalid2]
+                  |  ^""".stripMargin
     assertEquals(MarkupParser.of(Markdown).build.parse(input).leftMap(_.message), Left(msg))
   }
 
