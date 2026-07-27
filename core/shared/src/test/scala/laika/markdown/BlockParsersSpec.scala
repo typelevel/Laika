@@ -116,13 +116,13 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("enum lists - items prefixed by numbers containing multiple paragraphs in a single item") {
     val input    = """1. aaa
-                  |   
-                  |   bbb
-                  |   bbb
-                  |
-                  |2. ccc
-                  |
-                  |3. ddd""".stripMargin
+                     |   
+                     |   bbb
+                     |   bbb
+                     |
+                     |2. ccc
+                     |
+                     |3. ddd""".stripMargin
     val expected = EnumList(
       Seq(p("aaa"), p("bbb\nbbb")),
       Seq(fp("ccc")),
@@ -536,10 +536,10 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("code block nested inside a list") {
     val input    = """* aaa
-                  |* bbb
-                  |
-                  |        code
-                  |* ccc""".stripMargin
+                     |* bbb
+                     |
+                     |        code
+                     |* ccc""".stripMargin
     val expected = BulletList(
       Seq(p("aaa")),
       Seq(p("bbb"), LiteralBlock("code")),
@@ -550,10 +550,10 @@ class BlockParsersSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("blockquote nested inside a list") {
     val input    = """* aaa
-                  |* bbb
-                  |
-                  |  >quote
-                  |* ccc""".stripMargin
+                     |* bbb
+                     |
+                     |  >quote
+                     |* ccc""".stripMargin
     val expected = BulletList(
       Seq(p("aaa")),
       Seq(p("bbb"), QuotedBlock("quote")),

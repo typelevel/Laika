@@ -106,13 +106,13 @@ class HTMLBlockParserSpec extends FunSuite
 
   test("recognize a script tag as a root element") {
     val input  = """aaa
-                  |
-                  |<script type="text/javascript" defer>
-                  |  var x = [1, 2, 3];
-                  |  var y = 'foo';
-                  |</script>
-                  |
-                  |bbb""".stripMargin
+                   |
+                   |<script type="text/javascript" defer>
+                   |  var x = [1, 2, 3];
+                   |  var y = 'foo';
+                   |</script>
+                   |
+                   |bbb""".stripMargin
     val script = HTMLScriptElement(
       List(
         HTMLAttribute("type", List(Text("text/javascript")), Some('"')),
