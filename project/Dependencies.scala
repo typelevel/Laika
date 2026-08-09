@@ -11,7 +11,7 @@ object Dependencies {
     val fs2        = "3.12.2"
     val http4s     = "0.23.30"
 
-    val munit    = "1.1.1"
+    val munit    = "1.3.5"
     val munitCE3 = "2.0.0"
     val jTidy    = "r938"
     val fop      = "2.11"
