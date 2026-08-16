@@ -8,7 +8,7 @@ addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.7.2")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.18.2")
 
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.4.0")
 
 addSbtPlugin("org.typelevel" % "laika-sbt" % "1.3.2")
 
