@@ -8,7 +8,6 @@ object Dependencies {
     val scala3Sbt  = "3.8.4"
     val sbt1       = "1.12.13"
     val sbt2       = "2.0.1"
-    val sbt2Compat = "0.1.0"
 
     val catsCore   = "2.13.0"
     val catsEffect = "3.5.7"
