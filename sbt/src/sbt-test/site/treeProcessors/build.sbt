@@ -12,6 +12,8 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
+Laika / target := baseDirectory.value / "target" / "docs"
+
 val addedAST = RootElement(
   Title("Title 3").withId("title").withStyle("title"),
   Paragraph(

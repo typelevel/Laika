@@ -182,6 +182,4 @@ object LaikaConfig {
     logLevel = MessageFilter.Warning
   )
 
-  private def unapply(conf: LaikaConfig) = conf
-
 }

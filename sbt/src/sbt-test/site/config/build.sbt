@@ -7,3 +7,5 @@ scalaVersion := "2.12.6"
 laikaConfig := LaikaConfig.defaults.withConfigValue("prop", "World")
 
 enablePlugins(LaikaPlugin)
+
+Laika / target := baseDirectory.value / "target" / "docs"
