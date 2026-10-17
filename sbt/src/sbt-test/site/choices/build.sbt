@@ -9,6 +9,8 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
+Laika / target := baseDirectory.value / "target" / "docs"
+
 laikaConfig := LaikaConfig.defaults
   .withConfigValue(
     Selections(

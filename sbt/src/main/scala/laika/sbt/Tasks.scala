@@ -39,6 +39,8 @@ import laika.io.config.{ BinaryRendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
+import laika.sbt.Sbt2Compat._
+import xsbti.FileConverter
 
 import scala.annotation.tailrec
 
@@ -57,8 +59,12 @@ object Tasks {
     val targetDir = Settings.apiTargetDirectory.value
     if (laikaIncludeAPI.value) task {
 
-      val cacheDir       = streams.value.cacheDirectory / "laika" / "api"
-      val apiMappings    = (laikaGenerateAPI / sbt.Keys.mappings).value
+      implicit val fileConverter: FileConverter = (ThisBuild / sbt.Keys.fileConverter).value
+      val cacheDir                              = streams.value.cacheDirectory / "laika" / "api"
+      val apiMappings                           =
+        (laikaGenerateAPI / sbt.Keys.mappings).value.map { case (file, name) =>
+          toFile(file) -> name
+        }
       val targetMappings = apiMappings map { case (file, name) => (file, targetDir / name) }
 
       Sync.sync(CacheStore(cacheDir))(targetMappings)
@@ -161,7 +167,7 @@ object Tasks {
             .use(
               _
                 .from(tree)
-                .toDirectory(dirPath)(userConfig.encoding)
+                .toDirectory(dirPath)(using userConfig.encoding)
                 .render
             )
         }
@@ -303,7 +309,7 @@ object Tasks {
     )
 
     try {
-      System.in.read
+      val _ = System.in.read
     }
     finally {
       streams.value.log.info(s"Shutting down preview server...")
@@ -323,8 +329,9 @@ object Tasks {
     generate.toTask(formats.mkString(" ", " ", ""))
   }
 
-  val mappings: Initialize[Task[Seq[(File, String)]]] = task {
-    sbt.Path.allSubpaths((laikaSite / target).value).toSeq
+  val mappings: Initialize[Task[Seq[(FileRef, String)]]] = task {
+    implicit val fileConverter: FileConverter = (ThisBuild / sbt.Keys.fileConverter).value
+    toFileRefsMapping(sbt.Path.allSubpaths((laikaSite / target).value).toSeq)
   }
 
   val describe: Initialize[Task[String]] = task {
@@ -378,7 +385,14 @@ object Tasks {
     val zipFile      = (Laika / target).value / artifactName
     streams.value.log.info(s"Packaging $zipFile ...")
 
-    sbt.IO.zip((laikaSite / sbt.Keys.mappings).value, zipFile, None)
+    implicit val fileConverter: FileConverter = (ThisBuild / sbt.Keys.fileConverter).value
+    sbt.IO.zip(
+      (laikaSite / sbt.Keys.mappings).value.map { case (file, name) =>
+        toFile(file) -> name
+      },
+      zipFile,
+      None
+    )
 
     streams.value.log.info("Done packaging.")
     zipFile
