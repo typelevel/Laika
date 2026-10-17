@@ -157,7 +157,7 @@ object LaikaPlugin extends AutoPlugin {
 
   @org.typelevel.scalaccompat.annotation.nowarn3("msg=unused import")
   override def projectSettings: Seq[Setting[?]] = {
-    import sbtcompat.PluginCompat.*
+    import laika.sbt.Sbt2Compat._
 
     Seq(
       Laika / sourceDirectories   := Seq(sourceDirectory.value / "docs"),

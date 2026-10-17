@@ -39,7 +39,7 @@ import laika.io.config.{ BinaryRendererConfig, TextRendererConfig }
 import laika.io.internal.config.SiteConfig
 import laika.preview.{ ServerBuilder, ServerConfig }
 import org.http4s.server.Server
-import sbtcompat.PluginCompat.{ FileRef, toFile, toFileRefsMapping }
+import laika.sbt.Sbt2Compat._
 import xsbti.FileConverter
 
 import scala.annotation.tailrec

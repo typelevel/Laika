@@ -197,7 +197,6 @@ lazy val plugin = project.in(file("sbt"))
   .settings(
     name                          := "laika-sbt",
     sbtPlugin                     := true,
-    addSbtPlugin("com.github.sbt" % "sbt2-compat" % versions.sbt2Compat),
     crossScalaVersions            := Seq(versions.scala2_12, versions.scala3Sbt),
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
