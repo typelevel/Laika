@@ -117,7 +117,12 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("auto-links - www URI") {
     val uri = "www.link.com"
-    runSpans("some www.link.com here", Text("some "), SpanLink.external(uri)(uri), Text(" here"))
+    runSpans(
+      "some www.link.com here",
+      Text("some "),
+      SpanLink.external("http://" + uri)(uri),
+      Text(" here")
+    )
   }
 
   test("auto-links - email address") {
@@ -142,7 +147,12 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
 
   test("auto-links - www URI without trailing punctuation") {
     val uri = "www.link.com"
-    runSpans("some www.link.com. here", Text("some "), SpanLink.external(uri)(uri), Text(". here"))
+    runSpans(
+      "some www.link.com. here",
+      Text("some "),
+      SpanLink.external("http://" + uri)(uri),
+      Text(". here")
+    )
   }
 
   test("auto-links - do not parse a URI containing unicode characters") {
