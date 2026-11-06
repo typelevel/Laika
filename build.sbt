@@ -25,25 +25,23 @@ inThisBuild(
     developers         := List(Developer("jenshalm", "Jens Halm", "", url("http://planet42.org"))),
     tlCiHeaderCheck    := false,
     tlCiDependencyGraphJob              := false,
-    githubWorkflowJavaVersions += JavaSpec.temurin("17"),
-    // Use Java 17 to publish plugin for SBT 2.
-    githubWorkflowGeneratedCI ~= { jobs =>
-      jobs.map { job =>
-        if (job.id == "publish") job.withJavas(List(JavaSpec.temurin("17")))
-        else job
-      }
-    },
+    githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("8")),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
     githubWorkflowBuildMatrixExclusions := {
       val java8  = JavaSpec.temurin("8").render
       val java17 = JavaSpec.temurin("17").render
-      githubWorkflowBuildMatrixExclusions.value.filterNot(
-        _.matching == Map("scala" -> "3", "java" -> java17)
-      ) ++ List(
+      List(
+        // Only build JVM on Java 17 for Scala 2.12 and 3
+        MatrixExclude(Map("scala" -> "2.13", "java" -> java17)),
+        // Only build JS on Java 8
+        MatrixExclude(Map("project" -> "rootJS", "java" -> java17)),
+        // Only build plugin for SBT 1 on Java 8
         MatrixExclude(Map("project" -> "plugin", "scala" -> "2.12", "java" -> java17)),
+        // Only build plugin for SBT 2 on Java 17
         MatrixExclude(Map("project" -> "plugin", "scala" -> "3", "java" -> java8)),
+        // Do not build plugin for Scala 2.12 (there is no corresponding SBT version)
         MatrixExclude(Map("project" -> "plugin", "scala" -> "2.13"))
       )
     },
