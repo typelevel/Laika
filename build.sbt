@@ -26,6 +26,13 @@ inThisBuild(
     tlCiHeaderCheck    := false,
     tlCiDependencyGraphJob              := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
+    // Use Java 17 to publish plugin for SBT 2.
+    githubWorkflowGeneratedCI ~= { jobs =>
+      jobs.map { job =>
+        if (job.id == "publish") job.withJavas(List(JavaSpec.temurin("17")))
+        else job
+      }
+    },
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
