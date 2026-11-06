@@ -155,39 +155,47 @@ object LaikaPlugin extends AutoPlugin {
 
   import autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
-    Laika / sourceDirectories   := Seq(sourceDirectory.value / "docs"),
-    Laika / excludeFilter       := HiddenFileFilter,
-    laikaInputs                 := Settings.defaultInputs.value,
-    Laika / target              := target.value / "docs",
-    laikaSite / target          := (Laika / target).value / "site",
-    laikaExtensions             := Nil,
-    laikaRenderers              := Settings.rendererConfigs.value,
-    laikaConfig                 := LaikaConfig.defaults,
-    laikaPreviewConfig          := LaikaPreviewConfig.defaults,
-    laikaTheme                  := Helium.defaults.build,
-    laikaTreeProcessors         := Nil,
-    laikaDescribe               := Tasks.describe.value,
-    laikaIncludeAPI             := false,
-    laikaIncludeEPUB            := Settings.validated(
-      Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includeEPUB", false)
-    ),
-    laikaIncludePDF             := Settings.validated(
-      Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includePDF", false)
-    ),
-    laikaSite                   := Tasks.site.value,
-    laikaGenerate               := Tasks.generate.evaluated,
-    laikaGenerateAPI            := Tasks.generateAPI.value,
-    laikaGenerateAPI / mappings := (Compile / packageDoc / mappings).value,
-    laikaHTML                   := Tasks.generate.toTask(" html").value,
-    laikaXSLFO                  := Tasks.generate.toTask(" xslfo").value,
-    laikaEPUB                   := Tasks.generate.toTask(" epub").value,
-    laikaPDF                    := Tasks.generate.toTask(" pdf").value,
-    laikaAST                    := Tasks.generate.toTask(" ast").value,
-    laikaPackageSite            := Tasks.packageSite.value,
-    laikaPreview                := Tasks.startPreviewServer.value,
-    Laika / clean               := Tasks.clean.value,
-    laikaSite / mappings        := Def.sequential(Tasks.site, Tasks.mappings).value
-  ) :+ (cleanFiles += (Laika / target).value)
+  @org.typelevel.scalaccompat.annotation.nowarn3("msg=unused import")
+  override def projectSettings: Seq[Setting[?]] = {
+    import laika.sbt.Sbt2Compat._
+
+    Seq(
+      Laika / sourceDirectories   := Seq(sourceDirectory.value / "docs"),
+      Laika / excludeFilter       := HiddenFileFilter,
+      laikaInputs                 := Settings.defaultInputs.value,
+      Laika / target              := target.value / "docs",
+      laikaSite / target          := (Laika / target).value / "site",
+      laikaExtensions             := Nil,
+      laikaRenderers              := Settings.rendererConfigs.value,
+      laikaConfig                 := LaikaConfig.defaults,
+      laikaPreviewConfig          := Def.uncached(LaikaPreviewConfig.defaults),
+      laikaTheme                  := Helium.defaults.build,
+      laikaTreeProcessors         := Nil,
+      laikaDescribe               := Def.uncached(Tasks.describe.value),
+      laikaIncludeAPI             := false,
+      laikaIncludeEPUB            := Settings.validated(
+        Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includeEPUB", false)
+      ),
+      laikaIncludePDF             := Settings.validated(
+        Settings.parserConfig.value.baseConfig.get[Boolean]("helium.site.includePDF", false)
+      ),
+      laikaSite                   := Def.uncached(Tasks.site.value),
+      laikaGenerate               := Def.uncached(Tasks.generate.evaluated),
+      laikaGenerateAPI            := Def.uncached(Tasks.generateAPI.value),
+      laikaGenerateAPI / mappings := (Compile / packageDoc / mappings).value,
+      laikaHTML                   := Def.uncached(Tasks.generate.toTask(" html").value),
+      laikaXSLFO                  := Def.uncached(Tasks.generate.toTask(" xslfo").value),
+      laikaEPUB                   := Def.uncached(Tasks.generate.toTask(" epub").value),
+      laikaPDF                    := Def.uncached(Tasks.generate.toTask(" pdf").value),
+      laikaAST                    := Def.uncached(Tasks.generate.toTask(" ast").value),
+      laikaPackageSite            := Def.uncached(Tasks.packageSite.value),
+      laikaPreview                := Def.uncached(Tasks.startPreviewServer.value),
+      Laika / clean               := Def.uncached(Tasks.clean.value),
+      laikaSite / mappings        := Def.uncached {
+        val _ = laikaSite.value
+        Tasks.mappings.value
+      }
+    ) :+ (cleanFiles += (Laika / target).value)
+  }
 
 }

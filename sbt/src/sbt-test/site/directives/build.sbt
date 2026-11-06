@@ -29,4 +29,6 @@ val TestDirectives = new DirectiveRegistry {
 
 enablePlugins(LaikaPlugin)
 
+Laika / target := baseDirectory.value / "target" / "docs"
+
 laikaExtensions += TestDirectives

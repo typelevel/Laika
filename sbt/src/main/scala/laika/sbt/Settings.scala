@@ -52,7 +52,7 @@ object Settings {
     InputTree
       .apply[IO](asLaikaFileFilter((Laika / excludeFilter).value))
       .addDirectories((Laika / sourceDirectories).value.map(FilePath.fromJavaFile))(
-        laikaConfig.value.encoding
+        using laikaConfig.value.encoding
       )
   }
 

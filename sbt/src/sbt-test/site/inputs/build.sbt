@@ -25,3 +25,5 @@ laikaInputs := InputTree[IO]
   )
 
 enablePlugins(LaikaPlugin)
+
+Laika / target := baseDirectory.value / "target" / "docs"

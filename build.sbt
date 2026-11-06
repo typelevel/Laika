@@ -24,14 +24,21 @@ inThisBuild(
     scalaVersion       := versions.scala2_12,
     developers         := List(Developer("jenshalm", "Jens Halm", "", url("http://planet42.org"))),
     tlCiHeaderCheck    := false,
-    tlCiDependencyGraphJob := false,
+    tlCiDependencyGraphJob              := false,
     githubWorkflowJavaVersions += JavaSpec.temurin("17"),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
-    githubWorkflowBuildMatrixExclusions ++= {
-      MatrixExclude(Map("project" -> "plugin", "java" -> JavaSpec.temurin("17").render)) ::
-        List("2.13", "3").map(scala => MatrixExclude(Map("project" -> "plugin", "scala" -> scala)))
+    githubWorkflowBuildMatrixExclusions := {
+      val java8  = JavaSpec.temurin("8").render
+      val java17 = JavaSpec.temurin("17").render
+      githubWorkflowBuildMatrixExclusions.value.filterNot(
+        _.matching == Map("scala" -> "3", "java" -> java17)
+      ) ++ List(
+        MatrixExclude(Map("project" -> "plugin", "scala" -> "2.12", "java" -> java17)),
+        MatrixExclude(Map("project" -> "plugin", "scala" -> "3", "java" -> java8)),
+        MatrixExclude(Map("project" -> "plugin", "scala" -> "2.13"))
+      )
     },
     githubWorkflowBuild ++= Seq(
       WorkflowStep.Sbt(
@@ -188,22 +195,35 @@ lazy val plugin = project.in(file("sbt"))
   .dependsOn(core.jvm, io, pdf, preview)
   .enablePlugins(SbtPlugin)
   .settings(
-    name               := "laika-sbt",
-    sbtPlugin          := true,
-    crossScalaVersions := Seq(versions.scala2_12),
+    name                          := "laika-sbt",
+    sbtPlugin                     := true,
+    crossScalaVersions            := Seq(versions.scala2_12, versions.scala3Sbt),
+    pluginCrossBuild / sbtVersion := {
+      scalaBinaryVersion.value match {
+        case "2.12" => versions.sbt1
+        case _      => versions.sbt2
+      }
+    },
+    // sbt 2.x is built with Scala 3.8, which requires Java 17 classfiles.
+    // https://github.com/typelevel/sbt-typelevel/issues/851
+    tlJdkRelease                  := {
+      if (scalaBinaryVersion.value == "3") Some(17)
+      else Some(8)
+    },
     scriptedLaunchOpts ++= Seq(
       "-Xmx1024M",
       "-Dplugin.version=" + version.value,
       "-Duser.language=en",
       "-Duser.country=GB"
     ),
-    scriptedBufferLog  := false,
-    scripted           := scripted.dependsOn(
+    scriptedBufferLog             := false,
+    scripted                      := scripted.dependsOn(
       core.jvm / publishLocal,
       io / publishLocal,
       pdf / publishLocal,
       preview / publishLocal
     ).evaluated,
+    tlVersionIntroduced           := Map("3" -> "1.4.0"),
     mimaBinaryIssueFilters ++= Seq(
       ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat"),
       ProblemFilters.exclude[MissingClassProblem]("laika.sbt.Tasks$OutputFormat$"),
