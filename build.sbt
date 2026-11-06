@@ -33,12 +33,9 @@ inThisBuild(
       val java8  = JavaSpec.temurin("8").render
       val java17 = JavaSpec.temurin("17").render
       List(
-        // Only build JVM on Java 17 for Scala 2.12 and 3
-        MatrixExclude(Map("scala" -> "2.13", "java" -> java17)),
-        // Only build JS on Java 8
-        MatrixExclude(Map("project" -> "rootJS", "java" -> java17)),
-        // Only build plugin for SBT 1 on Java 8
-        MatrixExclude(Map("project" -> "plugin", "scala" -> "2.12", "java" -> java17)),
+        // Only build JS and JVM on Java 17
+        MatrixExclude(Map("project" -> "rootJS", "java" -> java8)),
+        MatrixExclude(Map("project" -> "rootJVM", "java" -> java8)),
         // Only build plugin for SBT 2 on Java 17
         MatrixExclude(Map("project" -> "plugin", "scala" -> "3", "java" -> java8)),
         // Do not build plugin for Scala 2.12 (there is no corresponding SBT version)
