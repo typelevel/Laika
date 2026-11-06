@@ -35,7 +35,7 @@ inThisBuild(
         MatrixExclude(
           Map("project" -> "plugin", "scala" -> "3", "java" -> JavaSpec.temurin("8").render)
         ),
-        // Do not build plugin for Scala 2.12 (there is no corresponding SBT version)
+        // Do not build plugin for Scala 2.13 (there is no corresponding SBT version)
         MatrixExclude(Map("project" -> "plugin", "scala" -> "2.13"))
       )
     },
