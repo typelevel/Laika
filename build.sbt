@@ -25,20 +25,13 @@ inThisBuild(
     developers         := List(Developer("jenshalm", "Jens Halm", "", url("http://planet42.org"))),
     tlCiHeaderCheck    := false,
     tlCiDependencyGraphJob     := false,
-    githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("8")),
+    githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
-    githubWorkflowBuildMatrixExclusions ++= {
-      List(
-        // Do not build plugin for SBT 2 on Java 8
-        MatrixExclude(
-          Map("project" -> "plugin", "scala" -> "3", "java" -> JavaSpec.temurin("8").render)
-        ),
-        // Do not build plugin for Scala 2.13 (there is no corresponding SBT version)
-        MatrixExclude(Map("project" -> "plugin", "scala" -> "2.13"))
-      )
-    },
+    githubWorkflowBuildMatrixExclusions += MatrixExclude(
+      Map("project" -> "plugin", "scala" -> "2.13")
+    ), // Do not build plugin for Scala 2.13 (there is no corresponding SBT version)
     githubWorkflowBuild ++= Seq(
       WorkflowStep.Sbt(
         List("docs/mdoc", "docs/laikaSite"),
