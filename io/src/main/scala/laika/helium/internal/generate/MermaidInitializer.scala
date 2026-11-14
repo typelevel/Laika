@@ -28,7 +28,7 @@ private[helium] object MermaidInitializer {
     val dark  = helium.siteSettings.darkMode.fold(light)(_.theme)
 
     s"""
-       |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+       |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@12/dist/mermaid.esm.min.mjs';
        |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
        |mermaid.initialize({ 
        |  startOnLoad: true,
