@@ -278,7 +278,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> "text"
     )
     val script   =
-      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@12/dist/mermaid.esm.min.mjs';
         |mermaid.initialize({ startOnLoad: true });""".stripMargin
     val styles   =
       """h1 {
@@ -576,7 +576,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
           |<script src="helium/site/laika-helium.js"></script>
           |<script type="module">
-          |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@12/dist/mermaid.esm.min.mjs';
           |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           |mermaid.initialize({
           |startOnLoad: true,
