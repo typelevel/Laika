@@ -104,16 +104,16 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a document with two paragraphs with plain text") {
     val elem = RootElement(p("aaa"), p("bbb"))
     val fo   = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
-                |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin
+                  |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin
     run(elem, fo)
   }
 
   test("render a block sequence with a custom style") {
     val elem  = RootElement(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
     val fo    = s"""<fo:block font-weight="bold">
-                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |  <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |</fo:block>""".stripMargin
+                   |  <fo:block $defaultParagraphStyles>aaa</fo:block>
+                   |  <fo:block $defaultParagraphStyles>bbb</fo:block>
+                   |</fo:block>""".stripMargin
     val style = StyleDeclaration(
       StyleSelector(Set(StylePredicate.StyleName("foo"))),
       Map("font-weight" -> "bold")
@@ -124,16 +124,16 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a block sequence without a style") {
     val elem = RootElement(p("aaa"), BlockSequence(p("bbb"), p("ccc")))
     val fo   = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
-                |<fo:block $defaultParagraphStyles>bbb</fo:block>
-                |<fo:block $defaultParagraphStyles>ccc</fo:block>""".stripMargin
+                  |<fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |<fo:block $defaultParagraphStyles>ccc</fo:block>""".stripMargin
     run(elem, fo)
   }
 
   test("render a block sequence with a single element") {
     val elem = RootElement(p("aaa"), BlockSequence(p("bbb")), p("ccc"))
     val fo   = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
-                |<fo:block $defaultParagraphStyles>bbb</fo:block>
-                |<fo:block $defaultParagraphStyles>ccc</fo:block>""".stripMargin
+                  |<fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |<fo:block $defaultParagraphStyles>ccc</fo:block>""".stripMargin
     run(elem, fo)
   }
 
@@ -169,186 +169,186 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a bullet list with simple flow content") {
     val elem = BulletList("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render a bullet list with a nested list") {
     val elem = BulletList(Seq(SpanSequence(Text("aaa")), BulletList("bbb")))
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |      <fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |        <fo:list-item space-after="3mm">
-                |          <fo:list-item-label end-indent="label-end()">
-                |            <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
-                |          </fo:list-item-label>
-                |          <fo:list-item-body start-indent="body-start()">
-                |            <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |          </fo:list-item-body>
-                |        </fo:list-item>
-                |      </fo:list-block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |      <fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
+                  |        <fo:list-item space-after="3mm">
+                  |          <fo:list-item-label end-indent="label-end()">
+                  |            <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
+                  |          </fo:list-item-label>
+                  |          <fo:list-item-body start-indent="body-start()">
+                  |            <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |          </fo:list-item-body>
+                  |        </fo:list-item>
+                  |      </fo:list-block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render an enumerated list with simple flow content") {
     val elem = EnumList("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>1.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>2.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>1.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>2.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render an enumerated list with lower roman enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.LowerRoman))("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>i.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>ii.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>i.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>ii.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render an enumerated list with upper roman enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.UpperRoman))("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>I.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>II.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>I.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>II.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render an enumerated list with lower alpha enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.LowerAlpha))("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>a.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>b.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>a.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>b.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render an enumerated list with upper alpha enumeration style") {
     val elem = EnumList(EnumFormat(EnumType.UpperAlpha))("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>A.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>B.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>A.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>B.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
   test("render an enumerated list with the start value other than 1") {
     val elem = EnumList(EnumFormat(EnumType.Arabic), 7)("aaa", "bbb")
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>7.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>8.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>7.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>8.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
@@ -359,23 +359,23 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = BulletList(fp("aaa"), fp("bbb"))
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>&#x2022;</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
@@ -384,23 +384,23 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   ) {
     val elem = EnumList(fp("aaa"), fp("bbb"))
     val fo   = s"""<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>1.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>2.</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>1.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>2.</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
@@ -410,25 +410,25 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       DefinitionListItem("term 2", p("2"), p("2"))
     )
     val fo   = s"""<fo:list-block provisional-distance-between-starts="20mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>term 1</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>1</fo:block>
-                |      <fo:block $defaultParagraphStyles>1</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>term 2</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>2</fo:block>
-                |      <fo:block $defaultParagraphStyles>2</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>term 1</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>1</fo:block>
+                  |      <fo:block $defaultParagraphStyles>1</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>term 2</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>2</fo:block>
+                  |      <fo:block $defaultParagraphStyles>2</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
@@ -438,23 +438,23 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       DefinitionListItem("term 2", p("2"))
     )
     val fo   = s"""<fo:list-block provisional-distance-between-starts="20mm" space-after="6mm">
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>term 1</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>1</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |  <fo:list-item space-after="3mm">
-                |    <fo:list-item-label end-indent="label-end()">
-                |      <fo:block $defaultParagraphStyles>term 2</fo:block>
-                |    </fo:list-item-label>
-                |    <fo:list-item-body start-indent="body-start()">
-                |      <fo:block $defaultParagraphStyles>2</fo:block>
-                |    </fo:list-item-body>
-                |  </fo:list-item>
-                |</fo:list-block>""".stripMargin
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>term 1</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>1</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |  <fo:list-item space-after="3mm">
+                  |    <fo:list-item-label end-indent="label-end()">
+                  |      <fo:block $defaultParagraphStyles>term 2</fo:block>
+                  |    </fo:list-item-label>
+                  |    <fo:list-item-body start-indent="body-start()">
+                  |      <fo:block $defaultParagraphStyles>2</fo:block>
+                  |    </fo:list-item-body>
+                  |  </fo:list-item>
+                  |</fo:list-block>""".stripMargin
     run(elem, fo)
   }
 
@@ -500,25 +500,25 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a table without header cells") {
     val elem = Table(Row(BodyCell("a"), BodyCell("b")), Row(BodyCell("c"), BodyCell("d")))
     val fo   = s"""<fo:table $defaultTableProps>
-                |  <fo:table-body>
-                |    <fo:table-row $oddRowBg>
-                |      <fo:table-cell padding="2mm">
-                |        <fo:block $defaultParagraphStyles>a</fo:block>
-                |      </fo:table-cell>
-                |      <fo:table-cell padding="2mm">
-                |        <fo:block $defaultParagraphStyles>b</fo:block>
-                |      </fo:table-cell>
-                |    </fo:table-row>
-                |    <fo:table-row>
-                |      <fo:table-cell padding="2mm">
-                |        <fo:block $defaultParagraphStyles>c</fo:block>
-                |      </fo:table-cell>
-                |      <fo:table-cell padding="2mm">
-                |        <fo:block $defaultParagraphStyles>d</fo:block>
-                |      </fo:table-cell>
-                |    </fo:table-row>
-                |  </fo:table-body>
-                |</fo:table>""".stripMargin
+                  |  <fo:table-body>
+                  |    <fo:table-row $oddRowBg>
+                  |      <fo:table-cell padding="2mm">
+                  |        <fo:block $defaultParagraphStyles>a</fo:block>
+                  |      </fo:table-cell>
+                  |      <fo:table-cell padding="2mm">
+                  |        <fo:block $defaultParagraphStyles>b</fo:block>
+                  |      </fo:table-cell>
+                  |    </fo:table-row>
+                  |    <fo:table-row>
+                  |      <fo:table-cell padding="2mm">
+                  |        <fo:block $defaultParagraphStyles>c</fo:block>
+                  |      </fo:table-cell>
+                  |      <fo:table-cell padding="2mm">
+                  |        <fo:block $defaultParagraphStyles>d</fo:block>
+                  |      </fo:table-cell>
+                  |    </fo:table-row>
+                  |  </fo:table-body>
+                  |</fo:table>""".stripMargin
     run(elem, fo)
   }
 
@@ -589,17 +589,17 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a cell using colspan and rowspan attributes") {
     val elem = Cell(BodyCell, List(p("a")), 3, 2)
     val fo   = s"""<fo:table-cell number-columns-spanned="3" number-rows-spanned="2" padding="2mm">
-                |  <fo:block $defaultParagraphStyles>a</fo:block>
-                |</fo:table-cell>""".stripMargin
+                  |  <fo:block $defaultParagraphStyles>a</fo:block>
+                  |</fo:table-cell>""".stripMargin
     run(elem, fo)
   }
 
   test("render a cell with two paragraphs") {
     val elem = BodyCell(p("a"), p("b"))
     val fo   = s"""<fo:table-cell padding="2mm">
-                |  <fo:block $defaultParagraphStyles>a</fo:block>
-                |  <fo:block $defaultParagraphStyles>b</fo:block>
-                |</fo:table-cell>""".stripMargin
+                  |  <fo:block $defaultParagraphStyles>a</fo:block>
+                  |  <fo:block $defaultParagraphStyles>b</fo:block>
+                  |</fo:table-cell>""".stripMargin
     run(elem, fo)
   }
 
@@ -660,8 +660,8 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a document with two paragraphs separated by a horizontal rule") {
     val elem = RootElement(p("aaa"), Rule(), p("bbb"))
     val fo   = s"""<fo:block $defaultParagraphStyles>aaa</fo:block>
-                |$ruleBlock
-                |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin
+                  |$ruleBlock
+                  |<fo:block $defaultParagraphStyles>bbb</fo:block>""".stripMargin
     run(elem, fo)
   }
 
@@ -928,11 +928,11 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
     val openTag  =
       """<svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">"""
     val svgRest  = s"""  <g class="svg-shape">
-                     |    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24"/>
-                     |  </g>
-                     |</svg>""".stripMargin
+                      |    <path d="M75,47.5c13.246,0 24,10.754 24,24c0,13.246 -10.754,24"/>
+                      |  </g>
+                      |</svg>""".stripMargin
     val svg      = s"""$openTag
-                 |$svgRest""".stripMargin
+                      |$svgRest""".stripMargin
     val expected = s"""$openTag
                       |  <style>.svg-shape { fill: #007c99; }</style>
                       |$svgRest""".stripMargin
@@ -991,9 +991,9 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       TemplateString("cc")
     )
     val fo   = s"""aa<fo:block>
-                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |  <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |</fo:block>cc""".stripMargin
+                  |  <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |  <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |</fo:block>cc""".stripMargin
     run(elem, fo)
   }
 
@@ -1162,9 +1162,9 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
   test("render a table cell unformatted") {
     val elem = BodyCell(p("a"), p("b"))
     val fo   = s"""<fo:table-cell padding="2mm">
-                |<fo:block $defaultParagraphStyles>a</fo:block>
-                |<fo:block $defaultParagraphStyles>b</fo:block>
-                |</fo:table-cell>""".stripMargin
+                  |<fo:block $defaultParagraphStyles>a</fo:block>
+                  |<fo:block $defaultParagraphStyles>b</fo:block>
+                  |</fo:table-cell>""".stripMargin
     runUnformatted(elem, fo)
   }
 
@@ -1189,9 +1189,9 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       )
     )
     val fo   = s"""<fo:block>
-                |  <fo:block $defaultParagraphStyles>aaa</fo:block>
-                |  <fo:block $defaultParagraphStyles>bbb</fo:block>
-                |</fo:block>""".stripMargin
+                  |  <fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |  <fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |</fo:block>""".stripMargin
     run(elem, fo)
   }
 
@@ -1204,9 +1204,9 @@ class XSLFORendererSpec extends FunSuite with ParagraphCompanionShortcuts with T
       )
     )
     val fo   = s"""<fo:block>
-                |<fo:block $defaultParagraphStyles>aaa</fo:block>
-                |<fo:block $defaultParagraphStyles>bbb</fo:block>
-                |</fo:block>""".stripMargin
+                  |<fo:block $defaultParagraphStyles>aaa</fo:block>
+                  |<fo:block $defaultParagraphStyles>bbb</fo:block>
+                  |</fo:block>""".stripMargin
     run(elem, fo)
   }
 

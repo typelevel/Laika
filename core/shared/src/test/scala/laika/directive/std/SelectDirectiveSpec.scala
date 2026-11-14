@@ -110,10 +110,10 @@ class SelectDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts
         |
         |@:@""".stripMargin
     val input     = s"""aa
-                   |
-                   |$directive
-                   |
-                   |bb""".stripMargin
+                       |
+                       |$directive
+                       |
+                       |bb""".stripMargin
     val message   =
       "One or more errors processing directive 'select': too few occurrences of separator directive 'choice': expected min: 2, actual: 1"
     val invalid   = InvalidBlock(message, source(directive, input, defaultPath))

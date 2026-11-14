@@ -82,9 +82,9 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
 
   test("block directive - intrinsicWidth and intrinsicHeight attributes") {
     val input  = """@:image(picture.jpg) {
-                  |  intrinsicWidth = 320
-                  |  intrinsicHeight = 240
-                  |}""".stripMargin
+                   |  intrinsicWidth = 320
+                   |  intrinsicHeight = 240
+                   |}""".stripMargin
     val result = Image(
       resolvedImageTarget,
       width = Some(LengthUnit.px(320)),
@@ -106,9 +106,9 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
 
   test("span directive - alt and title attributes") {
     val input  = """aaa @:image(picture.jpg) {
-                  |  alt = alt
-                  |  title = desc
-                  |} bbb""".stripMargin
+                   |  alt = alt
+                   |  title = desc
+                   |} bbb""".stripMargin
     val result = Image(
       resolvedImageTarget,
       alt = Some("alt"),
@@ -120,9 +120,9 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
 
   test("span directive - intrinsicWidth and intrinsicHeight attributes") {
     val input  = """aaa @:image(picture.jpg) {
-                  |  intrinsicWidth = 320
-                  |  intrinsicHeight = 240
-                  |} bbb""".stripMargin
+                   |  intrinsicWidth = 320
+                   |  intrinsicHeight = 240
+                   |} bbb""".stripMargin
     val result = Image(
       resolvedImageTarget,
       width = Some(LengthUnit.px(320)),
@@ -134,8 +134,8 @@ class ImageDirectiveSpec extends FunSuite with ParagraphCompanionShortcuts with 
 
   test("span directive - style attribute") {
     val input  = """aaa @:image(picture.jpg) {
-                  |  style = small-image
-                  |} bbb""".stripMargin
+                   |  style = small-image
+                   |} bbb""".stripMargin
     val result = Image(resolvedImageTarget, options = Styles("small-image"))
     runSpans(input, result)
   }

@@ -78,16 +78,16 @@ class StandardDirectiveSpec extends FunSuite
 
   test("fragment directive with two paragraphs") {
     val input            = """aa
-                  |
-                  |@:fragment(foo)
-                  |
-                  |Line 1
-                  |
-                  |Line 2
-                  |
-                  |@:@
-                  |
-                  |bb""".stripMargin
+                             |
+                             |@:fragment(foo)
+                             |
+                             |Line 1
+                             |
+                             |Line 2
+                             |
+                             |@:@
+                             |
+                             |bb""".stripMargin
     val expectedFragment = BlockSequence(List(p("Line 1"), p("Line 2")), Styles("foo"))
     runFragment(input, expectedFragment)
   }

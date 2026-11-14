@@ -107,10 +107,10 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
 
   test("image - with width and height options") {
     val input          = """.. |subst| image:: picture.jpg
-                  | :width: 200px
-                  | :height: 120px
-                  |
-                  |Some |subst|""".stripMargin
+                           | :width: 200px
+                           | :height: 120px
+                           |
+                           |Some |subst|""".stripMargin
     val expectedWidth  = Some(LengthUnit.px(200))
     val expectedHeight = Some(LengthUnit.px(120))
     run(input, p(Text("Some "), Image(imgTarget, width = expectedWidth, height = expectedHeight)))
@@ -118,11 +118,11 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
 
   test("image - with scale option") {
     val input          = """.. |subst| image:: picture.jpg
-                  | :width: 200 px
-                  | :height: 120 px
-                  | :scale: 50%
-                  |
-                  |Some |subst|""".stripMargin
+                           | :width: 200 px
+                           | :height: 120 px
+                           | :scale: 50%
+                           |
+                           |Some |subst|""".stripMargin
     val expectedWidth  = Some(LengthUnit.px(100))
     val expectedHeight = Some(LengthUnit.px(60))
     run(input, p(Text("Some "), Image(imgTarget, width = expectedWidth, height = expectedHeight)))
@@ -163,8 +163,8 @@ class StandardSpanDirectivesSpec extends FunSuite with ParagraphCompanionShortcu
 
     val format = "yyyy-MM-dd HH:mm:ss"
     val input  = s""".. |subst| date:: $format
-                   |
-                   |Some |subst|""".stripMargin
+                    |
+                    |Some |subst|""".stripMargin
     val date   = PlatformDateTime.format(PlatformDateTime.now, format).toOption.get
     val result = stripMinutesAndSeconds(RootElement(p(Text(s"Some $date"))))
     assertEquals(parse(input).map(stripMinutesAndSeconds), Right(result))

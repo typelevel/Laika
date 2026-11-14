@@ -321,7 +321,7 @@ class BlockSource(
     @tailrec def posFromLine(
         remainingLines: List[LineSource],
         remainingOffset: Int
-    ): (LineSource, Int) = {
+    ): (LineSource, Int)         = {
       val lineLength = remainingLines.head.length
       if (lineLength >= remainingOffset) (remainingLines.head, remainingOffset)
       else if (remainingLines.tail.isEmpty) (remainingLines.head, lineLength)
