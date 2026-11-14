@@ -313,7 +313,7 @@ private[laika] object TableParsers {
     val topBorder   = columnSpec.rep.min(2) <~ wsEol
 
     topBorder >> { cols =>
-      val (rowColumns, boundaryColumns): (Seq[Parser[Any]], Seq[Parser[Any]]) =
+      val columns: (Seq[Parser[Any]], Seq[Parser[Any]]) =
         (cols map { case (col, sep) =>
           val cellText   =
             if (sep == 0) anyNot('\n', '\r').line.map(CellElement.apply)
@@ -335,9 +335,10 @@ private[laika] object TableParsers {
           (underline | not(boundary) ~> textColumn, boundary)
         }).unzip
 
-      val row: Parser[Any]      = (rowColumns reduceRight (_ ~ _)) <~ wsEol
-      val boundary: Parser[Any] = (boundaryColumns reduceRight (_ ~ _)) <~ wsEol
-      val blank: Parser[Any]    = not(eof) ~> blankLine
+      val (rowColumns, boundaryColumns) = columns
+      val row: Parser[Any]              = (rowColumns reduceRight (_ ~ _)) <~ wsEol
+      val boundary: Parser[Any]         = (boundaryColumns reduceRight (_ ~ _)) <~ wsEol
+      val blank: Parser[Any]            = not(eof) ~> blankLine
 
       val tablePart: Parser[List[Any]] = ((blank | row).rep ~ boundary).map {
         case rows ~ boundary => rows :+ boundary
