@@ -8,6 +8,8 @@ import laika.theme.config.{
   IncludeCSSConfig,
   IncludeJSConfig
 }
+import laika.helium.Helium
+import laika.helium.internal.generate.MermaidInitializer
 
 private[helium] trait CommonSettings {
   def themeFonts: ThemeFonts
@@ -31,7 +33,8 @@ private[helium] case class SiteSettings(
     content: WebContent,
     metadata: DocumentMetadata,
     versions: Option[Versions] = None,
-    baseURL: Option[String] = None
+    baseURL: Option[String] = None,
+    mermaidInitializer: Option[Helium => String] = Some(MermaidInitializer.generate(_, "10"))
 ) extends DarkModeSupport
 
 private[helium] case class PDFSettings(

@@ -31,6 +31,7 @@ import laika.theme.config.{
   ScriptAttributes,
   StyleAttributes
 }
+import laika.helium.internal.generate.MermaidInitializer
 
 private[helium] trait CommonConfigOps {
 
@@ -390,6 +391,33 @@ private[helium] trait CopyOps {
 
   protected def copyWith(pdfSettings: PDFSettings): Helium =
     new Helium(helium.siteSettings, helium.epubSettings, pdfSettings, helium.extensions)
+
+}
+
+private[helium] trait MermaidOps extends CopyOps {
+
+  /** Specifies the Mermaid version to load from jsDelivr.
+    *
+    * The value may be a major version (for example, `"10"`) or a specific release.
+    */
+  def version(version: String): Helium =
+    copyWith(
+      helium.siteSettings.copy(mermaidInitializer = Some(MermaidInitializer.generate(_, version)))
+    )
+
+  /** Use a fully customized Mermaid initializer.
+    *
+    * @param initializer A function that takes the current Helium instance and returns a Mermaid initializer script.
+    */
+  def custom(initializer: Helium => String): Helium =
+    copyWith(
+      helium.siteSettings.copy(mermaidInitializer = Some(initializer))
+    )
+
+  /** Disables Mermaid diagram support.
+    */
+  def disabled: Helium =
+    copyWith(helium.siteSettings.copy(mermaidInitializer = None))
 
 }
 

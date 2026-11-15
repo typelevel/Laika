@@ -278,7 +278,7 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> "text"
     )
     val script   =
-      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@12/dist/mermaid.esm.min.mjs';
         |mermaid.initialize({ startOnLoad: true });""".stripMargin
     val styles   =
       """h1 {
@@ -593,6 +593,36 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |</script>
           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)
+  }
+
+  test("use the configured Mermaid version") {
+    val inputs = Seq(
+      Root / "name.md" ->
+        """```mermaid
+          |graph TD
+          |A --> B
+          |```""".stripMargin
+    )
+    val helium = heliumBase.mermaid.version("11.12.1")
+
+    transformAndExtractHead(inputs, helium)
+      .map(_.contains("https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"))
+      .assertEquals(true)
+  }
+
+  test("do not load Mermaid when it is disabled") {
+    val inputs = Seq(
+      Root / "name.md" ->
+        """```mermaid
+          |graph TD
+          |A --> B
+          |```""".stripMargin
+    )
+    val helium = heliumBase.mermaid.disabled
+
+    transformAndExtractHead(inputs, helium)
+      .map(_.contains("cdn.jsdelivr.net/npm/mermaid@"))
+      .assertEquals(false)
   }
 
 }

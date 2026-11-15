@@ -22,13 +22,13 @@ import laika.helium.Helium
 private[helium] object MermaidInitializer {
 
   // format: off
-  private def generate(helium: Helium): String = {
+ def generate(helium: Helium, version: String): String = {
 
     val light = helium.siteSettings.colors.theme
     val dark  = helium.siteSettings.darkMode.fold(light)(_.theme)
 
     s"""
-       |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+       |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@${version}/dist/mermaid.esm.min.mjs';
        |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
        |mermaid.initialize({ 
        |  startOnLoad: true,
@@ -52,10 +52,12 @@ private[helium] object MermaidInitializer {
       .nonEmpty
 
   def applyTo(helium: Helium): Helium =
-    helium.site.inlineJS(
-      content = generate(helium),
-      isModule = true,
-      condition = includeIn
-    )
+    helium.siteSettings.mermaidInitializer.fold(helium) { initializer =>
+      helium.site.inlineJS(
+        content = initializer(helium),
+        isModule = true,
+        condition = includeIn
+      )
+    }
 
 }
