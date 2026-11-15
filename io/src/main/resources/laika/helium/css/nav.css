@@ -357,7 +357,16 @@ ul.nav-list, #page-nav ul {
 
 @media (min-width: 1450px) {
   #page-nav {
-    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 90px - var(--top-bar-height));
+  }
+
+  #page-nav ul.nav-list {
+    margin: 0px;
+    padding: 12px;
+    min-height: 0;
+    overflow-y: auto;
   }
 }
 @media (max-width: 1450px) {
