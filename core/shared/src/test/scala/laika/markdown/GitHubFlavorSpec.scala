@@ -120,7 +120,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     runSpans(
       "some www.link.com here",
       Text("some "),
-      SpanLink.external("http://" + uri)(uri),
+      SpanLink.external("https://" + uri)(uri),
       Text(" here")
     )
   }
@@ -150,7 +150,7 @@ class GitHubFlavorSpec extends FunSuite with ParagraphCompanionShortcuts {
     runSpans(
       "some www.link.com. here",
       Text("some "),
-      SpanLink.external("http://" + uri)(uri),
+      SpanLink.external("https://" + uri)(uri),
       Text(". here")
     )
   }

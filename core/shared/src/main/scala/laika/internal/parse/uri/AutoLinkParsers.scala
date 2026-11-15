@@ -54,7 +54,7 @@ private[laika] class AutoLinkParsers(
           val uri           = startTrimmed + sep + endTrimmed
           val uriWithScheme =
             if (sep == "@" && !uri.startsWith("mailto:")) "mailto:" + uri
-            else if (sep == ".") "http://" + uri
+            else if (sep == ".") "https://" + uri
             else uri
           val nextIn        = in.consume(endTrimmed.length - end.length)
           Success(
