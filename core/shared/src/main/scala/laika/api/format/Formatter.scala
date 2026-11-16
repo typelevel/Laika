@@ -61,6 +61,12 @@ abstract class Formatter protected {
     */
   def pathTranslator: PathTranslator = context.pathTranslator
 
+  /** The absolute base URL to use for rendering internal targets as absolute URLs. */
+  def internalTargetsAbsoluteBaseUrl: Option[String] = context.internalTargetsAbsoluteBaseUrl
+
+  /** Indicates whether internal targets should be rendered as absolute URLs. */
+  def internalTargetsAbsolute: Boolean = internalTargetsAbsoluteBaseUrl.nonEmpty
+
   /** The styles the new renderer should apply to the rendered elements.
     *
     * Only used for some special render formats like XSL-FO.
@@ -172,7 +178,8 @@ object Formatter {
       val path: Path,
       val pathTranslator: PathTranslator,
       val indentation: Formatter.Indentation,
-      val messageFilter: MessageFilter
+      val messageFilter: MessageFilter,
+      val internalTargetsAbsoluteBaseUrl: Option[String]
   ) {
 
     def forChildElement(child: Element): Context[FMT] =
@@ -184,7 +191,8 @@ object Formatter {
         path,
         pathTranslator,
         indentation,
-        messageFilter
+        messageFilter,
+        internalTargetsAbsoluteBaseUrl
       )
 
     def withIndentation(newValue: Formatter.Indentation): Context[FMT] =
@@ -196,7 +204,8 @@ object Formatter {
         path,
         pathTranslator,
         newValue,
-        messageFilter
+        messageFilter,
+        internalTargetsAbsoluteBaseUrl
       )
 
   }
