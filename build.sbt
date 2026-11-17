@@ -21,11 +21,21 @@ inThisBuild(
     startYear            := Some(2012),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
     crossScalaVersions := Seq(versions.scala2_12, versions.scala2_13, versions.scala3),
-    scalaVersion       := versions.scala2_12,
+    scalaVersion       := {
+      if ((LocalProject("plugin") / scalaBinaryVersion).value == "3") versions.scala3
+      else versions.scala2_12
+    },
     developers         := List(Developer("jenshalm", "Jens Halm", "", url("http://planet42.org"))),
     tlCiHeaderCheck    := false,
     tlCiDependencyGraphJob     := false,
-    githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
+    githubWorkflowJavaVersions := Seq(
+      JavaSpec.temurin("17"),
+      JavaSpec.temurin("21"),
+      JavaSpec.temurin("25")
+    ),
+    githubWorkflowGeneratedCI ~= (_.map { job =>
+      if (job.id == "publish") job.withJavas(List(JavaSpec.temurin("17"))) else job
+    }),
     githubWorkflowBuildMatrixAdditions ~= { matrix =>
       matrix + ("project" -> (matrix("project") :+ "plugin"))
     },
@@ -188,7 +198,11 @@ lazy val plugin = project.in(file("sbt"))
   .enablePlugins(SbtPlugin)
   .settings(
     name                          := "laika-sbt",
+    scalaVersion                  := versions.scala2_12,
     sbtPlugin                     := true,
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.12") Seq("-Xsource:3") else Nil
+    },
     crossScalaVersions            := Seq(versions.scala2_12, versions.scala3Sbt),
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
@@ -196,7 +210,7 @@ lazy val plugin = project.in(file("sbt"))
         case _      => versions.sbt2
       }
     },
-    // sbt 2.x is built with Scala 3.8, which requires Java 17 classfiles.
+    // sbt 2.x is built with Scala 3.9, which requires Java 17 classfiles.
     // https://github.com/typelevel/sbt-typelevel/issues/851
     tlJdkRelease                  := {
       if (scalaBinaryVersion.value == "3") Some(17)
