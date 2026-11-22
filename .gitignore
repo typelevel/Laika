@@ -13,7 +13,14 @@ src_managed/
 project/boot/
 project/plugins/project/
 .sbtrc
-/.bsp
+.bloop/
+.bsp/
+.metals/
+.native/
+.js/
+.jvm/
+project/**/metals.sbt
+.vscode/
 
 # IDEA
 .idea/
