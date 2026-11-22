@@ -5,9 +5,9 @@ object Dependencies {
     val scala2_12 = "2.12.21"
     val scala2_13 = "2.13.18"
     val scala3    = "3.3.9"
-    val scala3Sbt = "3.8.4"
+    val scala3Sbt = "3.9.0"
     val sbt1      = "1.12.13"
-    val sbt2      = "2.0.10"
+    val sbt2      = "2.1.0"
 
     val catsCore   = "2.13.0"
     val catsEffect = "3.7.1"
