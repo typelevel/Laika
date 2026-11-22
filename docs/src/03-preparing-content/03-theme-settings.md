@@ -1027,6 +1027,15 @@ B --> D[Server-2]
 It will pick up the theme colors you have defined for Helium, and cannot be configured separately.
 See [Theme Colors] above for how to configure the Helium color sets.
 
+The Mermaid package version defaults to `10` and can be overridden with the `mermaid` configuration section.
+If you prefer to have full control over your Mermaid configuration, provide a custom initializer, or disable the built-in support entirely.
+
+```scala mdoc:compile-only
+Helium.defaults.mermaid.version("12")
+Helium.defaults.mermaid.custom(helium => s"...")
+Helium.defaults.mermaid.disabled
+```
+
 
 Custom Templates
 ----------------

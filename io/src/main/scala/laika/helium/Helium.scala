@@ -16,7 +16,7 @@
 
 package laika.helium
 
-import laika.helium.config.{ AllFormatsOps, EPUBOps, PDFOps, SiteOps }
+import laika.helium.config.{ AllFormatsOps, EPUBOps, MermaidOps, PDFOps, SiteOps }
 import laika.helium.internal.builder.HeliumThemeBuilder
 import laika.helium.internal.config.{ EPUBSettings, HeliumDefaults, PDFSettings, SiteSettings }
 import laika.helium.internal.generate.MermaidInitializer
@@ -102,6 +102,12 @@ class Helium private[laika] (
     * for anything specific to one or two formats you need to use their respective selectors.
     */
   object all extends AllFormatsOps {
+    protected def helium: Helium = self
+  }
+
+  /** Selects Mermaid configuration options.
+    */
+  object mermaid extends MermaidOps {
     protected def helium: Helium = self
   }
 
