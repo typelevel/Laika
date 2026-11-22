@@ -75,6 +75,21 @@ Otherwise you have the following options:
   
 * Hopefully at some point there is also a selection of 3rd-party themes available.
 
+### A note about extending Helium
+
+Helium is given as a bundle of sane defaults that allow you to get started quickly, with a extended configuration
+to fit it to your needs.
+
+While Laika's Scala modules follow a strict backward-compatibility scheme, the support
+for Helium will be best effort. To limit the impact on your custom additions, importants parts of the theme
+are however unlikely to change, such as:
+- Anchors (ids, class names)
+- Structure of the high-level HTML tree
+- Features (Mermaid)
+
+Styles might change to let the theme evolve over time, improve user experience. New features might be added,
+with the accompanying configuration in the Helium Configuration API.
+
 
 Helium Configuration API
 ------------------------
