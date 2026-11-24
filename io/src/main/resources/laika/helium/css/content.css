@@ -314,9 +314,24 @@ p.title {
 /* mermaid diagrams ==================== */
 
 pre.mermaid {
+  --pele-bg: var(--bg-color);
+  --pele-fg: var(--primary-color);
+  --pele-muted: var(--text-color);
+  --pele-line: var(--primary-color);
+  --pele-surface: var(--primary-light);
+  --pele-surface-alt: var(--primary-light);
+  --pele-border: var(--primary-medium);
+  --pele-accent: var(--primary-color);
+  --pele-critical: var(--messages-error);
+  --pele-error: var(--messages-error);
+  --pele-font: var(--body-font);
+  --pele-font-mono: var(--code-font);
   color: var(--bg-color); /* avoiding page load flicker */
   background-color: var(--bg-color);
   border: 1px solid var(--primary-medium);
   text-align: center;
+}
+pre.mermaid .pele-error {
+  text-align: left; /* keeps error marker aligned with source line */
 }
 

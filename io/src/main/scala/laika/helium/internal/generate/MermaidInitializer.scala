@@ -21,30 +21,11 @@ import laika.helium.Helium
 
 private[helium] object MermaidInitializer {
 
-  // format: off
-  private def generate(helium: Helium): String = {
-
-    val light = helium.siteSettings.colors.theme
-    val dark  = helium.siteSettings.darkMode.fold(light)(_.theme)
-
-    s"""
-       |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-       |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-       |mermaid.initialize({ 
-       |  startOnLoad: true,
-       |  theme: "base",
-       |  themeVariables: {
-       |    'darkMode': dark,
-       |    'primaryColor': dark ? '${dark.primaryLight.displayValue}' : '${light.primaryLight.displayValue}', 
-       |    'primaryTextColor': dark ? '${dark.primary.displayValue}' : '${light.primary.displayValue}',
-       |    'primaryBorderColor': dark ? '${dark.primaryMedium.displayValue}' : '${light.primaryMedium.displayValue}',
-       |    'lineColor': dark ? '${dark.primary.displayValue}' : '${light.primary.displayValue}',
-       |    'background': dark ? '${dark.background.displayValue}' : '${light.background.displayValue}',
-       |  }
-       |});
-       |""".stripMargin
-  }
-  // format: on
+  private val script: String =
+    """
+      |import { mount } from 'https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js';
+      |for (const el of document.querySelectorAll('pre.mermaid')) mount(el, el.textContent);
+      |""".stripMargin
 
   private def includeIn(doc: Document): Boolean =
     doc.content
@@ -53,7 +34,7 @@ private[helium] object MermaidInitializer {
 
   def applyTo(helium: Helium): Helium =
     helium.site.inlineJS(
-      content = generate(helium),
+      content = script,
       isModule = true,
       condition = includeIn
     )

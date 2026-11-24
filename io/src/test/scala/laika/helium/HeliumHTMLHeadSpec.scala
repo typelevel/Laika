@@ -278,8 +278,8 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
       Root / "name.md" -> "text"
     )
     val script   =
-      """import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-        |mermaid.initialize({ startOnLoad: true });""".stripMargin
+      """import { mount } from 'https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js';
+        |for (const el of document.querySelectorAll('pre.mermaid')) mount(el, el.textContent);""".stripMargin
     val styles   =
       """h1 {
         |  color: #111111;
@@ -576,20 +576,8 @@ class HeliumHTMLHeadSpec extends CatsEffectSuite with InputBuilder with ResultEx
           |<link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
           |<script src="helium/site/laika-helium.js"></script>
           |<script type="module">
-          |import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-          |const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          |mermaid.initialize({
-          |startOnLoad: true,
-          |theme: "base",
-          |themeVariables: {
-          |'darkMode': dark,
-          |'primaryColor': dark ? '#125d75' : '#eef5f6',
-          |'primaryTextColor': dark ? '#a7d4de' : '#007c99',
-          |'primaryBorderColor': dark ? '#a7d4de' : '#a7d4de',
-          |'lineColor': dark ? '#a7d4de' : '#007c99',
-          |'background': dark ? '#064458' : '#ffffff',
-          |}
-          |});
+          |import { mount } from 'https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js';
+          |for (const el of document.querySelectorAll('pre.mermaid')) mount(el, el.textContent);
           |</script>
           |<script> /* for avoiding page load transitions */ </script>""".stripMargin
     transformAndExtractHead(inputs, heliumBase).assertEquals(expected)

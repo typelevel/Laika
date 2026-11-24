@@ -1004,6 +1004,10 @@ Helium supports Mermaid diagrams enclosed in fenced code blocks.
 In contrast to most other functionality in the theme, it is only available for HTML output,
 not for EPUB or PDF.
 
+The diagrams are rendered in the browser by [Pele](https://pele.run), a lightweight library that renders
+[Mermaid](https://mermaid.js.org) syntax to SVG.
+It is loaded from a CDN, and only on pages that contain at least one diagram.
+
 A small sample diagram like this:
 
 ````markdown
@@ -1024,8 +1028,26 @@ B --> C[Server-1]
 B --> D[Server-2]
 ```
 
-It will pick up the theme colors you have defined for Helium, and cannot be configured separately.
+It will pick up the theme colors and fonts you have defined for Helium, including the colors for [Dark Mode].
 See [Theme Colors] above for how to configure the Helium color sets.
+
+To style the diagrams differently from the rest of the theme, override the CSS variables Pele reads
+for its colors and fonts in a custom CSS file:
+
+```css
+.pele {
+  --pele-surface: #f2f0e5;
+  --pele-border: #cecdc3;
+}
+```
+
+See [Auto-Linking CSS & JS Files] for how to add custom CSS to the site
+and [Theming](https://pele.run/theming) in the Pele documentation for all available variables.
+
+Pele understands Mermaid syntax, but uses its own layout engine and visual style.
+Mermaid themes (e.g. `%%{init: {'theme': 'forest'}}%%`) do not apply,
+and some features, like HTML labels or JavaScript callbacks, are not supported.
+See [Compatibility](https://pele.run/compatibility) in the Pele documentation for all differences to Mermaid.
 
 
 Custom Templates
