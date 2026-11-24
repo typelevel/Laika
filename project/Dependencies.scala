@@ -4,7 +4,7 @@ object Dependencies {
 
     val scala2_12 = "2.12.21"
     val scala2_13 = "2.13.18"
-    val scala3    = "3.3.9"
+    val scala3    = "3.9.0"
     val scala3Sbt = "3.8.4"
     val sbt1      = "1.12.13"
     val sbt2      = "2.0.10"
