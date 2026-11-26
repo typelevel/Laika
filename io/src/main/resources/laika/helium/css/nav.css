@@ -25,6 +25,29 @@ header a:hover, nav .row a:hover {
   color: var(--component-hover)
 }
 
+header .row button.theme-toggle {
+  margin: 0 0 0 20px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--component-color);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+header .row button.theme-toggle:hover {
+  color: var(--component-hover);
+  opacity: 1;
+}
+
+header .row button.theme-toggle:focus-visible {
+  outline: 2px solid var(--component-border);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 header .image-link {
   height: var(--top-bar-height);
   display: flex;
